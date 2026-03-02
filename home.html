@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Interactive Game Manager</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header>
+    <div class="header-left">
+      <h1>Game Manager</h1>
+    </div>
+    <div class="header-right">
+      <button id="profileBtn" class="profile-icon">
+        <img id="profileImage" src="" alt="Profile" class="profile-img hidden">
+        <span id="defaultIcon">👤</span>
+      </button>
+      <div id="dropdownMenu" class="dropdown hidden">
+        <button id="signInBtn">Sign In</button>
+        <button id="signUpBtn">Sign Up</button>
+        <button id="signOutBtn" class="hidden">Sign Out</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <button id="playBtn" class="play-btn">Play</button>
+  </main>
+
+  <script type="module" src="main.js"></script>
+</body>
+</html>
