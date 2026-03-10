@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
+  <title>Meteor Rush</title>
+  <link rel="stylesheet" href="meteor.css">
+</head>
+<body>
+  <div class="start-screen">
+    <h1>Meteor Rush</h1>
+    <button class="start-btn">Start</button>
+    <button class="instructions-btn">?</button>
+  </div>
+
+  <canvas id="gameCanvas"></canvas>
+
+  <div id="instructions-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn">&times;</span>
+      <h2>How to Play</h2>
+      <ul>
+        <li>⬆️ Use <strong>Arrow Up</strong> to go up</li>
+        <li>⬇️ Use <strong>Arrow Down</strong> to go down</li>
+        <li>🅿️ Press <strong>P</strong> or <strong>Esc</strong> to pause</li>
+        <li>🪨 Avoid asteroids and reach 🌍 Earth</li>
+        <li>➕ Points for passing asteroids</li>
+        <li>➖ Lose points and lives for hitting them</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="pause-overlay">PAUSED</div>
+
+  <script src="meteorRush.js"></script>
+</body>
+</html>

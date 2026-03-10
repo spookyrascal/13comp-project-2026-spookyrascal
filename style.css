@@ -1,4 +1,4 @@
-/* BODY */
+/* BODY INDEX.HTML */
 body {
     font-family: Arial, sans-serif;
     background: #e6f4ea; /* soft greenish background */
@@ -99,4 +99,76 @@ body {
   
   .play-btn:hover {
     background: #388e3c; /* darker hover green */
+  }
+
+
+  body{
+    font-family: Arial, sans-serif;
+    background: #0f2e1c;
+    color: #ffffff;
+    text-align: center;
+    margin: 0%;
+  }
+
+  header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;  
+  }
+
+  .profile img{
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+
+  main{
+    margin-top: 60px;
+  }
+
+  .gameContainer{
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-top: 40px;
+  }
+
+  .gameCard{
+    background: #1f5c3a;
+    padding: 40px;
+    width: 220px;
+    border-radius: 12px;
+    text-decoration: none;
+    color: #ffffff;
+    transition: 0.2s;
+  }
+
+  .gameCard:hover{
+    background: #2d8a56;
+    transform: scale(1.05);
+
+  }
+
+  .gameCard img{
+    width: 100%;
+    border-radius: 8px;
+    margin-bottom: 10px;
+  }
+
+   .profile-icon {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+  }
+  
+  .profile-img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid white;
+    transition: opacity 0.3s ease;
   }

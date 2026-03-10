@@ -142,5 +142,5 @@ return;
 }
 
 // Redirect to the game selection page
-window.location.href = "gameSelection.html";
+window.location.href = "games.html";
 });
