@@ -15,7 +15,7 @@ Commit: Bare structure
 
 Comments Added - 6th March
 
-V02 - 11th March 
+V03 - 11th March 
 Commit: Import Meteor Rush as game #2
 
 - Import meteorRush.html
@@ -27,3 +27,13 @@ Commit: Import Meteor Rush as game #2
 - Created GTN.js, Html and CSS
 
 - NEXT STEP: work on the bare bones of game hub
+
+V04 - 12th March - another date
+
+- Finish CSS 
+- Game Cards for the Games
+- Hooked up Meteor Rush
+- Made it all look pretty pretty
+
+- NEXT STEP: start doing the leaderboard and hook it up 
+

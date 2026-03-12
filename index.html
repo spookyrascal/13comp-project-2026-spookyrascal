@@ -1,33 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Interactive Game Manager</title>
+
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
+  <!-- =========================
+       HEADER
+  ========================== -->
   <header>
+
     <div class="header-left">
       <h1>Game Manager</h1>
     </div>
+
     <div class="header-right">
-      <button id="profileBtn" class="profile-icon">
-        <img id="profileImage" src="" alt="Profile" class="profile-img hidden">
-        <span id="defaultIcon">👤</span>
+
+      <!-- Profile Button -->
+      <button id="profileBtn" class="profile-icon" aria-label="Profile Menu">
+        <img
+          id="profileImage"
+          class="profile-img"
+          src="defaultPFP.jpg"
+          alt="Profile Picture">
       </button>
+
+      <!-- Dropdown Menu -->
       <div id="dropdownMenu" class="dropdown hidden">
         <button id="signInBtn">Sign In</button>
         <button id="signUpBtn">Sign Up</button>
         <button id="signOutBtn" class="hidden">Sign Out</button>
       </div>
+
     </div>
+
   </header>
 
+
+  <!-- =========================
+       MAIN
+  ========================== -->
   <main>
     <button id="playBtn" class="play-btn">Play</button>
   </main>
 
+
+  <!-- =========================
+       SCRIPTS
+  ========================== -->
   <script type="module" src="home.js"></script>
+
 </body>
+
 </html>

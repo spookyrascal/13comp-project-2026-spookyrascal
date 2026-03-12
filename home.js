@@ -1,146 +1,163 @@
-// Firebase Core (required to initialize Firebase in the app)
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
+// 🔥 Firebase Core
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
 
-// Firebase Auth (handles login, logout, and auth state)
+// 🔐 Firebase Auth
 import {
-getAuth,
-GoogleAuthProvider,
-signInWithPopup,
-signOut,
-onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-// Firestore (database for storing user data)
+// 🗄 Firestore
 import {
-getFirestore,
-doc,
-setDoc,
-getDoc,
-serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  getFirestore,
+  doc,
+  setDoc,
+  getDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// 🔥 CONFIG
-// Firebase project configuration (connects this app to your Firebase project)
+
+// ==========================
+// Firebase Configuration
+// ==========================
+
 const firebaseConfig = {
-apiKey: "AIzaSyDh5jFP6KcIzuEMHrXgaHUL4RcKhrx5L4M",
-authDomain: "comp-carmen.firebaseapp.com",
-projectId: "comp-carmen",
-storageBucket: "comp-carmen.firebasestorage.app",
-messagingSenderId: "477005803846",
-appId: "1:477005803846:web:f1f3a01fef6e8d4a3f7547",
-measurementId: "G-112075NKRL"
+  apiKey: "AIzaSyDh5jFP6KcIzuEMHrXgaHUL4RcKhrx5L4M",
+  authDomain: "comp-carmen.firebaseapp.com",
+  projectId: "comp-carmen",
+  storageBucket: "comp-carmen.firebasestorage.app",
+  messagingSenderId: "477005803846",
+  appId: "1:477005803846:web:f1f3a01fef6e8d4a3f7547",
+  measurementId: "G-112075NKRL"
 };
 
-// Initialize Firebase services
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app); // tracks usage analytics
-const auth = getAuth(app); // authentication system
-const db = getFirestore(app); // Firestore database
-const provider = new GoogleAuthProvider(); // Google login provider
 
-// DOM Elements (buttons and UI elements from the HTML)
+// ==========================
+// Initialize Firebase
+// ==========================
+
+const app = initializeApp(firebaseConfig);
+getAnalytics(app);
+
+const auth = getAuth(app);
+const db = getFirestore(app);
+const provider = new GoogleAuthProvider();
+
+
+// ==========================
+// DOM Elements
+// ==========================
+
 const profileBtn = document.getElementById("profileBtn");
 const dropdownMenu = document.getElementById("dropdownMenu");
+
 const signInBtn = document.getElementById("signInBtn");
 const signUpBtn = document.getElementById("signUpBtn");
 const signOutBtn = document.getElementById("signOutBtn");
+
 const playBtn = document.getElementById("playBtn");
 const profileImage = document.getElementById("profileImage");
-const defaultIcon = document.getElementById("defaultIcon");
 
-// Toggle dropdown menu when the profile icon is clicked
+
+// ==========================
+// Dropdown Toggle
+// ==========================
+
 profileBtn.addEventListener("click", () => {
-dropdownMenu.classList.toggle("hidden");
+  dropdownMenu.classList.toggle("hidden");
 });
 
-// 🔐 Sign In / Sign Up
-// Handles both sign in and sign up since Google auth manages both automatically
+
+// ==========================
+// Sign In / Sign Up
+// ==========================
+
 async function handleSignIn() {
-try {
+  try {
 
-// Opens Google sign-in popup
-const result = await signInWithPopup(auth, provider);
-const user = result.user;
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
 
-// Reference to the user document in Firestore
-const userRef = doc(db, "users", user.uid);
-const userSnap = await getDoc(userRef);
+    const userRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userRef);
 
-// If the user does not already exist in the database, create them
-if (!userSnap.exists()) {
-await setDoc(userRef, {
-displayName: user.displayName,
-email: user.email,
-uid: user.uid,
-isAdmin: false, // default permission
-createdAt: serverTimestamp() // timestamp from Firebase server
-});
+    // Create user in database if first login
+    if (!userSnap.exists()) {
+      await setDoc(userRef, {
+        displayName: user.displayName,
+        email: user.email,
+        uid: user.uid,
+        isAdmin: false,
+        createdAt: serverTimestamp()
+      });
+    }
+
+  } catch (err) {
+    console.error("Error signing in:", err);
+  }
 }
 
-} catch (err) {
-// Error handling if login fails
-console.error("Error signing in:", err);
-}
-}
-
-// Both buttons use the same sign-in function
 signInBtn.addEventListener("click", handleSignIn);
 signUpBtn.addEventListener("click", handleSignIn);
 
-// 🚪 Sign Out
-// Logs the user out of Firebase
+
+// ==========================
+// Sign Out
+// ==========================
+
 signOutBtn.addEventListener("click", async () => {
-await signOut(auth);
+  await signOut(auth);
 });
 
-// 🔄 Auth State Listener
-// Runs automatically whenever login state changes
+
+// ==========================
+// Auth State Listener
+// ==========================
+
 onAuthStateChanged(auth, (user) => {
 
-if (user) {
-// User is logged in → update UI
+  if (user) {
 
-signInBtn.classList.add("hidden");
-signUpBtn.classList.add("hidden");
-signOutBtn.classList.remove("hidden");
+    // Update UI
+    signInBtn.classList.add("hidden");
+    signUpBtn.classList.add("hidden");
+    signOutBtn.classList.remove("hidden");
 
-// Store user info in session storage for use on other pages
-sessionStorage.setItem("userId", user.uid);
-sessionStorage.setItem("displayName", user.displayName);
+    // Save session data
+    sessionStorage.setItem("userId", user.uid);
+    sessionStorage.setItem("displayName", user.displayName);
 
-// Show profile picture if Google account has one
-if (user.photoURL) {
-profileImage.src = user.photoURL;
-profileImage.classList.remove("hidden");
-defaultIcon.classList.add("hidden");
-}
+  } else {
 
-} else {
-// User is logged out → reset UI
+    // Reset UI
+    signInBtn.classList.remove("hidden");
+    signUpBtn.classList.remove("hidden");
+    signOutBtn.classList.add("hidden");
 
-signInBtn.classList.remove("hidden");
-signUpBtn.classList.remove("hidden");
-signOutBtn.classList.add("hidden");
+    sessionStorage.clear();
+  }
 
-// Clear stored session data
-sessionStorage.clear();
+  // Profile picture logic (works for both states)
+  profileImage.src = user?.photoURL || "defaultPFP.jpg";
 
-// Show default profile icon
-profileImage.classList.add("hidden");
-defaultIcon.classList.remove("hidden");
-}
 });
 
-// 🎮 Play Button
-// Prevents users from entering the game without signing in
+
+// ==========================
+// Play Button Protection
+// ==========================
+
 playBtn.addEventListener("click", () => {
 
-if (!sessionStorage.getItem("userId")) {
-alert("Please sign in first.");
-return;
-}
+  if (!sessionStorage.getItem("userId")) {
+    alert("Please sign in first.");
+    return;
+  }
 
-// Redirect to the game selection page
-window.location.href = "games.html";
+  window.location.href = "games.html";
+
 });

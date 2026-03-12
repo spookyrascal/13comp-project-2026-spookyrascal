@@ -1,174 +1,199 @@
-/* BODY INDEX.HTML */
+/* =========================
+   COLOR VARIABLES
+========================= */
+:root {
+  --dark-olive: #41431B;
+  --moss: #AEB784;
+  --sand: #E3DBBB;
+  --cream: #F8F3E1;
+  --shadow: rgba(65, 67, 27, 0.2);
+}
+
+/* =========================
+   GLOBAL / BODY
+========================= */
 body {
-    font-family: Arial, sans-serif;
-    background: #e6f4ea; /* soft greenish background */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 0;
-    height: 100vh;
-    color: #1b3a2e; /* dark green text */
-  }
-  
-  /* HEADER */
-  header {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 20px;
-    background: #2e7d32; /* deep green header */
-    color: white;
-    align-items: center;
-  }
-  
-  .header-left h1 {
-    margin: 0;
-    font-weight: bold;
-  }
-  
-  .header-right {
-    position: relative;
-  }
-  
-  /* PROFILE ICON */
-  .profile-icon {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-  }
-  
-  .profile-img {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid white;
-    transition: opacity 0.3s ease;
-  }
-  
-  /* DROPDOWN */
-  .dropdown {
-    position: absolute;
-    top: 40px;
-    right: 0;
-    background: #a5d6a7; /* light green dropdown */
-    border: 1px solid #66bb6a; /* medium green border */
-    display: flex;
-    flex-direction: column;
-    padding: 5px;
-    border-radius: 5px;
-    z-index: 10;
-  }
-  
-  .dropdown button {
-    background: none;
-    border: none;
-    padding: 5px 10px;
-    cursor: pointer;
-    text-align: left;
-    color: #1b3a2e; /* dark green text */
-  }
-  
-  .dropdown button:hover {
-    background: #81c784; /* hover highlight */
-  }
-  
-  .hidden {
-    display: none;
-  }
-  
-  /* MAIN PLAY BUTTON */
-  main {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  .play-btn {
-    font-size: 24px;
-    padding: 20px 40px;
-    border-radius: 10px;
-    cursor: pointer;
-    background: #43a047; /* main green button */
-    color: white;
-    border: none;
-    transition: background 0.2s ease;
-  }
-  
-  .play-btn:hover {
-    background: #388e3c; /* darker hover green */
-  }
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: var(--cream);
+  color: var(--dark-olive);
+  margin: 0;
+  min-height: 100vh;
+  text-align: center;
 
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 
-  body{
-    font-family: Arial, sans-serif;
-    background: #0f2e1c;
-    color: #ffffff;
-    text-align: center;
-    margin: 0%;
-  }
+  transition: background 0.3s ease;
+}
 
-  header{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;  
-  }
+/* =========================
+   HEADER
+========================= */
+header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 30px;
 
-  .profile img{
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    cursor: pointer;
-  }
+  background: linear-gradient(135deg, var(--dark-olive), var(--moss));
+  color: var(--cream);
 
-  main{
-    margin-top: 60px;
-  }
+  box-shadow: 0 5px 15px var(--shadow);
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+}
 
-  .gameContainer{
-    display: flex;
-    justify-content: center;
-    gap: 40px;
-    margin-top: 40px;
-  }
+.header-left h1 {
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-shadow: 1px 1px 3px var(--shadow);
+}
 
-  .gameCard{
-    background: #1f5c3a;
-    padding: 40px;
-    width: 220px;
-    border-radius: 12px;
-    text-decoration: none;
-    color: #ffffff;
-    transition: 0.2s;
-  }
+.header-right {
+  position: relative;
+}
 
-  .gameCard:hover{
-    background: #2d8a56;
-    transform: scale(1.05);
+/* =========================
+   PROFILE ICON
+========================= */
+.profile-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
 
-  }
+.profile-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
 
-  .gameCard img{
-    width: 100%;
-    border-radius: 8px;
-    margin-bottom: 10px;
-  }
+  border: 2px solid var(--sand);
+  box-shadow: 0 3px 6px var(--shadow);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
 
-   .profile-icon {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-  }
-  
-  .profile-img {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid white;
-    transition: opacity 0.3s ease;
-  }
+.profile-img:hover {
+  transform: rotate(-5deg) scale(1.1);
+  box-shadow: 0 6px 12px var(--shadow);
+}
+
+/* =========================
+   DROPDOWN MENU
+========================= */
+.dropdown {
+  position: absolute;
+  top: 50px;
+  right: 0;
+
+  background: var(--sand);
+  border: 1px solid var(--moss);
+
+  display: flex;
+  flex-direction: column;
+  padding: 6px;
+  border-radius: 12px;
+
+  box-shadow: 0 6px 20px var(--shadow);
+  z-index: 10;
+}
+
+.dropdown button {
+  background: none;
+  border: none;
+  padding: 10px 14px;
+  cursor: pointer;
+  text-align: left;
+  color: var(--dark-olive);
+
+  border-radius: 8px;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.dropdown button:hover {
+  background: var(--moss);
+  transform: translateX(3px);
+}
+
+.hidden {
+  display: none;
+}
+
+/* =========================
+   MAIN AREA
+========================= */
+main {
+  flex: 1;
+  margin-top: 60px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* =========================
+   PLAY BUTTON
+========================= */
+.play-btn {
+  font-size: 26px;
+  padding: 18px 42px;
+
+  border-radius: 16px;
+  border: none;
+  cursor: pointer;
+
+  background: linear-gradient(145deg, var(--moss), var(--sand));
+  color: var(--dark-olive);
+
+  font-weight: 600;
+  letter-spacing: 1px;
+
+  box-shadow: 0 6px 20px var(--shadow);
+  transition: all 0.3s ease;
+}
+
+.play-btn:hover {
+  background: linear-gradient(145deg, var(--sand), var(--moss));
+  transform: translateY(-3px) rotate(-1deg);
+  box-shadow: 0 8px 24px var(--shadow);
+}
+
+/* =========================
+   GAME SELECTION PAGE
+========================= */
+.gameContainer {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-top: 50px;
+  flex-wrap: wrap;
+}
+
+.gameCard {
+  background: var(--sand);
+  padding: 30px;
+  width: 220px;
+
+  border-radius: 18px;
+  text-decoration: none;
+  color: var(--dark-olive);
+
+  box-shadow: 0 8px 24px var(--shadow);
+  transition: all 0.3s ease;
+}
+
+.gameCard:hover {
+  transform: translateY(-6px) scale(1.05) rotate(-1deg);
+  background: linear-gradient(145deg, var(--moss), var(--sand));
+  box-shadow: 0 12px 28px var(--shadow);
+}
+
+.gameCard img {
+  width: 100%;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
