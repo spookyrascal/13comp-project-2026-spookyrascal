@@ -35,7 +35,24 @@ async function loadLeaderboard(){
     querySnpshot.forEach((doc) => {
         const data = doc.data();
         
-    }
+        const row = document.createElement("tr");
+        row.innerHTML = `
+        <td>${rank}</td>
+        <td>${data.displayName || "Anonymous"}</td>
+        <td>${data.wins}</td>
+        <td>${data.gamesPlayed}</td>
+        <td>${data.highScores}</td>
+    
+`;
+tableBody.appendChild(row);
+rank++;
 
+    });
+
+    } catch(error){
+        console.error("Error loading leaderboard:", error);
     }
 }
+
+//call on page load 
+loadLeaderboard();

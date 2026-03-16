@@ -28,7 +28,7 @@ Commit: Import Meteor Rush as game #2
 
 - NEXT STEP: work on the bare bones of game hub
 
-V04 - 12th March - another date
+V04 - 12th March - 13th March
 
 - Finish CSS 
 - Game Cards for the Games
@@ -36,4 +36,11 @@ V04 - 12th March - another date
 - Made it all look pretty pretty
 
 - NEXT STEP: start doing the leaderboard and hook it up 
+
+V05 - 17th March 
+
+- Started doing the leaderboard, HTML and JS
+- Added the button to games.html
+
+- Next Step: Get the button to link to leaderboard.html then work on GTN 
 

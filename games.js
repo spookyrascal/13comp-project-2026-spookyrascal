@@ -19,3 +19,15 @@ export const app = initializeApp(firebaseConfig);
 export const analytics = getAnalytics(app);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+
+
+
+
+
+
+const leaderboardBtn = document.getElementById("leaderboardBtn");
+
+leaderboardBtn.addEventListener("click", () => {
+    window.location.href = "leaderboard.html";
+
+});

@@ -197,3 +197,65 @@ main {
   border-radius: 12px;
   margin-bottom: 12px;
 }
+
+.profile-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+
+  border: 2px solid var(--sand);
+  box-shadow: 0 3px 6px var(--shadow);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.hubBtn{
+  padding: 14px 22px;
+  font-size: 16px;
+  border: none;
+  border-radius: 10px;
+  background: #2e7d32;
+  color: white;
+  cursor: pointer;
+  margin: 10px  0;
+  transition: 0.2s;
+}
+
+.hubBtn:hover {
+background:#1b5e20;
+transform: translateY(-2px);
+}
+/* =========================
+   LEADERBOARD
+========================= */
+
+table {
+  width: 90%;
+  margin: 20px auto;
+  border-collapse: collapse;
+  text-align: center;
+}
+th, td {
+  border: 1px solid #4CAF50;
+  padding: 10px;
+}
+
+th {
+  background-color: #4CAF50;
+  color: white;
+}
+
+tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.profile-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+
+  border: 2px solid var(--sand);
+  box-shadow: 0 3px 6px var(--shadow);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}

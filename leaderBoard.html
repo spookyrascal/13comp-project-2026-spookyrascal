@@ -7,32 +7,43 @@
   <title>Leaderboard</title>
 
   <link rel="stylesheet" href="style.css">
+
 </head>
+
 <body>
 
-    <h1>Leaderboard</h1>
-</body>
-<div class="profile">
-    <img id="profilePic" src="defaultPFP.jpg" alt="Profile Picture">
-    </div>
-</header>
+    <header>
+        <h1> Leaderboard </h1>
+       <img id="profileImage"  class="profile-img" src="defaultPFP.jpg" alt="Profile Picture">
+    </header>
 
-<main>
-    <table id="leadboardTable">
-        <thead>
-            <tr>
+<main> 
+    <div class="tableWrap">
+       <table id="LeaderboardTable">
+           <thead>
+
+               <tr>
                 <th>Rank</th>
                 <th>Player</th>
                 <th>Wins</th>
-                <th>Games played</th>
-                <th>Best GTN score</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Leaderboard rows-->
-        </tbody>
-    </table>
+                <th>Games Played</th>
+                <th>Best Score</th>
+                </tr>
+           </thead>
+           <tbody>
+            <!--JS Rows go here-->
+           </tbody>
+       </table>
+    </div>
 </main>
 
-<script type="module" src="main.js"></script>
+<button class="backBtn" onclick="history.back()"> ← Back</button>
+
+<!--Firebase Config-->
+<script type="module" src="home.js"></script>
+
+<!--Leaderrboard Config-->
 <script type="module" src="leaderBoard.js"></script>
+
+</body>
+</html>
