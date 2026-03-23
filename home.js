@@ -1,57 +1,19 @@
-// 🔥 Firebase Core
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
-
-// 🔐 Firebase Auth
-import {
-  getAuth,
-  GoogleAuthProvider,
-  signInWithPopup,
-  signOut,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-// 🗄 Firestore
-import {
-  getFirestore,
-  doc,
-  setDoc,
-  getDoc,
-  serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-
 // ==========================
-// Firebase Configuration
+// Firebase
 // ==========================
+import { auth, db } from "./firebase.js"; // Use shared firebase.js
+import { GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, createUserWithEmailAndPassword, updateProfile } 
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDh5jFP6KcIzuEMHrXgaHUL4RcKhrx5L4M",
-  authDomain: "comp-carmen.firebaseapp.com",
-  projectId: "comp-carmen",
-  storageBucket: "comp-carmen.firebasestorage.app",
-  messagingSenderId: "477005803846",
-  appId: "1:477005803846:web:f1f3a01fef6e8d4a3f7547",
-  measurementId: "G-112075NKRL"
-};
+import { doc, setDoc, getDoc, serverTimestamp } 
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-
-// ==========================
-// Initialize Firebase
-// ==========================
-
-const app = initializeApp(firebaseConfig);
-getAnalytics(app);
-
-const auth = getAuth(app);
-const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
 
 
 // ==========================
 // DOM Elements
 // ==========================
-
 const profileBtn = document.getElementById("profileBtn");
 const dropdownMenu = document.getElementById("dropdownMenu");
 
@@ -62,35 +24,38 @@ const signOutBtn = document.getElementById("signOutBtn");
 const playBtn = document.getElementById("playBtn");
 const profileImage = document.getElementById("profileImage");
 
+const signUpPopup = document.getElementById("signUpPopup");
+const closePopup = document.getElementById("closePopup");
+const signUpForm = document.getElementById("signUpForm");
+
 
 // ==========================
 // Dropdown Toggle
 // ==========================
-
-profileBtn.addEventListener("click", () => {
-  dropdownMenu.classList.toggle("hidden");
+profileBtn?.addEventListener("click", () => {
+  dropdownMenu?.classList.toggle("hidden");
+  const expanded = profileBtn.getAttribute("aria-expanded") === "true";
+  profileBtn.setAttribute("aria-expanded", !expanded);
 });
 
 
 // ==========================
-// Sign In / Sign Up
+// Google Sign In
 // ==========================
-
 async function handleSignIn() {
   try {
-
     const result = await signInWithPopup(auth, provider);
     const user = result.user;
 
     const userRef = doc(db, "users", user.uid);
     const userSnap = await getDoc(userRef);
 
-    // Create user in database if first login
     if (!userSnap.exists()) {
       await setDoc(userRef, {
         displayName: user.displayName,
         email: user.email,
         uid: user.uid,
+        photoURL: user.photoURL || "defaultPFP.jpg",
         isAdmin: false,
         createdAt: serverTimestamp()
       });
@@ -101,15 +66,77 @@ async function handleSignIn() {
   }
 }
 
-signInBtn.addEventListener("click", handleSignIn);
-signUpBtn.addEventListener("click", handleSignIn);
+signInBtn?.addEventListener("click", handleSignIn);
+
+
+// ==========================
+// Email Sign Up
+// ==========================
+signUpBtn?.addEventListener("click", () => {
+  signUpPopup.style.display = "flex";
+});
+
+closePopup?.addEventListener("click", () => {
+  signUpPopup.style.display = "none";
+});
+
+window.addEventListener("click", (e) => {
+  if (e.target === signUpPopup) signUpPopup.style.display = "none";
+});
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") signUpPopup.style.display = "none";
+});
+
+signUpForm?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const displayName = document.getElementById("displayName").value.trim();
+  const email = document.getElementById("email").value.trim().toLowerCase(); // Matches your HTML
+  const password = document.getElementById("password").value;
+
+  if (!displayName) {
+    alert("Display name required");
+    return;
+  }
+
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+
+    const defaultPhoto = "defaultPFP.jpg";
+
+    await updateProfile(user, {
+      displayName,
+      photoURL: defaultPhoto
+    });
+
+    await user.reload();
+
+    await setDoc(doc(db, "users", user.uid), {
+      displayName,
+      email,
+      photoURL: defaultPhoto,
+      createdAt: serverTimestamp(),
+      isAdmin: false,
+      uid: user.uid
+    });
+
+    alert("Account created successfully!");
+    signUpPopup.style.display = "none";
+    signUpForm.reset();
+
+  } catch (error) {
+    console.error("Error creating user:", error);
+    alert(error.message);
+  }
+});
 
 
 // ==========================
 // Sign Out
 // ==========================
-
-signOutBtn.addEventListener("click", async () => {
+signOutBtn?.addEventListener("click", async () => {
   await signOut(auth);
 });
 
@@ -117,47 +144,40 @@ signOutBtn.addEventListener("click", async () => {
 // ==========================
 // Auth State Listener
 // ==========================
-
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
 
   if (user) {
+    signInBtn?.classList.add("hidden");
+    signUpBtn?.classList.add("hidden");
+    signOutBtn?.classList.remove("hidden");
 
-    // Update UI
-    signInBtn.classList.add("hidden");
-    signUpBtn.classList.add("hidden");
-    signOutBtn.classList.remove("hidden");
-
-    // Save session data
-    sessionStorage.setItem("userId", user.uid);
-    sessionStorage.setItem("displayName", user.displayName);
+    try {
+      const docSnap = await getDoc(doc(db, "users", user.uid));
+      const data = docSnap.exists() ? docSnap.data() : {};
+      profileImage.src = data.photoURL || user.photoURL || "defaultPFP.jpg";
+    } catch (err) {
+      console.error("Firestore error:", err);
+      profileImage.src = user.photoURL || "defaultPFP.jpg";
+    }
 
   } else {
+    signInBtn?.classList.remove("hidden");
+    signUpBtn?.classList.remove("hidden");
+    signOutBtn?.classList.add("hidden");
 
-    // Reset UI
-    signInBtn.classList.remove("hidden");
-    signUpBtn.classList.remove("hidden");
-    signOutBtn.classList.add("hidden");
-
-    sessionStorage.clear();
+    profileImage.src = "defaultPFP.jpg";
   }
-
-  // Profile picture logic (works for both states)
-  profileImage.src = user?.photoURL || "defaultPFP.jpg";
-
 });
 
 
 // ==========================
-// Play Button Protection
+// Play Button
 // ==========================
-
-playBtn.addEventListener("click", () => {
-
-  if (!sessionStorage.getItem("userId")) {
+playBtn?.addEventListener("click", () => {
+  if (!auth.currentUser) {
     alert("Please sign in first.");
     return;
   }
 
   window.location.href = "games.html";
-
 });

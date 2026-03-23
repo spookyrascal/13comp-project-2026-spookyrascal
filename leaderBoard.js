@@ -1,58 +1,69 @@
-import { getFirestore, collection, getDocs, query, orderBy }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { getAuth, onAuthStateChanged }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+// ==========================
+// Firebase
+// ==========================
+import { auth, db } from "./firebase.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// Initialize Firestore and Auth
-const db = getFirestore();
-const auth = getAuth();
 
-// Profile Picture setup
-const profilePic = document.getElementById("profilePic");
+// ==========================
+// DOM Elements
+// ==========================
+const profilePic = document.getElementById("profileImage");
+const tableBody = document.querySelector("#LeaderboardTable tbody");
+
+
+// ==========================
+// Profile Picture
+// ==========================
 onAuthStateChanged(auth, (user) => {
-    if(user){
-        profilePic.src = user.photoURL;
-    } else {
-        profilePic.src = "defaultPFP.jpg";
-    }
+  if (user) {
+    profilePic.src = user.photoURL || "defaultPFP.jpg";
+  } else {
+    profilePic.src = "defaultPFP.jpg";
+  }
 });
 
-// Leaderboard Table
-const tableBody = document.querySelector("#leaderboardTable tbody");
 
-//function to load leaderboard
-async function loadLeaderboard(){
-    try{
-        // referance leaderboard collection
-        const leaderboardRef = collection(db, "leaderboard");
+// ==========================
+// Load Leaderboard
+// ==========================
+async function loadLeaderboard() {
+  try {
+    // Reference to "leaderboard" collection
+    const leaderboardRef = collection(db, "leaderboard");
 
-        // order by wins descending
-        const q = query(leaderboardRef, orderBy("wins", "desc"));
+    // Order by wins descending
+    const q = query(leaderboardRef, orderBy("wins", "desc"));
 
-        const querySnpshot = await getDocs(q);
+    const querySnapshot = await getDocs(q);
+
+    // Clear previous rows
+    tableBody.innerHTML = "";
 
     let rank = 1;
-    querySnpshot.forEach((doc) => {
-        const data = doc.data();
-        
-        const row = document.createElement("tr");
-        row.innerHTML = `
+
+    querySnapshot.forEach((docSnap) => {
+      const data = docSnap.data();
+
+      const row = document.createElement("tr");
+
+      row.innerHTML = `
         <td>${rank}</td>
         <td>${data.displayName || "Anonymous"}</td>
-        <td>${data.wins}</td>
-        <td>${data.gamesPlayed}</td>
-        <td>${data.highScores}</td>
-    
-`;
-tableBody.appendChild(row);
-rank++;
+        <td>${data.wins || 0}</td>
+        <td>${data.gamesPlayed || 0}</td>
+        <td>${data.bestScore || 0}</td>
+      `;
 
+      tableBody.appendChild(row);
+      rank++;
     });
 
-    } catch(error){
-        console.error("Error loading leaderboard:", error);
-    }
+  } catch (error) {
+    console.error("Error loading leaderboard:", error);
+  }
 }
 
-//call on page load 
+// Load leaderboard on page load
 loadLeaderboard();
