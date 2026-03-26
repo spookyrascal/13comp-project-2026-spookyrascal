@@ -51,3 +51,10 @@ V06 - 24th March
 - Did a few test runs with the sign up popup 
 
 - NEXT STEP: makes the GTN skeleton
+
+V07 - 26th March
+
+- Procrastination is my frien Didnt do GTN 
+- Leadboard is pretty
+
+- NEXT STEP: GUESS THE FUCKING NUMBER

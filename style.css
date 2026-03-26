@@ -2,11 +2,13 @@
    COLOR VARIABLES
 ========================= */
 :root {
-  --dark-olive: #41431B;
-  --moss: #AEB784;
-  --sand: #E3DBBB;
-  --cream: #F8F3E1;
-  --shadow: rgba(65, 67, 27, 0.2);
+  --primary: #190B14;       /* deep plum (text) */
+  --secondary: #A04380;     /* strong purple */
+  --accent: #CD87B5;        /* soft pink */
+  --bg: #EDD4E4;            /* light pastel */
+  --card-bg: #FFFFFF;
+  --shadow: rgba(0, 0, 0, 0.15);
+  --btn-hover: #819C4F;     /* green hover */
 }
 
 /* =========================
@@ -14,8 +16,8 @@
 ========================= */
 body {
   font-family: "Segoe UI", Arial, sans-serif;
-  background: var(--cream);
-  color: var(--dark-olive);
+  background: var(--bg);
+  color: var(--primary);
   margin: 0;
   min-height: 100vh;
   text-align: center;
@@ -37,8 +39,8 @@ header {
   align-items: center;
   padding: 18px 30px;
 
-  background: linear-gradient(135deg, var(--dark-olive), var(--moss));
-  color: var(--cream);
+  background: linear-gradient(135deg, var(--secondary), var(--accent));
+  color: white;
 
   box-shadow: 0 5px 15px var(--shadow);
   border-bottom-left-radius: 20px;
@@ -47,13 +49,9 @@ header {
 
 .header-left h1 {
   margin: 0;
-  font-weight: 600;
-  letter-spacing: 1px;
-  text-shadow: 1px 1px 3px var(--shadow);
-}
-
-.header-right {
-  position: relative;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
 }
 
 /* =========================
@@ -67,19 +65,18 @@ header {
 }
 
 .profile-img {
-  width: 40px;
-  height: 40px;
+  width: 45px;
+  height: 45px;
   border-radius: 50%;
   object-fit: cover;
-
-  border: 2px solid var(--sand);
+  border: 2px solid white;
   box-shadow: 0 3px 6px var(--shadow);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition: all 0.25s ease;
 }
 
 .profile-img:hover {
-  transform: rotate(-5deg) scale(1.1);
-  box-shadow: 0 6px 12px var(--shadow);
+  transform: scale(1.15) rotate(-5deg);
+  box-shadow: 0 0 12px var(--btn-hover);
 }
 
 /* =========================
@@ -87,35 +84,30 @@ header {
 ========================= */
 .dropdown {
   position: absolute;
-  top: 50px;
+  top: 55px;
   right: 0;
 
-  background: var(--sand);
-  border: 1px solid var(--moss);
-
-  display: flex;
-  flex-direction: column;
-  padding: 6px;
+  background: var(--card-bg);
   border-radius: 12px;
-
-  box-shadow: 0 6px 20px var(--shadow);
+  box-shadow: 0 8px 20px var(--shadow);
   z-index: 10;
+  overflow: hidden;
 }
 
 .dropdown button {
   background: none;
   border: none;
-  padding: 10px 14px;
+  padding: 12px 20px;
   cursor: pointer;
   text-align: left;
-  color: var(--dark-olive);
-
-  border-radius: 8px;
-  transition: background 0.2s ease, transform 0.2s ease;
+  color: var(--primary);
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 
 .dropdown button:hover {
-  background: var(--moss);
+  background: var(--btn-hover);
+  color: white;
   transform: translateX(3px);
 }
 
@@ -139,16 +131,14 @@ main {
    PLAY BUTTON
 ========================= */
 .play-btn {
-  font-size: 26px;
-  padding: 18px 42px;
-
-  border-radius: 16px;
+  font-size: 24px;
+  padding: 16px 36px;
+  border-radius: 12px;
   border: none;
   cursor: pointer;
 
-  background: linear-gradient(145deg, var(--moss), var(--sand));
-  color: var(--dark-olive);
-
+  background: linear-gradient(145deg, var(--secondary), var(--accent));
+  color: white;
   font-weight: 600;
   letter-spacing: 1px;
 
@@ -157,9 +147,11 @@ main {
 }
 
 .play-btn:hover {
-  background: linear-gradient(145deg, var(--sand), var(--moss));
-  transform: translateY(-3px) rotate(-1deg);
-  box-shadow: 0 8px 24px var(--shadow);
+  background: var(--btn-hover);
+  color: white;
+
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 0 20px var(--btn-hover);
 }
 
 /* =========================
@@ -174,22 +166,23 @@ main {
 }
 
 .gameCard {
-  background: var(--sand);
-  padding: 30px;
+  background: var(--card-bg);
+  padding: 25px;
   width: 220px;
-
-  border-radius: 18px;
+  border-radius: 20px;
   text-decoration: none;
-  color: var(--dark-olive);
+  color: var(--primary);
 
-  box-shadow: 0 8px 24px var(--shadow);
+  box-shadow: 0 10px 25px var(--shadow);
   transition: all 0.3s ease;
 }
 
 .gameCard:hover {
-  transform: translateY(-6px) scale(1.05) rotate(-1deg);
-  background: linear-gradient(145deg, var(--moss), var(--sand));
-  box-shadow: 0 12px 28px var(--shadow);
+  transform: translateY(-8px) scale(1.05);
+  box-shadow: 0 12px 30px var(--shadow);
+
+  background: var(--btn-hover);
+  color: white;
 }
 
 .gameCard img {
@@ -198,121 +191,131 @@ main {
   margin-bottom: 12px;
 }
 
-.profile-img {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
-
-  border: 2px solid var(--sand);
-  box-shadow: 0 3px 6px var(--shadow);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+.leaderboardCard{
+  background: linear-gradient(135deg, #FFD700, #FFC197);
+  color: #1b1b1b;
 }
 
-.hubBtn{
+.leaderboardCard:hover{
+  background: #ffcc00;
+  transform: translateY(-8px) scale(1.05);
+  box-shadow: 0 12px 30px rgba(255, 215, 0, 0.5);
+}
+/* =========================
+   HUB BUTTON
+========================= */
+.hubBtn {
   padding: 14px 22px;
   font-size: 16px;
   border: none;
-  border-radius: 10px;
-  background: #2e7d32;
+  border-radius: 12px;
+  background: var(--secondary);
   color: white;
   cursor: pointer;
-  margin: 10px  0;
-  transition: 0.2s;
+  margin: 12px 0;
+  font-weight: 600;
+  box-shadow: 0 6px 15px var(--shadow);
+  transition: all 0.25s ease;
 }
 
 .hubBtn:hover {
-background:#1b5e20;
-transform: translateY(-2px);
+  background: var(--btn-hover);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 0 15px var(--btn-hover);
 }
+
 /* =========================
    LEADERBOARD
 ========================= */
-
 table {
   width: 90%;
   margin: 20px auto;
   border-collapse: collapse;
   text-align: center;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 20px var(--shadow);
 }
+
 th, td {
-  border: 1px solid #4CAF50;
-  padding: 10px;
+  padding: 12px 15px;
 }
 
 th {
-  background-color: #4CAF50;
+  background-color: var(--secondary);
   color: white;
+  font-weight: 600;
 }
 
 tr:nth-child(even) {
-  background-color: #f2f2f2;
+  background: #f8eef5;
 }
 
-.profile-img {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
-
-  border: 2px solid var(--sand);
-  box-shadow: 0 3px 6px var(--shadow);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+tr:nth-child(odd) {
+  background: var(--card-bg);
 }
 
+tr:hover {
+  background: var(--btn-hover);
+  color: white;
+}
 /* =========================
    SIGN UP POPUP
 ========================= */
 .popup-overlay {
-  display: none; /* hidden by default */
+  display: none;
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(25, 11, 20, 0.6);
   z-index: 1000;
   justify-content: center;
   align-items: center;
 }
 
 .popup-content {
-  background: #2e7d32; /* your green theme */
+  background: var(--card-bg);
   padding: 30px;
-  border-radius: 12px;
-  width: 350px;
-  color: white;
+  border-radius: 20px;
+  width: 360px;
+  color: var(--primary);
   position: relative;
   text-align: center;
+  box-shadow: 0 10px 25px var(--shadow);
 }
 
 .popup-content input {
   width: 90%;
-  padding: 10px;
+  padding: 12px;
   margin: 10px 0;
-  border-radius: 6px;
-  border: none;
+  border-radius: 8px;
+  border: 1px solid var(--accent);
+  font-size: 16px;
 }
 
 .popup-content button {
-  background: white;
-  color: #2e7d32;
+  background: var(--secondary);
+  color: white;
   border: none;
   padding: 12px 20px;
-  border-radius: 8px;
+  border-radius: 12px;
   cursor: pointer;
-  font-weight: bold;
+  font-weight: 600;
+  transition: all 0.25s ease;
 }
 
 .popup-content button:hover {
-  background: #c8e6c9;
+  background: var(--btn-hover);
+  box-shadow: 0 0 12px var(--btn-hover);
 }
 
 .close-btn {
   position: absolute;
   top: 10px;
   right: 15px;
-  font-size: 22px;
+  font-size: 24px;
   cursor: pointer;
-  color: white;
+  color: var(--primary);
 }
