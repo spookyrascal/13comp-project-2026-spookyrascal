@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Guess The Number</title>
+    <h1>🎯 Guess The Number</h1>
+    <link rel="stylesheet" href="style.css">
+</header>
+
+<main>
+
+<h2 id="status">Loading game...</h2>
+
+<div id="gameArea" class="hidden">
+
+    <p id="turnText"></p>
+
+    <input type="number" id="guessInput" placeholder="Enter 1-100">
+    <button id="guessBtn">Submit Guess</button>
+
+    <p id="feedback"></p>
+
+</div>
+
+<div id="lobby">
+    <button id="createGameBtn">Create Game</button>
+    <h3>Available Games</h3>
+    <div id="gameList"></div>
+</div>
+
+</main>
+<script type="module" src="firebase.js"></script>
+<script type="module" src="GTN.js"></script>
+
+</body>
+</html>

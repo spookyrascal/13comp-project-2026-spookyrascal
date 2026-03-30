@@ -6,7 +6,11 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 // ==========================
 // Firebase Services
 // ==========================
-import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { 
+  getAuth, 
+  signInAnonymously 
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
 
@@ -37,7 +41,14 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Analytics is optional (won’t work on localhost sometimes)
+signInAnonymously(auth).catch((error) => {
+  console.error("Anonymous login failed:", error);
+});
+
+
+// ==========================
+// Analytics 
+// ==========================
 let analytics;
 try {
   analytics = getAnalytics(app);

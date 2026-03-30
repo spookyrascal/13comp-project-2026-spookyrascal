@@ -58,3 +58,11 @@ V07 - 26th March
 - Leadboard is pretty
 
 - NEXT STEP: GUESS THE FUCKING NUMBER
+
+V08 - 31st March 
+
+- Started on the GTN barre bones
+- Looked around for inspiration 
+- Got linked to the Firestore 
+
+- Add to it, Make it look pretty, test to make sure it actually works with 2 people 
