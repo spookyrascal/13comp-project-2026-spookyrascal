@@ -327,41 +327,38 @@ tr:hover {
   display:none;
 }
 
-
 #gameArea{
-  margin-top: 20px;
+  margin-top:20px;
 }
 
-#lobby Button,
+#lobby button,
 #guessBtn,
 #createGameBtn{
-  padding:12px 10px;
-  margin: 8px;
-  border: none;
-  border-radius: 10px;
-  background: #2e7d32;
-  color: white;
-  cursor: pointer;
-  transition: 0.2s;
-
+  padding:12px 18px;
+  margin:8px;
+  border:none;
+  border-radius:10px;
+  background:#2e7d32;
+  color:white;
+  cursor:pointer;
+  transition:0.2s;
 }
 
 #lobby button:hover,
 #guessBtn:hover,
 #createGameBtn:hover{
-  background: #1b5e20;
+  background:#1b5e20;
   transform:scale(1.05);
 }
 
 #guessInput{
-  padding: 10px;
-  border-radius: 8px;
+  padding:10px;
+  border-radius:8px;
   border:1px solid #ccc;
-
 }
 
 #history p{
-  margin: 2px;
-  font-size: 14px;
-  color: #333;
+  margin:2px;
+  font-size:14px;
+  color:#333;
 }

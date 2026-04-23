@@ -1,49 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Guess The Number</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>Guess The Number</title>
+<link rel="stylesheet" href="../../style.css">
 </head>
 
 <body>
 
 <header>
-  <h1>🎯 Guess The Number</h1>
+    <h1>🎯 Guess The Number</h1>
 </header>
 
 <main>
 
-  <!-- LOBBY -->
-  <div id="lobby">
-    <h2>Lobby</h2>
+<!-- LOBBY -->
+<section id="lobbySection">
+    <h2>Game Lobby</h2>
 
-    <button id="createGameBtn">Create Game</button>
+    <button id="createGameBtn">➕ Create New Game</button>
 
-    <h3>Available Games</h3>
-    <div id="gameList"></div>
-  </div>
+    <h3>Waiting Games</h3>
+    <div id="lobbyList"></div>
+</section>
 
-  <!-- GAME AREA -->
-  <div id="gameArea" class="hidden">
+<!-- GAME -->
+<section id="gameSection" class="hidden">
 
-    <p id="statusText"></p>
-    <p id="opponentText"></p>
-    <p id="turnText"></p>
+    <h2 id="gameStatus">Loading game...</h2>
 
-    <input type="number" id="guessInput" placeholder="Guess 1–100">
-    <button id="guessBtn">Submit Guess</button>
+    <p id="opponentInfo"></p>
+    <p id="turnInfo"></p>
+
+    <div class="guessBox">
+        <input type="number" id="guessInput" placeholder="Enter 1–100">
+        <button id="guessBtn">Submit Guess</button>
+    </div>
 
     <p id="feedback"></p>
 
     <h3>Your Guesses</h3>
-    <div id="history"></div>
+    <div id="guessHistory"></div>
 
-  </div>
+    <button id="leaveBtn">Return to Lobby</button>
+
+</section>
 
 </main>
 
-<script type="module" src="..GTN.js"></script>
+<script type="module" src="GTN.js"></script>
+<script type="module" src="../../firebase.js"></script>
 
 </body>
 </html>
+
