@@ -66,3 +66,8 @@ V08 - 31st March
 - Got linked to the Firestore 
 
 - Add to it, Make it look pretty, test to make sure it actually works with 2 people 
+
+V09 - 23rd April 
+
+- Got GTN working
+- 

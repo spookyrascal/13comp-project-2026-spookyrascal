@@ -2,17 +2,17 @@
    COLOR VARIABLES
 ========================= */
 :root {
-  --primary: #190B14;       /* deep plum (text) */
-  --secondary: #A04380;     /* strong purple */
-  --accent: #CD87B5;        /* soft pink */
-  --bg: #EDD4E4;            /* light pastel */
+  --primary: #190B14;
+  --secondary: #A04380;
+  --accent: #CD87B5;
+  --bg: #EDD4E4;
   --card-bg: #FFFFFF;
   --shadow: rgba(0, 0, 0, 0.15);
-  --btn-hover: #819C4F;     /* green hover */
+  --btn-hover: #819C4F;
 }
 
 /* =========================
-   GLOBAL / BODY
+   GLOBAL
 ========================= */
 body {
   font-family: "Segoe UI", Arial, sans-serif;
@@ -43,25 +43,23 @@ header {
   color: white;
 
   box-shadow: 0 5px 15px var(--shadow);
-  border-bottom-left-radius: 20px;
-  border-bottom-right-radius: 20px;
+  border-radius: 0 0 20px 20px;
 }
 
 .header-left h1 {
   margin: 0;
   font-weight: 700;
   letter-spacing: 1.2px;
-  text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 /* =========================
-   PROFILE ICON
+   PROFILE
 ========================= */
 .profile-icon {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0;
 }
 
 .profile-img {
@@ -80,12 +78,12 @@ header {
 }
 
 /* =========================
-   DROPDOWN MENU
+   DROPDOWN
 ========================= */
 .dropdown {
   position: absolute;
-  top: 55px;
-  right: 0;
+  top: 60px;
+  right: 20px; /* FIX: prevent sticking to edge */
 
   background: var(--card-bg);
   border-radius: 12px;
@@ -95,14 +93,15 @@ header {
 }
 
 .dropdown button {
+  width: 100%;
   background: none;
   border: none;
   padding: 12px 20px;
-  cursor: pointer;
   text-align: left;
+  cursor: pointer;
   color: var(--primary);
   font-weight: 500;
-  transition: all 0.2s ease;
+  transition: 0.2s;
 }
 
 .dropdown button:hover {
@@ -111,12 +110,15 @@ header {
   transform: translateX(3px);
 }
 
+/* =========================
+   UTIL
+========================= */
 .hidden {
   display: none;
 }
 
 /* =========================
-   MAIN AREA
+   MAIN
 ========================= */
 main {
   flex: 1;
@@ -128,34 +130,66 @@ main {
 }
 
 /* =========================
-   PLAY BUTTON
+   BUTTONS
 ========================= */
+.play-btn,
+.hubBtn,
+#lobby button,
+#guessBtn,
+#createGameBtn {
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.25s ease;
+  box-shadow: 0 6px 15px var(--shadow);
+}
+
+/* Play button */
 .play-btn {
   font-size: 24px;
   padding: 16px 36px;
-  border-radius: 12px;
-  border: none;
-  cursor: pointer;
-
   background: linear-gradient(145deg, var(--secondary), var(--accent));
   color: white;
-  font-weight: 600;
-  letter-spacing: 1px;
-
-  box-shadow: 0 6px 20px var(--shadow);
-  transition: all 0.3s ease;
 }
 
 .play-btn:hover {
   background: var(--btn-hover);
-  color: white;
-
   transform: translateY(-3px) scale(1.05);
-  box-shadow: 0 0 20px var(--btn-hover);
+}
+
+/* Hub button */
+.hubBtn {
+  padding: 14px 22px;
+  font-size: 16px;
+  background: var(--secondary);
+  color: white;
+  margin: 12px 0;
+}
+
+.hubBtn:hover {
+  background: var(--btn-hover);
+}
+
+/* Game buttons */
+#lobby button,
+#guessBtn,
+#createGameBtn {
+  padding: 12px 16px;
+  margin: 8px;
+  background: #2e7d32;
+  color: white;
+}
+
+#lobby button:hover,
+#guessBtn:hover,
+#createGameBtn:hover {
+  background: #1b5e20;
+  transform: scale(1.05);
 }
 
 /* =========================
-   GAME SELECTION PAGE
+   GAME CARDS
 ========================= */
 .gameContainer {
   display: flex;
@@ -174,13 +208,11 @@ main {
   color: var(--primary);
 
   box-shadow: 0 10px 25px var(--shadow);
-  transition: all 0.3s ease;
+  transition: 0.3s ease;
 }
 
 .gameCard:hover {
   transform: translateY(-8px) scale(1.05);
-  box-shadow: 0 12px 30px var(--shadow);
-
   background: var(--btn-hover);
   color: white;
 }
@@ -191,60 +223,36 @@ main {
   margin-bottom: 12px;
 }
 
-.leaderboardCard{
+/* Leaderboard special card */
+.leaderboardCard {
   background: linear-gradient(135deg, #FFD700, #FFC197);
   color: #1b1b1b;
 }
 
-.leaderboardCard:hover{
+.leaderboardCard:hover {
   background: #ffcc00;
-  transform: translateY(-8px) scale(1.05);
   box-shadow: 0 12px 30px rgba(255, 215, 0, 0.5);
 }
-/* =========================
-   HUB BUTTON
-========================= */
-.hubBtn {
-  padding: 14px 22px;
-  font-size: 16px;
-  border: none;
-  border-radius: 12px;
-  background: var(--secondary);
-  color: white;
-  cursor: pointer;
-  margin: 12px 0;
-  font-weight: 600;
-  box-shadow: 0 6px 15px var(--shadow);
-  transition: all 0.25s ease;
-}
-
-.hubBtn:hover {
-  background: var(--btn-hover);
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 0 15px var(--btn-hover);
-}
 
 /* =========================
-   LEADERBOARD
+   TABLE
 ========================= */
 table {
   width: 90%;
   margin: 20px auto;
   border-collapse: collapse;
-  text-align: center;
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 6px 20px var(--shadow);
 }
 
 th, td {
-  padding: 12px 15px;
+  padding: 12px;
 }
 
 th {
-  background-color: var(--secondary);
+  background: var(--secondary);
   color: white;
-  font-weight: 600;
 }
 
 tr:nth-child(even) {
@@ -259,18 +267,18 @@ tr:hover {
   background: var(--btn-hover);
   color: white;
 }
+
 /* =========================
-   SIGN UP POPUP
+   POPUP
 ========================= */
 .popup-overlay {
   display: none;
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0; /* cleaner */
   background: rgba(25, 11, 20, 0.6);
   z-index: 1000;
+
+  display: flex;
   justify-content: center;
   align-items: center;
 }
@@ -280,8 +288,6 @@ tr:hover {
   padding: 30px;
   border-radius: 20px;
   width: 360px;
-  color: var(--primary);
-  position: relative;
   text-align: center;
   box-shadow: 0 10px 25px var(--shadow);
 }
@@ -292,23 +298,19 @@ tr:hover {
   margin: 10px 0;
   border-radius: 8px;
   border: 1px solid var(--accent);
-  font-size: 16px;
 }
 
 .popup-content button {
   background: var(--secondary);
   color: white;
-  border: none;
   padding: 12px 20px;
   border-radius: 12px;
+  border: none;
   cursor: pointer;
-  font-weight: 600;
-  transition: all 0.25s ease;
 }
 
 .popup-content button:hover {
   background: var(--btn-hover);
-  box-shadow: 0 0 12px var(--btn-hover);
 }
 
 .close-btn {
@@ -317,5 +319,22 @@ tr:hover {
   right: 15px;
   font-size: 24px;
   cursor: pointer;
-  color: var(--primary);
+}
+
+/* =========================
+   GAME AREA
+========================= */
+#gameArea {
+  margin-top: 20px;
+}
+
+#guessInput {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+#history p {
+  margin: 2px;
+  font-size: 14px;
 }
