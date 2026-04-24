@@ -69,7 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
           displayName: user.displayName,
           email: user.email,
           uid: user.uid,
-          photoURL: user.photoURL || "defaultPFP.jpg",
+          photoURL: user.photoURL || "./Images/defaultPFP.jpg",
           isAdmin: false,
           createdAt: serverTimestamp()
         });
@@ -121,7 +121,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      const defaultPhoto = "defaultPFP.jpg";
+      const defaultPhoto = "./Images/defaultPFP.jpg";
 
       await updateProfile(user, {
         displayName,
@@ -170,10 +170,10 @@ document.addEventListener("DOMContentLoaded", () => {
       try {
         const docSnap = await getDoc(doc(db, "users", user.uid));
         const data = docSnap.exists() ? docSnap.data() : {};
-        profileImage.src = data.photoURL || user.photoURL || "defaultPFP.jpg";
+        profileImage.src = data.photoURL || user.photoURL || "./Images/defaultPFP.jpg";
       } catch (err) {
         console.error("Firestore error:", err);
-        profileImage.src = user.photoURL || "defaultPFP.jpg";
+        profileImage.src = user.photoURL || "./Images/defaultPFP.jpg";
       }
 
     } else {
@@ -181,7 +181,7 @@ document.addEventListener("DOMContentLoaded", () => {
       signUpBtn?.classList.remove("hidden");
       signOutBtn?.classList.add("hidden");
 
-      profileImage.src = "defaultPFP.jpg";
+      profileImage.src = "./Images/defaultPFP.jpg";
     }
   });
 

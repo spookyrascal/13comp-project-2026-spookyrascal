@@ -6,7 +6,7 @@ const leaderboardBtn = document.getElementById("leaderBoardBtn"); // matches HTM
 
 // Profile picture
 onAuthStateChanged(auth, (user) => {
-  profileImage.src = user?.photoURL || "defaultPFP.jpg";
+  profileImage.src = user?.photoURL || "./Images/defaultPFP.jpg";
 });
 
 // Navigate to leaderboard

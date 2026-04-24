@@ -18,9 +18,9 @@ const tableBody = document.querySelector("#LeaderboardTable tbody");
 // ==========================
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    profilePic.src = user.photoURL || "defaultPFP.jpg";
+    profilePic.src = user.photoURL || "./Images/defaultPFP.jpg";
   } else {
-    profilePic.src = "defaultPFP.jpg";
+    profilePic.src = "./Images/defaultPFP.jpg";
   }
 });
 

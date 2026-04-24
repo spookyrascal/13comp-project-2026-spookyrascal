@@ -22,9 +22,9 @@ let startTime; // Game start time
 const playerImg = new Image();
 const meteorImg = new Image();
 const earthImg = new Image();
-playerImg.src = 'meteor.jpeg';
-meteorImg.src = 'spacerock.jpeg';
-earthImg.src = 'earth.jpeg';
+playerImg.src = '../Images/meteor.jpeg';
+meteorImg.src = '../Images/spacerock.jpeg';
+earthImg.src = '../Images/earth.jpeg';
 
 // 🟢 When start is clicked, set up the game and run it
 startBtn.onclick = () => {

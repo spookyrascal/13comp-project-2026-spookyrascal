@@ -71,3 +71,11 @@ V09 - 23rd April
 
 - Got GTN working
 - Two Player
+
+V10 - 24th April
+
+- Took a break cause was getting rage baited
+- Cleaned up files
+- Did some paperwork
+- Updated Firestore (FS)
+- Documented Update 
