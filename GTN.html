@@ -18,7 +18,10 @@
 <section id="lobbySection">
     <h2>Game Lobby</h2>
 
-    <button id="createGameBtn">➕ Create New Game</button>
+    <div class="createBox">
+        <input type="text" id="lobbyNameInput" placeholder="Enter Lobby Name">
+        <button id="createGameBtn">➕ Create Game</button>
+    </div>
 
     <h3>Waiting Games</h3>
     <div id="lobbyList"></div>
@@ -44,10 +47,16 @@
 
 </section>
 
+<!-- WIN SCREEN -->
+<section id="winScreen" class="hidden">
+    <h1 id="winText"></h1>
+    <button id="rematchBtn">🔄 Play Again</button>
+    <button id="leaveBtn">🏠 Return to Lobby</button>
+</section>
+
 </main>
 
 <script type="module" src="GTN.js"></script>
-<script type="module" src="./firebase.js"></script>
 
 </body>
 </html>

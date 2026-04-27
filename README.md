@@ -79,3 +79,9 @@ V10 - 24th April
 - Did some paperwork
 - Updated Firestore (FS)
 - Documented Update 
+
+V11 - 28th April
+
+- Updated Leaderboard and GTN
+- Still need to get profiles to run across ALL pages
+- Uhhhh No rage today

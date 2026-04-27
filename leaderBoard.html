@@ -7,44 +7,70 @@
   <title>Leaderboard</title>
 
   <link rel="stylesheet" href="style.css">
-
 </head>
 
 <body>
 
-    <header>
-        <h1> Leaderboard </h1>
-       <img id="profileImage"  class="profile-img" src="./Images/defaultPFP.jpg" alt="Profile Picture">
-    </header>
+  <!-- =========================
+       HEADER
+  ========================== -->
+  <header class="leaderboardHeader">
 
-<main> 
-    <div class="tableWrap">
-       <table id="LeaderboardTable">
-           <thead>
+    <h1>🏆 Leaderboard</h1>
 
-               <tr>
-                <th>Rank</th>
-                <th>Player</th>
-                <th>Wins</th>
-                <th>Games Played</th>
-                <th>Best Score</th>
-                </tr>
-           </thead>
-           <tbody>
-            <!--JS Rows go here-->
-           </tbody>
-       </table>
+    <!-- Profile Icon -->
+    <div class="profileContainer">
+      <img
+        id="profileImage"
+        class="profile-img"
+        src="./Images/defaultPFP.jpg"
+        alt="Profile Picture"
+      >
     </div>
-</main>
 
-<button class="backBtn" onclick="history.back()"> ← Back</button>
+  </header>
 
-<!--Firebase Config-->
-<script type="module" src="home.js"></script>
+  <!-- =========================
+       MAIN TABLE
+  ========================== -->
+  <main>
 
-<!--Leaderrboard Config-->
-<script type="module" src="leaderBoard.js"></script>
-<script type="module" src="firebase.js"></script>
+    <div class="tableWrap">
+
+      <table id="LeaderboardTable">
+
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Player</th>
+            <th>Wins</th>
+            <th>Games Played</th>
+            <th>Best Score</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <!-- JS injects rows here -->
+        </tbody>
+
+      </table>
+
+    </div>
+
+    <!-- Back Button -->
+    <button class="backBtn" onclick="history.back()">
+      ← Back
+    </button>
+
+  </main>
+
+  <!-- =========================
+       SCRIPTS 
+  ========================== -->
+  <script type="module" src="./firebase.js"></script>
+  <script type="module" src="./leaderBoard.js"></script>
 
 </body>
+
 </html>
+

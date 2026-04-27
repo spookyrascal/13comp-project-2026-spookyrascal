@@ -15,7 +15,7 @@ import {
     setDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-import { onAuthStateChanged } 
+import { onAuthStateChanged }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 /* =========================
@@ -26,18 +26,28 @@ let currentGameId = null;
 let gameData = null;
 
 /* =========================
-   CONSTANTS
+   SAFE USER HELPERS
 ========================= */
-const TURN_LIMIT = 30;
+function getSafeName(user) {
+    return (
+        user?.displayName ||
+        user?.email?.split("@")[0] ||
+        "Anonymous"
+    );
+}
+
+function getSafePhoto(user) {
+    return user?.photoURL || "./Images/defaultPFP.jpg";
+}
 
 /* =========================
-   UI ELEMENTS
+   UI
 ========================= */
 const lobbySection = document.getElementById("lobbySection");
 const gameSection = document.getElementById("gameSection");
-const winScreen = document.getElementById("winScreen");
 
 const lobbyList = document.getElementById("lobbyList");
+const lobbyNameInput = document.getElementById("lobbyNameInput");
 
 const createGameBtn = document.getElementById("createGameBtn");
 const guessBtn = document.getElementById("guessBtn");
@@ -46,13 +56,13 @@ const guessInput = document.getElementById("guessInput");
 const feedback = document.getElementById("feedback");
 const guessHistory = document.getElementById("guessHistory");
 
-const gameStatus = document.getElementById("gameStatus");
 const opponentInfo = document.getElementById("opponentInfo");
 const turnInfo = document.getElementById("turnInfo");
 
+const winScreen = document.getElementById("winScreen");
 const winText = document.getElementById("winText");
-const rematchBtn = document.getElementById("rematchBtn");
 
+const rematchBtn = document.getElementById("rematchBtn");
 const leaveBtn = document.getElementById("leaveBtn");
 
 /* =========================
@@ -73,17 +83,22 @@ onAuthStateChanged(auth, (user) => {
 ========================= */
 createGameBtn.addEventListener("click", async () => {
 
+    const lobbyName = lobbyNameInput.value.trim() || "Untitled Lobby";
+
     const ref = await addDoc(collection(db, "games"), {
+        lobbyName,
+
         player1Id: currentUser.uid,
-        player1Name: currentUser.displayName || "Player 1",
+        player1Name: getSafeName(currentUser),
+        player1Photo: getSafePhoto(currentUser),
 
         player2Id: null,
         player2Name: null,
+        player2Photo: null,
 
         secretNumber: Math.floor(Math.random() * 100) + 1,
 
         currentTurn: currentUser.uid,
-
         status: "waiting",
 
         player1Guesses: [],
@@ -93,13 +108,7 @@ createGameBtn.addEventListener("click", async () => {
         player2Attempts: 0,
 
         winnerId: null,
-
-        rematchRequestPlayer1: false,
-        rematchRequestPlayer2: false,
-
-        createdAt: serverTimestamp(),
-        lastActive: serverTimestamp(),
-        turnStartTime: serverTimestamp()
+        createdAt: serverTimestamp()
     });
 
     joinGame(ref.id);
@@ -116,16 +125,32 @@ function loadLobby() {
 
         lobbyList.innerHTML = "";
 
-        snapshot.forEach((gameDoc) => {
+        snapshot.forEach((docSnap) => {
 
-            const game = gameDoc.data();
+            const game = docSnap.data();
 
-            const btn = document.createElement("button");
-            btn.textContent = `Join ${game.player1Name}'s Game`;
+            const card = document.createElement("div");
+            card.className = "lobbyCard";
 
-            btn.onclick = () => joinGame(gameDoc.id, true);
+            card.innerHTML = `
+                <h3>${game.lobbyName}</h3>
+                <p>Host: ${game.player1Name || "Unknown"}</p>
+                <button>Join</button>
+            `;
 
-            lobbyList.appendChild(btn);
+            card.querySelector("button").onclick = async () => {
+
+                await updateDoc(doc(db, "games", docSnap.id), {
+                    player2Id: currentUser.uid,
+                    player2Name: getSafeName(currentUser),
+                    player2Photo: getSafePhoto(currentUser),
+                    status: "playing"
+                });
+
+                joinGame(docSnap.id);
+            };
+
+            lobbyList.appendChild(card);
         });
     });
 }
@@ -133,33 +158,19 @@ function loadLobby() {
 /* =========================
    JOIN GAME
 ========================= */
-async function joinGame(gameId, isJoin = false) {
-
-    currentGameId = gameId;
-    const ref = doc(db, "games", gameId);
-
-    if (isJoin) {
-        await updateDoc(ref, {
-            player2Id: currentUser.uid,
-            player2Name: currentUser.displayName || "Player 2",
-            status: "playing",
-            currentTurn: gameData?.player1Id || currentUser.uid,
-            turnStartTime: serverTimestamp()
-        });
-    }
-
-    listenToGame(gameId);
-
+function joinGame(id) {
+    currentGameId = id;
     lobbySection.classList.add("hidden");
     gameSection.classList.remove("hidden");
+    listenToGame(id);
 }
 
 /* =========================
-   REALTIME GAME LISTENER
+   GAME LISTENER
 ========================= */
-function listenToGame(gameId) {
+function listenToGame(id) {
 
-    const ref = doc(db, "games", gameId);
+    const ref = doc(db, "games", id);
 
     onSnapshot(ref, async (snap) => {
 
@@ -185,23 +196,20 @@ function listenToGame(gameId) {
         /* =========================
            OPPONENT INFO
         ========================= */
-        const opponent =
+        const opponentName =
             currentUser.uid === gameData.player1Id
                 ? gameData.player2Name
                 : gameData.player1Name;
 
-        opponentInfo.textContent = `Opponent: ${opponent || "Waiting..."}`;
-
-        gameStatus.textContent = `Status: ${gameData.status}`;
+        opponentInfo.textContent = `Opponent: ${opponentName || "Waiting..."}`;
 
         /* =========================
-           TURN DISPLAY
+           TURN INFO
         ========================= */
-        const myTurn = gameData.currentTurn === currentUser.uid;
-
-        turnInfo.textContent = myTurn
-            ? "🎯 Your Turn"
-            : "⏳ Opponent's Turn";
+        turnInfo.textContent =
+            gameData.currentTurn === currentUser.uid
+                ? "🎯 Your Turn"
+                : "⏳ Opponent Turn";
 
         /* =========================
            GUESS HISTORY
@@ -214,57 +222,6 @@ function listenToGame(gameId) {
         guessHistory.innerHTML = myGuesses
             .map(g => `<p>${g}</p>`)
             .join("");
-
-        /* =========================
-           TURN TIMER (ANTI STALL)
-        ========================= */
-        const now = Date.now();
-        const start = gameData.turnStartTime?.toDate()?.getTime();
-
-        if (start && gameData.status === "playing") {
-
-            const diff = (now - start) / 1000;
-
-            if (diff > TURN_LIMIT) {
-
-                const nextTurn =
-                    gameData.currentTurn === gameData.player1Id
-                        ? gameData.player2Id
-                        : gameData.player1Id;
-
-                await updateDoc(ref, {
-                    currentTurn: nextTurn,
-                    turnStartTime: serverTimestamp()
-                });
-            }
-        }
-
-        /* =========================
-           REMATCH AUTO START
-        ========================= */
-        if (
-            gameData.rematchRequestPlayer1 &&
-            gameData.rematchRequestPlayer2
-        ) {
-            await updateDoc(ref, {
-                status: "playing",
-                secretNumber: Math.floor(Math.random() * 100) + 1,
-
-                player1Guesses: [],
-                player2Guesses: [],
-
-                player1Attempts: 0,
-                player2Attempts: 0,
-
-                winnerId: null,
-
-                rematchRequestPlayer1: false,
-                rematchRequestPlayer2: false,
-
-                currentTurn: gameData.player1Id,
-                turnStartTime: serverTimestamp()
-            });
-        }
     });
 }
 
@@ -275,14 +232,11 @@ guessBtn.addEventListener("click", async () => {
 
     const guess = Number(guessInput.value);
 
-    if (!gameData) return;
-    if (!Number.isInteger(guess)) return;
-    if (guess < 1 || guess > 100) {
-        feedback.textContent = "Only 1–100 allowed";
+    if (!Number.isInteger(guess) || guess < 1 || guess > 100) {
+        feedback.textContent = "Enter 1–100";
         return;
     }
 
-    if (gameData.status !== "playing") return;
     if (gameData.currentTurn !== currentUser.uid) return;
 
     const ref = doc(db, "games", currentGameId);
@@ -294,8 +248,7 @@ guessBtn.addEventListener("click", async () => {
 
     await updateDoc(ref, {
         [guessField]: arrayUnion(guess),
-        [attemptField]: increment(1),
-        lastActive: serverTimestamp()
+        [attemptField]: increment(1)
     });
 
     /* =========================
@@ -303,82 +256,116 @@ guessBtn.addEventListener("click", async () => {
     ========================= */
     if (guess === gameData.secretNumber) {
 
-        const totalAttempts =
-            (gameData.player1Attempts || 0) +
-            (gameData.player2Attempts || 0) + 1;
-
         await updateDoc(ref, {
             status: "finished",
             winnerId: currentUser.uid
         });
 
-        await updateLeaderboard(currentUser.uid, totalAttempts);
-
+        await updateLeaderboard(gameData, currentUser.uid);
         return;
     }
 
-    /* =========================
-       FEEDBACK SYSTEM
-    ========================= */
-    const diff = Math.abs(guess - gameData.secretNumber);
-
-    if (diff <= 5) feedback.textContent = "🔥 Very close!";
-    else if (diff <= 15) feedback.textContent = "👀 Warm";
-    else feedback.textContent =
+    feedback.textContent =
         guess > gameData.secretNumber ? "Too high 📈" : "Too low 📉";
 
-    /* =========================
-       SWITCH TURN
-    ========================= */
+    /* SWITCH TURN */
     const nextTurn =
         gameData.currentTurn === gameData.player1Id
             ? gameData.player2Id
             : gameData.player1Id;
 
     await updateDoc(ref, {
-        currentTurn: nextTurn,
-        turnStartTime: serverTimestamp()
+        currentTurn: nextTurn
     });
 });
 
 /* =========================
-   LEADERBOARD UPDATE
+   LEADERBOARD (FIXED)
 ========================= */
-async function updateLeaderboard(userId, attempts) {
+async function updateLeaderboard(game, winnerId) {
 
-    const ref = doc(db, "leaderboard", userId);
-    const snap = await getDoc(ref);
+    const players = [
+        game.player1Id,
+        game.player2Id
+    ];
 
-    if (!snap.exists()) {
-        await setDoc(ref, {
-            wins: 1,
-            gamesPlayed: 1,
-            bestScore: attempts
-        });
-    } else {
-        const data = snap.data();
+    for (let uid of players) {
 
-        await updateDoc(ref, {
-            wins: increment(1),
-            gamesPlayed: increment(1),
-            bestScore: Math.min(data.bestScore || attempts, attempts)
-        });
+        if (!uid) continue;
+
+        const ref = doc(db, "leaderboard", uid);
+        const snap = await getDoc(ref);
+
+        const isWinner = uid === winnerId;
+
+        const displayName =
+            uid === game.player1Id
+                ? game.player1Name
+                : game.player2Name;
+
+        const photoURL =
+            uid === game.player1Id
+                ? game.player1Photo
+                : game.player2Photo;
+
+        const safeName = displayName || "Anonymous";
+        const safePhoto = photoURL || "./Images/defaultPFP.jpg";
+
+        if (!snap.exists()) {
+            await setDoc(ref, {
+                userId: uid,
+
+                displayName: safeName,
+                photoURL: safePhoto,
+
+                wins: isWinner ? 1 : 0,
+                gamesPlayed: 1,
+
+                bestScore: 1,
+
+                updatedAt: serverTimestamp()
+            });
+        } else {
+            await updateDoc(ref, {
+                displayName: safeName,
+                photoURL: safePhoto,
+
+                wins: increment(isWinner ? 1 : 0),
+                gamesPlayed: increment(1),
+
+                updatedAt: serverTimestamp()
+            });
+        }
     }
 }
 
 /* =========================
-   REMATCH BUTTON
+   REMATCH
 ========================= */
-rematchBtn.addEventListener("click", async () => {
+rematchBtn?.addEventListener("click", async () => {
 
     const ref = doc(db, "games", currentGameId);
 
-    const field =
-        currentUser.uid === gameData.player1Id
-            ? "rematchRequestPlayer1"
-            : "rematchRequestPlayer2";
-
     await updateDoc(ref, {
-        [field]: true
+        status: "playing",
+        secretNumber: Math.floor(Math.random() * 100) + 1,
+
+        player1Guesses: [],
+        player2Guesses: [],
+
+        player1Attempts: 0,
+        player2Attempts: 0,
+
+        winnerId: null,
+        currentTurn: gameData.player1Id
     });
+
+    winScreen.classList.add("hidden");
+    gameSection.classList.remove("hidden");
 });
+
+/* =========================
+   LEAVE
+========================= */
+leaveBtn?.addEventListener("click", () => location.reload());
+

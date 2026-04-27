@@ -56,6 +56,31 @@ try {
   console.warn("Analytics not supported in this environment");
 }
 
+// ==========================
+// CONSTANT LOGIN
+// ==========================
+
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { doc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) return;
+
+  const ref = doc(db, "users", user.uid);
+  const snap = await getDoc(ref);
+
+  if (!snap.exists()) {
+    await setDoc(ref, {
+      uid: user.uid,
+      displayName: user.displayName || "Player",
+      email: user.email || "",
+      photoURL: user.photoURL || "./Images/defaultPFP.jpg",
+      createdAt: serverTimestamp(),
+      isAdmin: false
+    });
+  }
+});
+
 
 // ==========================
 // Export Services
