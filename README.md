@@ -57,7 +57,7 @@ V07 - 26th March
 - Procrastination is my frien Didnt do GTN 
 - Leadboard is pretty
 
-- NEXT STEP: GUESS THE FUCKING NUMBER
+- NEXT STEP: GUESS THE NUMBER
 
 V08 - 31st March 
 
