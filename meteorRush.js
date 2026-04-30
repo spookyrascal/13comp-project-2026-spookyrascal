@@ -9,7 +9,6 @@ const instructionsModal = document.getElementById('instructions-modal');
 const closeBtn = document.querySelector('.close-btn');
 const startScreen = document.querySelector('.start-screen');
 const pauseOverlay = document.querySelector('.pause-overlay');
-import "./auth";
 /* =========================
    
 ========================= */

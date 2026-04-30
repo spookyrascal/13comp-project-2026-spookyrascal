@@ -1,16 +1,13 @@
-// ==========================
-// MAIN
-// ==========================
 import { auth, db } from "./firebase.js";
 
 import {
   GoogleAuthProvider,
   signInWithPopup,
+  signOut,
   createUserWithEmailAndPassword,
-  updateProfile
+  updateProfile,
+  onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-import "./auth.js";
 
 import {
   doc,
@@ -19,14 +16,26 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-
 const provider = new GoogleAuthProvider();
-
 
 document.addEventListener("DOMContentLoaded", () => {
 
+  let currentUser = null;
+
   // ==========================
-  // DOM ELEMENTS
+  // SAFE USER HELPER (NEW)
+  // ==========================
+  function getSafeUser(user) {
+    return {
+      uid: user?.uid || null,
+      name: user?.displayName || "Player",
+      email: user?.email || "",
+      photo: user?.photoURL || "./Images/defaultPFP.jpg"
+    };
+  }
+
+  // ==========================
+  // DOM
   // ==========================
   const profileBtn = document.getElementById("profileBtn");
   const dropdownMenu = document.getElementById("dropdownMenu");
@@ -36,19 +45,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const signOutBtn = document.getElementById("signOutBtn");
 
   const playBtn = document.getElementById("playBtn");
+  const profileImage = document.getElementById("profileImage");
 
   const signUpPopup = document.getElementById("signUpPopup");
   const closePopup = document.getElementById("closePopup");
   const signUpForm = document.getElementById("signUpForm");
 
-
   // ==========================
-  // DROPDOWN TOGGLE
+  // DROPDOWN
   // ==========================
   profileBtn?.addEventListener("click", () => {
     dropdownMenu?.classList.toggle("hidden");
   });
-
 
   // ==========================
   // GOOGLE SIGN IN
@@ -63,9 +71,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (!snap.exists()) {
         await setDoc(ref, {
+          uid: user.uid,
           displayName: user.displayName,
           email: user.email,
-          uid: user.uid,
+          age: null,
           photoURL: user.photoURL || "./Images/defaultPFP.jpg",
           isAdmin: false,
           createdAt: serverTimestamp()
@@ -80,9 +89,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   signInBtn?.addEventListener("click", handleGoogleSignIn);
 
-
   // ==========================
-  // SIGN UP POPUP
+  // POPUP CONTROL
   // ==========================
   signUpBtn?.addEventListener("click", () => {
     signUpPopup.style.display = "flex";
@@ -100,7 +108,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.key === "Escape") signUpPopup.style.display = "none";
   });
 
-
   // ==========================
   // EMAIL SIGN UP
   // ==========================
@@ -110,9 +117,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const displayName = document.getElementById("displayName")?.value.trim();
     const email = document.getElementById("signupEmail")?.value.trim().toLowerCase();
     const password = document.getElementById("signupPassword")?.value;
+    const age = Number(document.getElementById("age")?.value);
 
-    if (!displayName || !email || !password) {
-      alert("Fill all fields");
+    if (!displayName || !email || !password || !age) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    if (age < 1 || age > 120) {
+      alert("Enter a valid age.");
       return;
     }
 
@@ -128,14 +141,16 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       await setDoc(doc(db, "users", user.uid), {
+        uid: user.uid,
         displayName,
         email,
+        age,
         photoURL: photo,
-        uid: user.uid,
         isAdmin: false,
         createdAt: serverTimestamp()
       });
 
+      alert("Account created successfully!");
       signUpPopup.style.display = "none";
       signUpForm.reset();
 
@@ -145,21 +160,42 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-
   // ==========================
   // SIGN OUT
   // ==========================
-  signOutBtn?.addEventListener("click", async () => {
-    const { signOut } = await import("firebase/auth");
+  signOutBtn?.addEventListener("click", () => {
     signOut(auth);
   });
 
+  // ==========================
+  // AUTH STATE 
+  // ==========================
+  onAuthStateChanged(auth, (user) => {
+    currentUser = user;
+
+    const safe = getSafeUser(user);
+
+    if (user) {
+      signInBtn?.classList.add("hidden");
+      signUpBtn?.classList.add("hidden");
+      signOutBtn?.classList.remove("hidden");
+
+      profileImage.src = safe.photo;
+
+    } else {
+      signInBtn?.classList.remove("hidden");
+      signUpBtn?.classList.remove("hidden");
+      signOutBtn?.classList.add("hidden");
+
+      profileImage.src = "./Images/defaultPFP.jpg";
+    }
+  });
 
   // ==========================
   // PLAY BUTTON
   // ==========================
   playBtn?.addEventListener("click", () => {
-    if (!auth.currentUser) {
+    if (!currentUser) {
       alert("Please sign in first");
       return;
     }

@@ -93,3 +93,8 @@ V12 - 29th April
 
 - NEXT STEP: get the profile to sink across all pages. Get leaderboard working (Profiles arent being applied just Anonymous for all)
 - Also work on CSS and clean that up 
+
+V13 - 30th April
+
+- Trying to fix up sign in system + Leaderboard 
+- FOCUS is to keep doing thissss

@@ -1,5 +1,5 @@
 import { auth, db } from "./firebase.js";
-import "./auth";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   collection,
   getDocs,
@@ -7,83 +7,61 @@ import {
   orderBy
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* =========================
-   DOM
-========================= */
+
 const profilePic = document.getElementById("profileImage");
 const tableBody = document.querySelector("#LeaderboardTable tbody");
 
-/* =========================
-   SAFE NAME FUNCTION
-========================= */
-function getSafeName(data, authUser) {
-  return (
-    data.displayName ||
-    authUser?.displayName ||
-    authUser?.email?.split("@")[0] ||
-    "Anonymous"
-  );
-}
 
 /* =========================
-   SAFE PHOTO FUNCTION
+   PROFILE
 ========================= */
-function getSafePhoto(data, authUser) {
-  return (
-    data.photoURL ||
-    authUser?.photoURL ||
-    "./Images/defaultPFP.jpg"
-  );
-}
+import { auth } from "./firebase.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+onAuthStateChanged(auth, (user) => {
+  const profileImage = document.getElementById("profileImage");
+
+  if (!user) {
+    window.location.href = "index.html";
+    return;
+  }
+
+  profileImage.src = user.photoURL || "./Images/defaultPFP.jpg";
+});
 /* =========================
    LOAD LEADERBOARD
 ========================= */
 async function loadLeaderboard() {
-  try {
-    const ref = collection(db, "leaderboard");
-    const q = query(ref, orderBy("wins", "desc"));
+  const ref = collection(db, "leaderboard");
+  const q = query(ref, orderBy("wins", "desc"));
 
-    const snapshot = await getDocs(q);
+  const snapshot = await getDocs(q);
 
-    tableBody.innerHTML = "";
+  tableBody.innerHTML = "";
 
-    let rank = 1;
+  let rank = 1;
 
-    snapshot.forEach((docSnap) => {
-      const data = docSnap.data();
+  snapshot.forEach((docSnap) => {
+    const data = docSnap.data();
 
-      const name = data.displayName || "Anonymous";
-      const photo = data.photoURL || "./Images/defaultPFP.jpg";
+    const row = document.createElement("tr");
 
-      const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${rank}</td>
+      <td class="playerCell">
+        <img src="${data.photoURL || './Images/defaultPFP.jpg'}" class="lb-pfp">
+        <span>${data.displayName || "Anonymous"}</span>
+      </td>
+      <td>${data.wins ?? 0}</td>
+      <td>${data.gamesPlayed ?? 0}</td>
+      <td>${data.bestScore ?? "-"}</td>
+    `;
 
-      row.innerHTML = `
-        <td>${rank}</td>
-
-        <td class="playerCell">
-          <img src="${photo}" class="lb-pfp" />
-          <span>${name}</span>
-        </td>
-
-        <td>${data.wins ?? 0}</td>
-        <td>${data.gamesPlayed ?? 0}</td>
-        <td>${data.bestScore ?? "-"}</td>
-      `;
-
-      tableBody.appendChild(row);
-      rank++;
-    });
-
-  } catch (err) {
-    console.error("Leaderboard error:", err);
-  }
+    tableBody.appendChild(row);
+    rank++;
+  });
 }
 
-/* =========================
-   AUTO REFRESH (IMPORTANT)
-   keeps leaderboard updated live-ish
-========================= */
 loadLeaderboard();
 setInterval(loadLeaderboard, 15000);
-
 

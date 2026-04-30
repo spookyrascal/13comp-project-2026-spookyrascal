@@ -16,8 +16,8 @@
   ========================== -->
   <header>
 
-<span id="statusIcon class="status-dot></span>
-
+    <!-- STATUS ICON (FIXED) -->
+    <span id="statusIcon" class="status-dot"></span>
 
     <div class="header-left">
       <h1>Game Manager</h1>
@@ -26,9 +26,9 @@
     <div class="header-right">
 
       <!-- Profile Button -->
-      <button 
-        id="profileBtn" 
-        class="profile-icon" 
+      <button
+        id="profileBtn"
+        class="profile-icon"
         aria-label="Profile Menu"
         aria-haspopup="true"
         aria-expanded="false"
@@ -47,50 +47,63 @@
         <button id="signUpBtn">Sign Up</button>
         <button id="signOutBtn" class="hidden">Sign Out</button>
       </div>
-  
+
     </div>
 
   </header>
-
 
   <!-- =========================
        MAIN
   ========================== -->
   <main>
+
     <button id="playBtn" class="play-btn">Play</button>
 
     <!-- =========================
          SIGN UP POPUP
     ========================== -->
     <div id="signUpPopup" class="popup-overlay" role="dialog" aria-modal="true">
+
       <div class="popup-content">
+
         <span id="closePopup" class="close-btn">&times;</span>
-        
+
         <h2>Create Account</h2>
+
         <form id="signUpForm">
 
           <label for="displayName">Display Name:</label>
-          <input 
-            type="text" 
-            id="displayName" 
-            name="displayName" 
-            maxlength="30" 
+          <input
+            type="text"
+            id="displayName"
+            name="displayName"
+            maxlength="30"
             autocomplete="nickname"
             required>
 
+          <!-- ✅ AGE ADDED -->
+          <label for="age">Age:</label>
+          <input
+            type="number"
+            id="age"
+            name="age"
+            min="1"
+            max="120"
+            required>
+
           <label for="signupEmail">Email:</label>
-          <input 
-            type="email" 
-            id="signupEmail" 
-            name="email" 
+          <input
+            type="email"
+            id="signupEmail"
+            name="email"
             autocomplete="email"
             required>
 
           <label for="signupPassword">Password:</label>
-          <input 
-            type="password" 
-            id="signupPassword" 
-            name="password" 
+          <input
+            type="password"
+            id="signupPassword"
+            name="password"
             minlength="6"
             autocomplete="new-password"
             required>
@@ -98,11 +111,12 @@
           <button type="submit">Sign Up</button>
 
         </form>
-      </div>  
+
+      </div>
+
     </div>
 
   </main>
-
 
   <!-- =========================
        SCRIPTS
@@ -112,3 +126,4 @@
 </body>
 
 </html>
+

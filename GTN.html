@@ -1,70 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Guess The Number</title>
-<link rel="stylesheet" href="./style.css">
+  <meta charset="UTF-8">
+  <title>Guess The Number</title>
+  <link rel="stylesheet" href="./style.css">
 </head>
 
 <body>
 
 <header>
-    <h1>🎯 Guess The Number</h1>
+  <h1>🎯 Guess The Number</h1>
+  <span id="statusIcon" class="status-dot"></span>
+
+  <div class="profile">
+    <img id="profileImage" class="profile-img" src="./Images/defaultPFP.jpg" alt="Profile Picture">
+  </div>
 </header>
-<span id="statusIcon class="status-dot></span>
 
 <main>
 
-/* =========================
-   LOBBY
-========================= */
-<section id="lobbySection">
+  <!-- =========================
+       LOBBY
+  ========================== -->
+  <section id="lobbySection">
     <h2>Game Lobby</h2>
 
     <div class="createBox">
-        <input type="text" id="lobbyNameInput" placeholder="Enter Lobby Name">
-        <button id="createGameBtn">➕ Create Game</button>
+      <input type="text" id="lobbyNameInput" placeholder="Enter Lobby Name">
+      <button id="createGameBtn">➕ Create Game</button>
     </div>
 
     <h3>Waiting Games</h3>
     <div id="lobbyList"></div>
-</section>
+  </section>
 
-/* =========================
-   GAME
-========================= */
-<section id="gameSection" class="hidden">
-
+  <!-- =========================
+       GAME
+  ========================== -->
+  <section id="gameSection" class="hidden">
     <h2 id="gameStatus">Loading game...</h2>
 
     <p id="opponentInfo"></p>
     <p id="turnInfo"></p>
 
     <div class="guessBox">
-        <input type="number" id="guessInput" placeholder="Enter 1–100">
-        <button id="guessBtn">Submit Guess</button>
+      <input type="number" id="guessInput" placeholder="Enter 1–100">
+      <button id="guessBtn">Submit Guess</button>
     </div>
 
     <p id="feedback"></p>
 
     <h3>Your Guesses</h3>
     <div id="guessHistory"></div>
+  </section>
 
-</section>
-
-/* =========================
-   WIN SCREEN
-========================= */
-<section id="winScreen" class="hidden">
+  <!-- =========================
+       WIN SCREEN
+  ========================== -->
+  <section id="winScreen" class="hidden">
     <h1 id="winText"></h1>
     <button id="rematchBtn">🔄 Play Again</button>
     <button id="leaveBtn">🏠 Return to Lobby</button>
-</section>
+  </section>
 
 </main>
 
 <script type="module" src="GTN.js"></script>
+<script type="module" src="./firebase.js"></script>
 
 </body>
 </html>
-
