@@ -1,4 +1,6 @@
-/* Body with animated background (URL-based) */
+/* =========================
+   BODY
+========================= */
 body {
     margin: 0;
     padding: 0;
@@ -15,7 +17,9 @@ body {
     100% { background-position: 100% 100%; }
   }
   
-  /* Start Screen */
+/* =========================
+   START SCREEN
+========================= */
   .start-screen {
     position: absolute;
     width: 100%;
@@ -36,7 +40,9 @@ body {
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.7), 0 0 20px rgba(255, 255, 255, 0.5); /* Glowing effect */
   }
   
-  /* Space-Themed Buttons */
+/* =========================
+   BUTTONS
+========================= */
   .start-btn, .instructions-btn {
     padding: 15px 30px;
     margin: 10px;
@@ -44,7 +50,7 @@ body {
     cursor: pointer;
     border: none;
     border-radius: 8px;
-    background: linear-gradient(45deg, #4e2a84, #2e1a5b); /* Spacey gradient with purple and dark blue */
+    background: linear-gradient(45deg, #4e2a84, #2e1a5b); /* gradient with purple and dark blue */
     color: white;
     font-weight: bold;
     text-shadow: 0 0 8px rgba(255, 255, 255, 0.8); /* Subtle glow effect */
@@ -57,7 +63,9 @@ body {
     box-shadow: 0 0 15px rgba(255, 255, 255, 0.6); /* Glowing effect around buttons */
   }
   
-  /* Game Canvas */
+ /* =========================
+   GAME CANVAS
+========================= */
   #gameCanvas {
     display: none;
     background: transparent;
@@ -66,7 +74,9 @@ body {
     left: 0;
   }
   
-  /* Modal (Instructions) */
+/* =========================
+   INSTRUCTIONS
+========================= */
   .modal {
     display: none;
     position: fixed;

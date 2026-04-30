@@ -1,4 +1,6 @@
-// 🎮 Grab everything we need from the page (buttons, canvas, etc)
+/* =========================
+   
+========================= */
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const startBtn = document.querySelector('.start-btn');
@@ -7,8 +9,10 @@ const instructionsModal = document.getElementById('instructions-modal');
 const closeBtn = document.querySelector('.close-btn');
 const startScreen = document.querySelector('.start-screen');
 const pauseOverlay = document.querySelector('.pause-overlay');
-
-// 🎮 Set up game values and objects
+import "./auth";
+/* =========================
+   
+========================= */
 let gameRunning = false;
 let paused = false;
 let player = { x: 50, y: 100, w: 50, h: 50, speed: 5, dy: 0 }; // Player setup
@@ -18,7 +22,9 @@ let lives = 3;
 let earth = { show: false, x: 0 };
 let startTime; // Game start time
 
-// 🖼️ Load images
+/* =========================
+   LOAD IMAGES
+========================= */
 const playerImg = new Image();
 const meteorImg = new Image();
 const earthImg = new Image();
@@ -26,14 +32,18 @@ playerImg.src = '../Images/meteor.jpeg';
 meteorImg.src = '../Images/spacerock.jpeg';
 earthImg.src = '../Images/earth.jpeg';
 
-// 🟢 When start is clicked, set up the game and run it
+/* =========================
+   RUN GAME
+========================= */
 startBtn.onclick = () => {
   canvas.width = window.innerWidth; // Adjust canvas size to screen
   canvas.height = window.innerHeight;
   canvas.style.display = 'block';
   startScreen.style.display = 'none'; // Hide start screen
 
-  // Reset game values
+/* =========================
+   RESET GAME
+========================= */
   score = 0;
   lives = 3;
   obstacles = [];
@@ -46,11 +56,15 @@ startBtn.onclick = () => {
   loop(); // Start the game loop
 };
 
-// 📜 Show/hide instructions popup
+/* =========================
+   INSTRUCTIONS POP UP
+========================= */
 instructionsBtn.onclick = () => instructionsModal.style.display = 'flex';
 closeBtn.onclick = () => instructionsModal.style.display = 'none';
 
-// ⌨️ Controls (up/down arrows + pause)
+/* =========================
+   CONTROLS
+========================= */
 document.addEventListener('keydown', e => {
   if (e.key === 'ArrowUp') player.dy = -player.speed;
   if (e.key === 'ArrowDown') player.dy = player.speed;
@@ -61,7 +75,9 @@ document.addEventListener('keyup', e => {
   if (e.key === 'ArrowUp' || e.key === 'ArrowDown') player.dy = 0; // Stop player when keys are released
 });
 
-// ⏸️ Pausing game
+/* =========================
+   PAUSING GAME
+========================= */
 function togglePause() {
   if (!gameRunning) return;
   paused = !paused;
@@ -69,7 +85,9 @@ function togglePause() {
   if (!paused) loop();
 }
 
-// 🔁 The game loop
+/* =========================
+   GAME LOOP
+========================= */
 function loop() {
   if (!gameRunning || paused) return; // Stop if the game isn't running or is paused
   ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
@@ -98,7 +116,9 @@ function loop() {
   requestAnimationFrame(loop); // Keep looping
 }
 
-// ☄️ Rock logic: create, move, and check crash
+/* =========================
+   ROCK LOGIC
+========================= */
 function handleObstacles() {
   if (Math.random() < 0.02) { // Random chance to create a new obstacle
     let size = 30 + Math.random() * 40;
@@ -140,15 +160,18 @@ function handleObstacles() {
   });
 
 } 
-// 📝 Display score and lives
+/* =========================
+   DISPLAY SCORE AND LIVES
+========================= */
 function drawText() {
   ctx.font = '30px Arial';
   ctx.fillStyle = 'white';
   ctx.fillText(`Score: ${score}`, 20, 40);
   ctx.fillText(`Lives: ${lives}`, canvas.width - 150, 40);
 }
-
-// 💀 Game over function
+/* =========================
+   GAME OVER FUNCTION
+========================= */
 function gameOver(won) {
   gameRunning = false; // Stop the game
   ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas

@@ -2,14 +2,15 @@
 // MAIN
 // ==========================
 import { auth, db } from "./firebase.js";
+
 import {
   GoogleAuthProvider,
   signInWithPopup,
-  signOut,
-  onAuthStateChanged,
   createUserWithEmailAndPassword,
   updateProfile
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+import "./auth.js";
 
 import {
   doc,
@@ -18,17 +19,14 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+
 const provider = new GoogleAuthProvider();
+
 
 document.addEventListener("DOMContentLoaded", () => {
 
   // ==========================
-  // STATE
-  // ==========================
-  let currentUser = null;
-
-  // ==========================
-  // DOM Elements
+  // DOM ELEMENTS
   // ==========================
   const profileBtn = document.getElementById("profileBtn");
   const dropdownMenu = document.getElementById("dropdownMenu");
@@ -38,34 +36,33 @@ document.addEventListener("DOMContentLoaded", () => {
   const signOutBtn = document.getElementById("signOutBtn");
 
   const playBtn = document.getElementById("playBtn");
-  const profileImage = document.getElementById("profileImage");
 
   const signUpPopup = document.getElementById("signUpPopup");
   const closePopup = document.getElementById("closePopup");
   const signUpForm = document.getElementById("signUpForm");
 
+
   // ==========================
-  // Dropdown Toggle
+  // DROPDOWN TOGGLE
   // ==========================
   profileBtn?.addEventListener("click", () => {
     dropdownMenu?.classList.toggle("hidden");
-    const expanded = profileBtn.getAttribute("aria-expanded") === "true";
-    profileBtn.setAttribute("aria-expanded", !expanded);
   });
 
+
   // ==========================
-  // Google Sign In
+  // GOOGLE SIGN IN
   // ==========================
-  async function handleSignIn() {
+  async function handleGoogleSignIn() {
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      const userRef = doc(db, "users", user.uid);
-      const userSnap = await getDoc(userRef);
+      const ref = doc(db, "users", user.uid);
+      const snap = await getDoc(ref);
 
-      if (!userSnap.exists()) {
-        await setDoc(userRef, {
+      if (!snap.exists()) {
+        await setDoc(ref, {
           displayName: user.displayName,
           email: user.email,
           uid: user.uid,
@@ -76,15 +73,16 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
     } catch (err) {
-      console.error("Error signing in:", err);
-      alert("Google sign-in failed: " + err.message);
+      console.error(err);
+      alert("Google sign-in failed");
     }
   }
 
-  signInBtn?.addEventListener("click", handleSignIn);
+  signInBtn?.addEventListener("click", handleGoogleSignIn);
+
 
   // ==========================
-  // Sign Up Popup
+  // SIGN UP POPUP
   // ==========================
   signUpBtn?.addEventListener("click", () => {
     signUpPopup.style.display = "flex";
@@ -102,8 +100,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.key === "Escape") signUpPopup.style.display = "none";
   });
 
+
   // ==========================
-  // Email Sign Up
+  // EMAIL SIGN UP
   // ==========================
   signUpForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -113,84 +112,55 @@ document.addEventListener("DOMContentLoaded", () => {
     const password = document.getElementById("signupPassword")?.value;
 
     if (!displayName || !email || !password) {
-      alert("Please fill in all fields.");
+      alert("Fill all fields");
       return;
     }
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      const user = cred.user;
 
-      const defaultPhoto = "./Images/defaultPFP.jpg";
+      const photo = "./Images/defaultPFP.jpg";
 
       await updateProfile(user, {
         displayName,
-        photoURL: defaultPhoto
+        photoURL: photo
       });
-
-      await user.reload();
 
       await setDoc(doc(db, "users", user.uid), {
         displayName,
         email,
-        photoURL: defaultPhoto,
-        createdAt: serverTimestamp(),
+        photoURL: photo,
+        uid: user.uid,
         isAdmin: false,
-        uid: user.uid
+        createdAt: serverTimestamp()
       });
 
-      alert("Account created successfully!");
       signUpPopup.style.display = "none";
       signUpForm.reset();
 
-    } catch (error) {
-      console.error("Error creating user:", error);
-      alert(error.message);
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
     }
   });
 
+
   // ==========================
-  // Sign Out
+  // SIGN OUT
   // ==========================
   signOutBtn?.addEventListener("click", async () => {
-    await signOut(auth);
+    const { signOut } = await import("firebase/auth");
+    signOut(auth);
   });
 
-  // ==========================
-  // Auth State Listener (FIXED)
-  // ==========================
-  onAuthStateChanged(auth, async (user) => {
-    currentUser = user; // 🔥 IMPORTANT FIX
-
-    if (user) {
-      signInBtn?.classList.add("hidden");
-      signUpBtn?.classList.add("hidden");
-      signOutBtn?.classList.remove("hidden");
-
-      try {
-        const docSnap = await getDoc(doc(db, "users", user.uid));
-        const data = docSnap.exists() ? docSnap.data() : {};
-        profileImage.src = data.photoURL || user.photoURL || "./Images/defaultPFP.jpg";
-      } catch (err) {
-        console.error("Firestore error:", err);
-        profileImage.src = user.photoURL || "./Images/defaultPFP.jpg";
-      }
-
-    } else {
-      signInBtn?.classList.remove("hidden");
-      signUpBtn?.classList.remove("hidden");
-      signOutBtn?.classList.add("hidden");
-
-      profileImage.src = "./Images/defaultPFP.jpg";
-    }
-  });
 
   // ==========================
-  // Play Button (FIXED)
+  // PLAY BUTTON
   // ==========================
   playBtn?.addEventListener("click", () => {
-    if (!currentUser) {
-      alert("Please sign in first.");
+    if (!auth.currentUser) {
+      alert("Please sign in first");
       return;
     }
 
@@ -198,3 +168,4 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
 });
+

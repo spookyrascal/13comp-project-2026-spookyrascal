@@ -1,5 +1,5 @@
 import { auth, db } from "./firebase.js";
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import "./auth";
 import {
   collection,
   getDocs,
@@ -35,14 +35,6 @@ function getSafePhoto(data, authUser) {
     "./Images/defaultPFP.jpg"
   );
 }
-
-/* =========================
-   PROFILE ICON
-========================= */
-onAuthStateChanged(auth, (user) => {
-  profilePic.src = user?.photoURL || "./Images/defaultPFP.jpg";
-});
-
 /* =========================
    LOAD LEADERBOARD
 ========================= */

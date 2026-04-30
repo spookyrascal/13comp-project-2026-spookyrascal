@@ -85,3 +85,11 @@ V11 - 28th April
 - Updated Leaderboard and GTN
 - Still need to get profiles to run across ALL pages
 - Uhhhh No rage today
+
+V12 - 29th April
+
+- No work on code did lots of work documentation wise
+- Worked on commentation in code (Headers) 
+
+- NEXT STEP: get the profile to sink across all pages. Get leaderboard working (Profiles arent being applied just Anonymous for all)
+- Also work on CSS and clean that up 

@@ -1,23 +1,13 @@
-import { auth } from "..firebase.js";
+import "./auth.js";
+import { getCurrentUser } from "./auth.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const profileImage = document.getElementById("profileImage");
-const leaderboardBtn = document.getElementById("leaderBoardBtn"); // matches HTML
-
-// Profile picture
-onAuthStateChanged(auth, (user) => {
-  profileImage.src = user?.photoURL || "./Images/defaultPFP.jpg";
-});
-
-// Navigate to leaderboard
+const leaderboardBtn = document.getElementById("leaderBoardBtn"); 
+const user = getCurrentUser();
+/* =========================
+   NAVIGATE TO LEADERBOARD
+========================= */
 leaderboardBtn?.addEventListener("click", () => {
   window.location.href = "leaderboard.html";
-});
-
-// Optional: protect page
-onAuthStateChanged(auth, (user) => {
-  if (!user) {
-    alert("Please sign in first.");
-    window.location.href = "index.html";
-  }
 });

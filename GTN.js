@@ -1,5 +1,5 @@
-import { auth, db } from "../../firebase.js";
-
+import { auth, db } from "./firebase.js";
+import "./auth";
 import {
     collection,
     addDoc,
@@ -21,7 +21,7 @@ from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 /* =========================
    STATE
 ========================= */
-let currentUser = null;
+import { getCurrentUser } from "./auth.js";
 let currentGameId = null;
 let gameData = null;
 
@@ -64,6 +64,7 @@ const winText = document.getElementById("winText");
 
 const rematchBtn = document.getElementById("rematchBtn");
 const leaveBtn = document.getElementById("leaveBtn");
+const currentUser = getCurrentUser();
 
 /* =========================
    AUTH
@@ -280,7 +281,7 @@ guessBtn.addEventListener("click", async () => {
 });
 
 /* =========================
-   LEADERBOARD (FIXED)
+   LEADERBOARD 
 ========================= */
 async function updateLeaderboard(game, winnerId) {
 
