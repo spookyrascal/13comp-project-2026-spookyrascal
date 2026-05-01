@@ -1,22 +1,24 @@
-// ==========================
-// Firebase Core
-// ==========================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-// ==========================
-// Firebase Services
-// ==========================
-import { 
-  getAuth, 
-  signInAnonymously 
+import {
+  getAuth,
+  signInAnonymously,
+  onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  getDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
 
 
 // ==========================
-// Firebase Configuration
+// CONFIG
 // ==========================
 const firebaseConfig = {
   apiKey: "AIzaSyDh5jFP6KcIzuEMHrXgaHUL4RcKhrx5L4M",
@@ -30,59 +32,78 @@ const firebaseConfig = {
 
 
 // ==========================
-// Initialize Firebase
+// INIT
 // ==========================
 const app = initializeApp(firebaseConfig);
-
-
-// ==========================
-// Initialize Services
-// ==========================
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-signInAnonymously(auth).catch((error) => {
-  console.error("Anonymous login failed:", error);
+
+// ==========================
+// OPTIONAL ANON LOGIN (SAFE)
+// ==========================
+// ⚠️ NOTE: This is NOT needed for your game login system,
+// but kept safe here so it won't interfere with Google/email users.
+signInAnonymously(auth).catch(() => {
+  console.warn("Anonymous auth not used / failed (safe to ignore)");
 });
 
 
 // ==========================
-// Analytics 
+// ANALYTICS
 // ==========================
-let analytics;
 try {
-  analytics = getAnalytics(app);
-} catch (err) {
-  console.warn("Analytics not supported in this environment");
+  getAnalytics(app);
+} catch {
+  console.warn("Analytics not available");
 }
 
-// ==========================
-// CONSTANT LOGIN
-// ==========================
 
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { doc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+// ==========================
+// USER NORMALISATION (IMPORTANT FIX)
+// ==========================
+function getSafeName(user, snapData) {
+  return (
+    snapData?.displayName ||
+    user?.displayName ||
+    user?.email?.split("@")[0] ||
+    "Player"
+  );
+}
 
+
+// ==========================
+// SINGLE SOURCE USER SYNC
+// ==========================
 onAuthStateChanged(auth, async (user) => {
   if (!user) return;
 
   const ref = doc(db, "users", user.uid);
   const snap = await getDoc(ref);
+  const data = snap.exists() ? snap.data() : {};
 
+  const safeName = getSafeName(user, data);
+
+  // Create user if doesn't exist
   if (!snap.exists()) {
     await setDoc(ref, {
       uid: user.uid,
-      displayName: user.displayName || "Player",
+      displayName: safeName,
       email: user.email || "",
+      age: null,
       photoURL: user.photoURL || "./Images/defaultPFP.jpg",
-      createdAt: serverTimestamp(),
-      isAdmin: false
+      isAdmin: false,
+      createdAt: serverTimestamp()
     });
+  } else {
+    if (!data.displayName && user.displayName) {
+      await setDoc(ref, { displayName: user.displayName }, { merge: true });
+    }
   }
 });
 
 
 // ==========================
-// Export Services
+// EXPORT
 // ==========================
 export { auth, db };

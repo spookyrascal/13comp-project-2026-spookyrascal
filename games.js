@@ -1,31 +1,57 @@
-import { auth } from "./firebase.js";
+import { auth, db } from "./firebase.js";
+import { getUserProfile } from "./user.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-const profileImage = document.getElementById("profileImage");
+import {
+  collection,
+  addDoc,
+  doc,
+  updateDoc,
+  onSnapshot,
+  query,
+  where,
+  arrayUnion,
+  increment,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* =========================
-   AUTH CHECK
-========================= */
-onAuthStateChanged(auth, (user) => {
+let currentUser = null;
+let currentGameId = null;
+
+// AUTH
+onAuthStateChanged(auth, async (user) => {
   if (!user) {
-    alert("Please sign in first.");
     window.location.href = "index.html";
     return;
   }
 
-  profileImage.src = user.photoURL || "./Images/defaultPFP.jpg";
+  currentUser = await getUserProfile(user);
+  loadLobby();
 });
 
-/* =========================
-  PROFILE   
-========================= */
-onAuthStateChanged(auth, (user) => {
-  const profileImage = document.getElementById("profileImage");
+// CREATE GAME
+document.getElementById("createGameBtn").addEventListener("click", async () => {
 
-  if (!user) {
-    window.location.href = "index.html";
-    return;
-  }
+  const lobbyName = document.getElementById("lobbyNameInput").value || "Lobby";
 
-  profileImage.src = user.photoURL || "./Images/defaultPFP.jpg";
+  const ref = await addDoc(collection(db, "games"), {
+    lobbyName,
+    player1Id: currentUser.uid,
+    player1Name: currentUser.name,
+    player1Photo: currentUser.photo,
+
+    player2Id: null,
+
+    secretNumber: Math.floor(Math.random() * 100) + 1,
+    currentTurn: currentUser.uid,
+    status: "waiting",
+
+    player1Guesses: [],
+    player2Guesses: [],
+
+    winnerId: null,
+    createdAt: serverTimestamp()
+  });
+
+  joinGame(ref.id);
 });

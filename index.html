@@ -16,7 +16,7 @@
   ========================== -->
   <header>
 
-    <!-- STATUS ICON (FIXED) -->
+    <!-- STATUS ICON -->
     <span id="statusIcon" class="status-dot"></span>
 
     <div class="header-left">
@@ -25,27 +25,40 @@
 
     <div class="header-right">
 
-      <!-- Profile Button -->
-      <button
-        id="profileBtn"
-        class="profile-icon"
-        aria-label="Profile Menu"
-        aria-haspopup="true"
-        aria-expanded="false"
-      >
-        <img
-          id="profileImage"
-          class="profile-img"
-          src="./Images/defaultPFP.jpg"
-          alt="Profile Picture"
-          onerror="this.src='./Images/defaultPFP.jpg'">
-      </button>
+      <!-- =========================
+           PROFILE MENU
+      ========================== -->
+      <div class="profile-wrapper">
 
-      <!-- Dropdown Menu -->
-      <div id="dropdownMenu" class="dropdown hidden">
-        <button id="signInBtn">Sign In</button>
-        <button id="signUpBtn">Sign Up</button>
-        <button id="signOutBtn" class="hidden">Sign Out</button>
+        <button id="profileBtn" class="profile-trigger" aria-label="Profile Menu">
+          <img
+            id="profileImage"
+            class="profile-img"
+            src="./Images/defaultPFP.jpg"
+            alt="Profile Picture"
+            onerror="this.src='./Images/defaultPFP.jpg'">
+        </button>
+
+        <!-- Dropdown (Discord Style) -->
+        <div id="dropdownMenu" class="discord-menu hidden">
+
+          <div class="discord-user">
+            <img id="menuPfp" src="./Images/defaultPFP.jpg">
+
+            <div class="discord-user-info">
+              <span id="menuName">Guest</span>
+              <small id="menuEmail">Not signed in</small>
+            </div>
+          </div>
+
+          <div class="discord-divider"></div>
+
+          <button id="signInBtn">Sign In</button>
+          <button id="signUpBtn">Sign Up</button>
+          <button id="signOutBtn" class="danger hidden">Sign Out</button>
+
+        </div>
+
       </div>
 
     </div>
@@ -81,7 +94,6 @@
             autocomplete="nickname"
             required>
 
-          <!-- ✅ AGE ADDED -->
           <label for="age">Age:</label>
           <input
             type="number"
@@ -126,4 +138,3 @@
 </body>
 
 </html>
-

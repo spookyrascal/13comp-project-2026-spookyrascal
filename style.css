@@ -1,33 +1,37 @@
 /* =========================
-   COLOR VARIABLES
+   COLOR SYSTEM 
 ========================= */
 :root {
-  --primary: #2F3E2C;        /* deep forest green */
-  --secondary: #5E7C4D;      /* moss green */
-  --accent: #A3B18A;         /* sage */
-  --bg: #F6F1E9;             /* warm cream */
-  --card-bg: #FFFFFF;
-  --highlight: #DDBEA9;      /* soft earthy peach */
-  --shadow: rgba(0, 0, 0, 0.12);
-  --hover: #7DA36F;          /* soft green hover */
+  --bg: #1f2421;              /* deep dark green-black */
+  --panel: #2a322d;          /* soft dark surface */
+  --panel-2: #313a34;        /* hover surface */
+  --text: #e8efe6;           /* soft white-green */
+  --muted: #b7c2b0;          /* muted text */
+
+  --primary: #7aa874;        /* main green */
+  --secondary: #5e7c4d;      /* forest green */
+  --accent: #a3b18a;         /* sage */
+  --highlight: #d8e2dc;      /* soft light accent */
+
+  --shadow: rgba(0, 0, 0, 0.35);
+  --online: #57f287;         /* discord-style green */
 }
 
 /* =========================
    GLOBAL
 ========================= */
 body {
-  font-family: "Segoe UI", Arial, sans-serif;
-  background: var(--bg);
-  color: var(--primary);
   margin: 0;
+  font-family: "Segoe UI", system-ui, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
   min-height: 100vh;
-  text-align: center;
 
   display: flex;
   flex-direction: column;
   align-items: center;
 
-  transition: 0.3s;
+  text-align: center;
 }
 
 /* =========================
@@ -38,38 +42,53 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 18px 30px;
 
-  background: linear-gradient(135deg, var(--secondary), var(--accent));
-  color: white;
+  padding: 14px 24px;
 
-  box-shadow: 0 5px 15px var(--shadow);
-  border-bottom-left-radius: 20px;
-  border-bottom-right-radius: 20px;
+  background: var(--panel);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+
+  box-shadow: 0 8px 20px var(--shadow);
 }
 
 header h1 {
   margin: 0;
-  font-weight: 700;
-  letter-spacing: 1px;
+  font-size: 18px;
+  letter-spacing: 0.5px;
+  color: var(--text);
+}
+
+/* =========================
+   STATUS DOT 
+========================= */
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--online);
+  box-shadow: 0 0 10px var(--online);
+  margin-right: 10px;
+  display: inline-block;
 }
 
 /* =========================
    PROFILE ICON
 ========================= */
 .profile-img {
-  width: 45px;
-  height: 45px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid white;
-  box-shadow: 0 3px 6px var(--shadow);
-  transition: 0.25s;
+
+  border: 2px solid var(--panel-2);
+  box-shadow: 0 4px 12px var(--shadow);
+
+  transition: 0.2s ease;
 }
 
 .profile-img:hover {
-  transform: scale(1.1);
-  box-shadow: 0 0 10px var(--hover);
+  transform: scale(1.06);
+  border-color: var(--accent);
 }
 
 /* =========================
@@ -77,35 +96,43 @@ header h1 {
 ========================= */
 .dropdown {
   position: absolute;
-  top: 60px;
   right: 20px;
-  background: var(--card-bg);
+  top: 60px;
+
+  background: var(--panel);
   border-radius: 12px;
-  box-shadow: 0 8px 20px var(--shadow);
   overflow: hidden;
+
+  min-width: 160px;
+  box-shadow: 0 10px 25px var(--shadow);
+  border: 1px solid rgba(255,255,255,0.05);
 }
 
 .dropdown button {
+  width: 100%;
+  padding: 12px 14px;
+
   background: none;
   border: none;
-  padding: 12px 18px;
-  width: 100%;
+
+  color: var(--text);
   text-align: left;
+
   cursor: pointer;
   transition: 0.2s;
 }
 
 .dropdown button:hover {
-  background: var(--hover);
-  color: white;
+  background: var(--panel-2);
+  color: var(--highlight);
 }
 
 /* =========================
    MAIN
 ========================= */
 main {
+  margin-top: 40px;
   flex: 1;
-  margin-top: 50px;
 
   display: flex;
   flex-direction: column;
@@ -113,24 +140,25 @@ main {
 }
 
 /* =========================
-   BUTTONS (GLOBAL)
+   BUTTONS 
 ========================= */
 button {
-  padding: 12px 20px;
-  border-radius: 12px;
+  padding: 10px 16px;
+  border-radius: 10px;
+
   border: none;
   cursor: pointer;
-  font-weight: 600;
 
-  background: var(--secondary);
-  color: white;
+  background: var(--panel);
+  color: var(--text);
 
-  box-shadow: 0 4px 12px var(--shadow);
-  transition: 0.25s;
+  box-shadow: 0 6px 16px var(--shadow);
+
+  transition: 0.2s ease;
 }
 
 button:hover {
-  background: var(--hover);
+  background: var(--panel-2);
   transform: translateY(-2px);
 }
 
@@ -139,103 +167,85 @@ button:hover {
 ========================= */
 .gameContainer {
   display: flex;
-  gap: 30px;
-  margin-top: 40px;
   flex-wrap: wrap;
-  justify-content: center;
-}
+  gap: 20px;
 
-.gameCard {
-  background: var(--card-bg);
-  padding: 20px;
-  width: 220px;
-  border-radius: 18px;
-  text-decoration: none;
-  color: var(--primary);
-
-  box-shadow: 0 8px 20px var(--shadow);
-  transition: 0.3s;
-}
-
-.gameCard:hover {
-  transform: translateY(-6px);
-  background: var(--accent);
-  color: white;
-}
-
-.gameCard img {
-  width: 100%;
-  border-radius: 12px;
-  margin-bottom: 10px;
-}
-
-/* =========================
-   LEADERBOARD WRAPPER
-========================= */
-.tableWrap {
-  display: flex;
   justify-content: center;
   margin-top: 30px;
 }
 
-/* =========================
-   LEADERBOARD TABLE
-========================= */
-#LeaderboardTable {
-  width: 90%;
-  max-width: 900px;
-  border-collapse: collapse;
-  border-radius: 16px;
-  overflow: hidden;
+.gameCard {
+  width: 220px;
+  padding: 16px;
 
-  background: var(--card-bg);
-  box-shadow: 0 10px 25px var(--shadow);
+  background: var(--panel);
+  border-radius: 14px;
 
-  animation: fadeIn 0.4s ease-in;
+  text-decoration: none;
+  color: var(--text);
+
+  box-shadow: 0 10px 22px var(--shadow);
+
+  transition: 0.25s ease;
+}
+
+.gameCard:hover {
+  transform: translateY(-6px);
+  background: var(--panel-2);
+}
+
+.gameCard img {
+  width: 100%;
+  border-radius: 10px;
+  margin-bottom: 10px;
 }
 
 /* =========================
-   HEADER ROW
+   LEADERBOARD
 ========================= */
+.tableWrap {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+}
+
+#LeaderboardTable {
+  width: 92%;
+  max-width: 900px;
+
+  border-collapse: collapse;
+  border-radius: 14px;
+  overflow: hidden;
+
+  background: var(--panel);
+  box-shadow: 0 10px 25px var(--shadow);
+}
+
+/* header */
 #LeaderboardTable thead {
-  background: linear-gradient(135deg, var(--secondary), var(--accent));
-  color: white;
+  background: var(--panel-2);
 }
 
 #LeaderboardTable th {
   padding: 14px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
+  color: var(--highlight);
 }
 
-/* =========================
-   TABLE ROWS
-========================= */
+/* rows */
 #LeaderboardTable td {
   padding: 12px;
-  text-align: center;
+  color: var(--text);
 }
 
-/* alternating rows */
 #LeaderboardTable tbody tr:nth-child(even) {
-  background: #f4efe6;
+  background: rgba(255,255,255,0.02);
 }
 
-#LeaderboardTable tbody tr:nth-child(odd) {
-  background: #ffffff;
-}
-
-/* hover effect */
 #LeaderboardTable tbody tr:hover {
-  background: var(--hover);
-  color: white;
-  transform: scale(1.01);
-  transition: 0.2s;
+  background: var(--panel-2);
 }
 
-/* =========================
-   PLAYER CELL (PFP + NAME)
-========================= */
+/* player cell */
 .playerCell {
   display: flex;
   align-items: center;
@@ -243,7 +253,6 @@ button:hover {
   gap: 10px;
 }
 
-/* profile pic inside leaderboard */
 .lb-pfp {
   width: 32px;
   height: 32px;
@@ -251,113 +260,58 @@ button:hover {
   object-fit: cover;
 
   border: 2px solid var(--accent);
-  box-shadow: 0 3px 8px var(--shadow);
 }
 
 /* =========================
-   BACK BUTTON
-========================= */
-.backBtn {
-  margin: 25px;
-  padding: 10px 18px;
-
-  border: none;
-  border-radius: 12px;
-
-  background: var(--secondary);
-  color: white;
-
-  cursor: pointer;
-  transition: 0.25s;
-}
-
-.backBtn:hover {
-  background: var(--hover);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 15px var(--shadow);
-}
-
-/* =========================
-   SMALL ANIMATION
-========================= */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-
-
-/* =========================
-   POPUP (SIGNUP)
+   POPUP
 ========================= */
 .popup-overlay {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.4);
+
+  background: rgba(0,0,0,0.6);
+
   justify-content: center;
   align-items: center;
 }
 
 .popup-content {
-  background: var(--card-bg);
-  padding: 25px;
-  border-radius: 18px;
+  position: relative;
+
+  background: var(--panel);
+  padding: 22px;
+  border-radius: 14px;
+
   width: 320px;
-  box-shadow: 0 10px 25px var(--shadow);
+
+  box-shadow: 0 15px 30px var(--shadow);
 }
 
 .popup-content input {
-  width: 90%;
+  width: 92%;
   padding: 10px;
+
   margin: 8px 0;
+
   border-radius: 8px;
-  border: 1px solid var(--accent);
+  border: 1px solid rgba(255,255,255,0.1);
+
+  background: var(--bg);
+  color: var(--text);
 }
 
 .close-btn {
   position: absolute;
   top: 10px;
-  right: 15px;
+  right: 12px;
   cursor: pointer;
+  color: var(--muted);
 }
 
 /* =========================
-   GTN GAME 
+   UTIL
 ========================= */
 .hidden {
   display: none;
 }
-
-#lobbyList button {
-  display: block;
-  margin: 10px auto;
-  width: 200px;
-}
-
-#guessInput {
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid var(--accent);
-}
-
-#guessHistory {
-  margin-top: 10px;
-}
-
-#guessHistory p {
-  margin: 3px;
-  font-size: 14px;
-}
-
-#feedback {
-  margin-top: 10px;
-  font-weight: bold;
-}
-
