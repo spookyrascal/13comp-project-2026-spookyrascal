@@ -15,20 +15,26 @@
        HEADER
   ========================== -->
   <header class="leaderboardHeader">
-    <span id="statusIcon class="status-dot></span>
+
     <h1>🏆 Leaderboard</h1>
 
-    <!-- Profile Icon -->
-    <div class="profileContainer">
-      <img
-        id="profileImage"
-        class="profile-img"
-        src="./Images/defaultPFP.jpg"
-        alt="Profile Picture"
-      >
-    </div>
+<!-- PROFILE -->
+<div class="profileContainer">
 
-  </header>
+  <div class="profileMini">
+
+    <img
+      id="profileImage"
+      class="profile-img"
+      src="./Images/defaultPFP.jpg"
+      alt="Profile Picture"
+    >
+
+    <div class="profileText">
+      <p id="profileName">Guest</p>
+    </div>
+  </div>
+</div>
 
   <!-- =========================
        MAIN TABLE
@@ -45,7 +51,7 @@
             <th>Player</th>
             <th>Wins</th>
             <th>Games Played</th>
-            <th>Best Score</th>
+            <th>Win Rate</th>
           </tr>
         </thead>
 
@@ -67,10 +73,8 @@
   <!-- =========================
        SCRIPTS 
   ========================== -->
-  <script type="module" src="./firebase.js"></script>
   <script type="module" src="./leaderBoard.js"></script>
 
 </body>
 
 </html>
-

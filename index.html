@@ -15,10 +15,6 @@
        HEADER
   ========================== -->
   <header>
-
-    <!-- STATUS ICON -->
-    <span id="statusIcon" class="status-dot"></span>
-
     <div class="header-left">
       <h1>Game Manager</h1>
     </div>
@@ -26,33 +22,45 @@
     <div class="header-right">
 
       <!-- =========================
-           PROFILE MENU
+           PROFILE WRAPPER
       ========================== -->
       <div class="profile-wrapper">
 
+        <!-- PROFILE BUTTON -->
         <button id="profileBtn" class="profile-trigger" aria-label="Profile Menu">
+
           <img
             id="profileImage"
             class="profile-img"
             src="./Images/defaultPFP.jpg"
             alt="Profile Picture"
             onerror="this.src='./Images/defaultPFP.jpg'">
+
         </button>
 
-        <!-- Dropdown (Discord Style) -->
+        <!-- =========================
+             MENU
+        ========================== -->
         <div id="dropdownMenu" class="discord-menu hidden">
 
+          <!-- USER HEADER -->
           <div class="discord-user">
-            <img id="menuPfp" src="./Images/defaultPFP.jpg">
+
+            <img
+              id="menuPfp"
+              src="./Images/defaultPFP.jpg"
+              alt="User Avatar">
 
             <div class="discord-user-info">
               <span id="menuName">Guest</span>
               <small id="menuEmail">Not signed in</small>
             </div>
+
           </div>
 
           <div class="discord-divider"></div>
 
+          <!-- ACTIONS -->
           <button id="signInBtn">Sign In</button>
           <button id="signUpBtn">Sign Up</button>
           <button id="signOutBtn" class="danger hidden">Sign Out</button>
@@ -85,42 +93,19 @@
 
         <form id="signUpForm">
 
-          <label for="displayName">Display Name:</label>
-          <input
-            type="text"
-            id="displayName"
-            name="displayName"
-            maxlength="30"
-            autocomplete="nickname"
-            required>
+          <label for="displayName">Display Name</label>
+          <input type="text" id="displayName" maxlength="30" required>
 
-          <label for="age">Age:</label>
-          <input
-            type="number"
-            id="age"
-            name="age"
-            min="1"
-            max="120"
-            required>
+          <label for="age">Age</label>
+          <input type="number" id="age" min="1" max="120" required>
 
-          <label for="signupEmail">Email:</label>
-          <input
-            type="email"
-            id="signupEmail"
-            name="email"
-            autocomplete="email"
-            required>
+          <label for="signupEmail">Email</label>
+          <input type="email" id="signupEmail" required>
 
-          <label for="signupPassword">Password:</label>
-          <input
-            type="password"
-            id="signupPassword"
-            name="password"
-            minlength="6"
-            autocomplete="new-password"
-            required>
+          <label for="signupPassword">Password</label>
+          <input type="password" id="signupPassword" minlength="6" required>
 
-          <button type="submit">Sign Up</button>
+          <button type="submit">Create Account</button>
 
         </form>
 

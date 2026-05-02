@@ -1,4 +1,6 @@
 import { auth, db } from "./firebase.js";
+import { getUserProfile } from "./user.js";
+
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 import {
@@ -9,77 +11,97 @@ import {
   onSnapshot,
   query,
   where,
-  arrayUnion,
-  increment,
-  serverTimestamp,
-  getDoc,
-  setDoc
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-
+/* =========================
+   STATE
+========================= */
 let currentUser = null;
 let currentGameId = null;
 let gameData = null;
 
+/* =========================
+   SAFE DOM
+========================= */
+const createGameBtn = document.getElementById("createGameBtn");
+const lobbyNameInput = document.getElementById("lobbyNameInput");
 
 /* =========================
-   AUTH
+   AUTH (SINGLE SOURCE)
 ========================= */
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
   if (!user) {
     window.location.href = "../../index.html";
     return;
   }
 
-  currentUser = user;
+  try {
+    currentUser = await getUserProfile(user);
+  } catch (err) {
+    console.warn("Profile fallback used:", err);
+
+    currentUser = {
+      uid: user.uid,
+      name: user.displayName || "Player",
+      photo: user.photoURL || "./Images/defaultPFP.jpg"
+    };
+  }
+
   loadLobby();
 });
-
 
 /* =========================
    CREATE GAME
 ========================= */
-document.getElementById("createGameBtn").addEventListener("click", async () => {
+createGameBtn?.addEventListener("click", async () => {
+  if (!currentUser) return alert("Not signed in");
 
-  const lobbyName =
-    document.getElementById("lobbyNameInput").value.trim() || "Lobby";
+  const lobbyName = lobbyNameInput?.value?.trim() || "Lobby";
 
-  const ref = await addDoc(collection(db, "games"), {
-    lobbyName,
-    player1Id: currentUser.uid,
-    player1Name: currentUser.displayName || "Player",
-    player1Photo: currentUser.photoURL || "./Images/defaultPFP.jpg",
+  try {
+    const ref = await addDoc(collection(db, "games"), {
+      lobbyName,
 
-    player2Id: null,
-    player2Name: null,
+      player1Id: currentUser.uid,
+      player1Name: currentUser.name,
+      player1Photo: currentUser.photo,
 
-    secretNumber: Math.floor(Math.random() * 100) + 1,
+      player2Id: null,
+      player2Name: null,
 
-    currentTurn: currentUser.uid,
-    status: "waiting",
+      secretNumber: Math.floor(Math.random() * 100) + 1,
 
-    player1Guesses: [],
-    player2Guesses: [],
+      currentTurn: currentUser.uid,
+      status: "waiting",
 
-    player1Attempts: 0,
-    player2Attempts: 0,
+      player1Guesses: [],
+      player2Guesses: [],
 
-    winnerId: null,
-    createdAt: serverTimestamp()
-  });
+      player1Attempts: 0,
+      player2Attempts: 0,
 
-  joinGame(ref.id);
+      winnerId: null,
+      createdAt: serverTimestamp()
+    });
+
+    joinGame(ref.id);
+
+  } catch (err) {
+    console.error("Create game error:", err);
+  }
 });
-
 
 /* =========================
    LOBBY
 ========================= */
 function loadLobby() {
+  const lobbyList = document.getElementById("lobbyList");
+  if (!lobbyList) return;
+
   const q = query(collection(db, "games"), where("status", "==", "waiting"));
 
   onSnapshot(q, (snapshot) => {
-    const lobbyList = document.getElementById("lobbyList");
     lobbyList.innerHTML = "";
 
     snapshot.forEach((docSnap) => {
@@ -91,24 +113,29 @@ function loadLobby() {
       card.innerHTML = `
         <h3>${game.lobbyName}</h3>
         <p>${game.player1Name}</p>
-        <button>Join</button>
+        <button class="joinBtn">Join</button>
       `;
 
-      card.querySelector("button").onclick = async () => {
-        await updateDoc(doc(db, "games", docSnap.id), {
-          player2Id: currentUser.uid,
-          player2Name: currentUser.displayName,
-          status: "playing"
-        });
+      card.querySelector(".joinBtn")?.addEventListener("click", async () => {
+        if (!currentUser) return;
 
-        joinGame(docSnap.id);
-      };
+        try {
+          await updateDoc(doc(db, "games", docSnap.id), {
+            player2Id: currentUser.uid,
+            player2Name: currentUser.name,
+            status: "playing"
+          });
+
+          joinGame(docSnap.id);
+        } catch (err) {
+          console.error("Join error:", err);
+        }
+      });
 
       lobbyList.appendChild(card);
     });
   });
 }
-
 
 /* =========================
    JOIN GAME
@@ -116,12 +143,11 @@ function loadLobby() {
 function joinGame(id) {
   currentGameId = id;
 
-  document.getElementById("lobbySection").classList.add("hidden");
-  document.getElementById("gameSection").classList.remove("hidden");
+  document.getElementById("lobbySection")?.classList.add("hidden");
+  document.getElementById("gameSection")?.classList.remove("hidden");
 
   listenToGame(id);
 }
-
 
 /* =========================
    GAME LISTENER
@@ -138,32 +164,35 @@ function listenToGame(id) {
         ? gameData.player2Name
         : gameData.player1Name;
 
-    document.getElementById("opponentInfo").textContent =
-      "Opponent: " + (opponent || "Waiting...");
+    const opponentInfo = document.getElementById("opponentInfo");
+    const turnInfo = document.getElementById("turnInfo");
 
-    document.getElementById("turnInfo").textContent =
-      gameData.currentTurn === currentUser.uid
-        ? "Your Turn"
-        : "Opponent Turn";
+    if (opponentInfo) {
+      opponentInfo.textContent = "Opponent: " + (opponent || "Waiting...");
+    }
+
+    if (turnInfo) {
+      turnInfo.textContent =
+        gameData.currentTurn === currentUser.uid
+          ? "Your Turn"
+          : "Opponent Turn";
+    }
   });
 }
 
 /* =========================
-  PROFILE   
+   PROFILE ICON 
 ========================= */
-onAuthStateChanged(auth, (user) => {
-    if (!user) {
-      window.location.href = "../../index.html";
-      return;
-    }
-  
-    currentUser = user;
-  
-    // Set profile image safely
-    const profileImage = document.getElementById("profileImage");
-    if (profileImage) {
-      profileImage.src = user.photoURL || "./Images/defaultPFP.jpg";
-    }
-  
-    loadLobby();
-  });
+onAuthStateChanged(auth, async (user) => {
+  if (!user) return;
+
+  const profileImage = document.getElementById("profileImage");
+  if (!profileImage) return;
+
+  try {
+    const profile = await getUserProfile(user);
+    profileImage.src = profile.photo || "./Images/defaultPFP.jpg";
+  } catch {
+    profileImage.src = user.photoURL || "./Images/defaultPFP.jpg";
+  }
+});
