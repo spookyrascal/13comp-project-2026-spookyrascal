@@ -11,7 +11,8 @@ import {
   onSnapshot,
   query,
   where,
-  serverTimestamp
+  serverTimestamp,
+  getDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* =========================
@@ -20,15 +21,17 @@ import {
 let currentUser = null;
 let currentGameId = null;
 let gameData = null;
+let unsubscribeGame = null;
 
 /* =========================
-   SAFE DOM
+   DOM
 ========================= */
 const createGameBtn = document.getElementById("createGameBtn");
 const lobbyNameInput = document.getElementById("lobbyNameInput");
+const profileImage = document.getElementById("profileImage");
 
 /* =========================
-   AUTH (SINGLE SOURCE)
+   AUTH 
 ========================= */
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
@@ -48,49 +51,56 @@ onAuthStateChanged(auth, async (user) => {
     };
   }
 
+  if (profileImage) {
+    profileImage.src = currentUser.photo;
+  }
+
   loadLobby();
 });
 
 /* =========================
    CREATE GAME
 ========================= */
-createGameBtn?.addEventListener("click", async () => {
-  if (!currentUser) return alert("Not signed in");
+if (createGameBtn) {
+  createGameBtn.addEventListener("click", async () => {
+    if (!currentUser) return alert("Not signed in");
 
-  const lobbyName = lobbyNameInput?.value?.trim() || "Lobby";
+    const lobbyName = lobbyNameInput?.value?.trim() || "Lobby";
 
-  try {
-    const ref = await addDoc(collection(db, "games"), {
-      lobbyName,
+    try {
+      const ref = await addDoc(collection(db, "games"), {
+        lobbyName,
 
-      player1Id: currentUser.uid,
-      player1Name: currentUser.name,
-      player1Photo: currentUser.photo,
+        player1Id: currentUser.uid,
+        player1Name: currentUser.name,
+        player1Photo: currentUser.photo,
 
-      player2Id: null,
-      player2Name: null,
+        player2Id: null,
+        player2Name: null,
+        player2Photo: currentUser.photo,
 
-      secretNumber: Math.floor(Math.random() * 100) + 1,
+        secretNumber: Math.floor(Math.random() * 100) + 1,
 
-      currentTurn: currentUser.uid,
-      status: "waiting",
+        currentTurn: currentUser.uid,
+        status: "waiting",
 
-      player1Guesses: [],
-      player2Guesses: [],
+        player1Guesses: [],
+        player2Guesses: [],
 
-      player1Attempts: 0,
-      player2Attempts: 0,
+        player1Attempts: 0,
+        player2Attempts: 0,
 
-      winnerId: null,
-      createdAt: serverTimestamp()
-    });
+        winnerId: null,
+        createdAt: serverTimestamp()
+      });
 
-    joinGame(ref.id);
+      joinGame(ref.id);
 
-  } catch (err) {
-    console.error("Create game error:", err);
-  }
-});
+    } catch (err) {
+      console.error("Create game error:", err);
+    }
+  });
+}
 
 /* =========================
    LOBBY
@@ -120,13 +130,23 @@ function loadLobby() {
         if (!currentUser) return;
 
         try {
-          await updateDoc(doc(db, "games", docSnap.id), {
+          const gameRef = doc(db, "games", docSnap.id);
+          const latest = await getDoc(gameRef);
+
+          // Prevent race condition
+          if (latest.data().player2Id) {
+            alert("Game already joined");
+            return;
+          }
+
+          await updateDoc(gameRef, {
             player2Id: currentUser.uid,
             player2Name: currentUser.name,
             status: "playing"
           });
 
           joinGame(docSnap.id);
+
         } catch (err) {
           console.error("Join error:", err);
         }
@@ -153,9 +173,11 @@ function joinGame(id) {
    GAME LISTENER
 ========================= */
 function listenToGame(id) {
+  if (unsubscribeGame) unsubscribeGame();
+
   const ref = doc(db, "games", id);
 
-  onSnapshot(ref, (snap) => {
+  unsubscribeGame = onSnapshot(ref, (snap) => {
     gameData = snap.data();
     if (!gameData) return;
 
@@ -179,20 +201,3 @@ function listenToGame(id) {
     }
   });
 }
-
-/* =========================
-   PROFILE ICON 
-========================= */
-onAuthStateChanged(auth, async (user) => {
-  if (!user) return;
-
-  const profileImage = document.getElementById("profileImage");
-  if (!profileImage) return;
-
-  try {
-    const profile = await getUserProfile(user);
-    profileImage.src = profile.photo || "./Images/defaultPFP.jpg";
-  } catch {
-    profileImage.src = user.photoURL || "./Images/defaultPFP.jpg";
-  }
-});

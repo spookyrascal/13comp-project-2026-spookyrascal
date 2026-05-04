@@ -18,10 +18,8 @@ import {
 
 const provider = new GoogleAuthProvider();
 
-<<<<<<< HEAD
-=======
 /* =========================
-   SAFE USER
+   HELPERS
 ========================= */
 function safeUser(user, dbData = {}) {
   return {
@@ -33,9 +31,6 @@ function safeUser(user, dbData = {}) {
   };
 }
 
-/* =========================
-   GET OR CREATE USER
-========================= */
 async function getOrCreateUser(user) {
   const ref = doc(db, "users", user.uid);
   const snap = await getDoc(ref);
@@ -43,7 +38,7 @@ async function getOrCreateUser(user) {
   if (!snap.exists()) {
     const data = {
       uid: user.uid,
-      displayName: user.displayName || "Player",
+      displayName: null,  
       email: user.email || "",
       photoURL: user.photoURL || "./Images/defaultPFP.jpg",
       age: null,
@@ -52,149 +47,57 @@ async function getOrCreateUser(user) {
     };
 
     await setDoc(ref, data);
-    return data;
+    return { ...data, isNew: true };
   }
 
-  return snap.data();
+  return { ...snap.data(), isNew: false };
 }
 
 /* =========================
    MAIN
 ========================= */
->>>>>>> ee21aeda7ac9f2e6218f2f9fbe69c96ef44bdecd
 document.addEventListener("DOMContentLoaded", () => {
 
   let currentUser = null;
-  let dropdownOpen = false;
 
-  /* =========================
-     DOM 
-  ========================= */
-  const dropdownMenu = document.getElementById("dropdownMenu");
-
-<<<<<<< HEAD
-  // ==========================
-  // SAFE USER HELPER 
-  // ==========================
-  function getSafeUser(user) {
-    return {
-      uid: user?.uid || null,
-      name: user?.displayName || "Player",
-      email: user?.email || "",
-      photo: user?.photoURL || "./Images/defaultPFP.jpg"
-    };
-  }
-=======
-  const profileImage = document.getElementById("profileImage");
->>>>>>> ee21aeda7ac9f2e6218f2f9fbe69c96ef44bdecd
-
-  // ==========================
   // DOM
-  // ==========================
   const profileBtn = document.getElementById("profileBtn");
   const dropdownMenu = document.getElementById("dropdownMenu");
+  const profileImage = document.getElementById("profileImage");
 
   const signInBtn = document.getElementById("signInBtn");
   const signUpBtn = document.getElementById("signUpBtn");
   const signOutBtn = document.getElementById("signOutBtn");
 
   const playBtn = document.getElementById("playBtn");
-  const profileImage = document.getElementById("profileImage");
 
   const signUpPopup = document.getElementById("signUpPopup");
   const closePopup = document.getElementById("closePopup");
   const signUpForm = document.getElementById("signUpForm");
-  const closePopup = document.getElementById("closePopup");
 
-<<<<<<< HEAD
-  // ==========================
-  // DROPDOWN
-  // ==========================
+  //  username popup
+  const usernamePopup = document.getElementById("usernamePopup");
+  const usernameInput = document.getElementById("usernameInput");
+  const saveUsernameBtn = document.getElementById("saveUsernameBtn");
+
+  function showUsernamePopup() {
+    usernamePopup.style.display = "flex";
+  }
+
+  /* =========================
+     DROPDOWN
+  ========================= */
   profileBtn?.addEventListener("click", () => {
     dropdownMenu?.classList.toggle("hidden");
-  });
-
-  // ==========================
-  // GOOGLE SIGN IN
-  // ==========================
-  async function handleGoogleSignIn() {
-    try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-
-      const ref = doc(db, "users", user.uid);
-      const snap = await getDoc(ref);
-
-      if (!snap.exists()) {
-        await setDoc(ref, {
-          uid: user.uid,
-          displayName: user.displayName,
-          email: user.email,
-          age: null,
-          photoURL: user.photoURL || "./Images/defaultPFP.jpg",
-          isAdmin: false,
-          createdAt: serverTimestamp()
-        });
-      }
-
-=======
-  /* =========================
-     DROPDOWN 
-  ========================= */
-  function closeDropdown() {
-    dropdownOpen = false;
-    dropdownMenu?.classList.add("hidden");
-    profileBtn?.setAttribute("aria-expanded", "false");
-  }
-
-  function toggleDropdown() {
-    dropdownOpen = !dropdownOpen;
-
-    dropdownMenu?.classList.toggle("hidden", !dropdownOpen);
-    profileBtn?.setAttribute("aria-expanded", String(dropdownOpen));
-  }
-
-  profileBtn?.addEventListener("click", (e) => {
-    e.stopPropagation();
-    toggleDropdown();
-  });
-
-  document.addEventListener("click", (e) => {
-    if (!dropdownOpen) return;
-
-    if (
-      !dropdownMenu?.contains(e.target) &&
-      !profileBtn?.contains(e.target)
-    ) {
-      closeDropdown();
-    }
-  });
-
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeDropdown();
-  });
-
-  dropdownMenu?.addEventListener("click", (e) => e.stopPropagation());
-
-  /* =========================
-     POPUP
-  ========================= */
-  signUpBtn?.addEventListener("click", () => {
-    signUpPopup.style.display = "flex";
-  });
-
-  closePopup?.addEventListener("click", () => {
-    signUpPopup.style.display = "none";
   });
 
   /* =========================
      GOOGLE SIGN IN
   ========================= */
-  async function googleSignIn() {
+  async function handleGoogleSignIn() {
     try {
       const result = await signInWithPopup(auth, provider);
       await getOrCreateUser(result.user);
->>>>>>> ee21aeda7ac9f2e6218f2f9fbe69c96ef44bdecd
     } catch (err) {
       console.error(err);
       alert("Google sign-in failed");
@@ -203,65 +106,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
   signInBtn?.addEventListener("click", handleGoogleSignIn);
 
-<<<<<<< HEAD
-  // ==========================
-  // POPUP CONTROL
-  // ==========================
-  signUpBtn?.addEventListener("click", () => {
-    signUpPopup.style.display = "flex";
-  });
-
-  closePopup?.addEventListener("click", () => {
-    signUpPopup.style.display = "none";
-  });
-
-  window.addEventListener("click", (e) => {
-    if (e.target === signUpPopup) signUpPopup.style.display = "none";
-  });
-
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") signUpPopup.style.display = "none";
-  });
-
-  // ==========================
-  // EMAIL SIGN UP
-  // ==========================
-=======
   /* =========================
      EMAIL SIGN UP
   ========================= */
->>>>>>> ee21aeda7ac9f2e6218f2f9fbe69c96ef44bdecd
   signUpForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const displayName = document.getElementById("displayName")?.value.trim();
-    const email = document.getElementById("signupEmail")?.value.trim().toLowerCase();
-    const password = document.getElementById("signupPassword")?.value;
-    const age = Number(document.getElementById("age")?.value);
+    const displayName = document.getElementById("displayName").value.trim();
+    const email = document.getElementById("signupEmail").value.trim().toLowerCase();
+    const password = document.getElementById("signupPassword").value;
+    const age = Number(document.getElementById("age").value);
 
     if (!displayName || !email || !password || !age) {
-      alert("Please fill in all fields.");
-      return;
-    }
-
-    if (age < 1 || age > 120) {
-      alert("Enter a valid age.");
-      return;
+      return alert("Fill all fields");
     }
 
     try {
-<<<<<<< HEAD
-=======
-      const displayName = document.getElementById("displayName")?.value.trim();
-      const email = document.getElementById("signupEmail")?.value.trim().toLowerCase();
-      const password = document.getElementById("signupPassword")?.value;
-      const age = Number(document.getElementById("age")?.value);
-
-      if (!displayName || !email || !password || !age) {
-        return alert("Fill all fields");
-      }
-
->>>>>>> ee21aeda7ac9f2e6218f2f9fbe69c96ef44bdecd
       const cred = await createUserWithEmailAndPassword(auth, email, password);
       const user = cred.user;
 
@@ -282,7 +142,7 @@ document.addEventListener("DOMContentLoaded", () => {
         createdAt: serverTimestamp()
       });
 
-      alert("Account created successfully!");
+      alert("Account created!");
       signUpPopup.style.display = "none";
       signUpForm.reset();
 
@@ -292,27 +152,47 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-<<<<<<< HEAD
-  // ==========================
-  // SIGN OUT
-  // ==========================
-  signOutBtn?.addEventListener("click", () => {
-    signOut(auth);
+  /* =========================
+     USERNAME SAVE
+  ========================= */
+  saveUsernameBtn?.addEventListener("click", async () => {
+    const name = usernameInput.value.trim();
+
+    if (!name) return alert("Enter a username");
+
+    try {
+      const user = auth.currentUser;
+
+      await updateProfile(user, {
+        displayName: name
+      });
+
+      await setDoc(doc(db, "users", user.uid), {
+        displayName: name
+      }, { merge: true });
+
+      usernamePopup.style.display = "none";
+
+      const snap = await getDoc(doc(db, "users", user.uid));
+      updateUI(safeUser(user, snap.data()));
+
+    } catch (err) {
+      console.error(err);
+      alert("Failed to save username");
+    }
   });
 
-  // ==========================
-  // AUTH STATE 
-  // ==========================
-  onAuthStateChanged(auth, (user) => {
-    currentUser = user;
+  /* =========================
+     POPUP
+  ========================= */
+  signUpBtn?.addEventListener("click", () => {
+    signUpPopup.style.display = "flex";
+  });
 
-    const safe = getSafeUser(user);
+  closePopup?.addEventListener("click", () => {
+    signUpPopup.style.display = "none";
+  });
 
-    if (user) {
-      signInBtn?.classList.add("hidden");
-      signUpBtn?.classList.add("hidden");
-      signOutBtn?.classList.remove("hidden");
-=======
   /* =========================
      SIGN OUT
   ========================= */
@@ -322,7 +202,6 @@ document.addEventListener("DOMContentLoaded", () => {
      AUTH STATE
   ========================= */
   onAuthStateChanged(auth, async (user) => {
-
     currentUser = user;
 
     if (!user) {
@@ -331,6 +210,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const dbData = await getOrCreateUser(user);
+
+// Username Setup
+    if (dbData.isNew || !dbData.displayName) {
+      showUsernamePopup();
+      return;
+    }
+
     updateUI(safeUser(user, dbData));
   });
 
@@ -338,46 +224,17 @@ document.addEventListener("DOMContentLoaded", () => {
      UI UPDATE
   ========================= */
   function updateUI(user) {
-
     if (!user) {
       profileImage.src = "./Images/defaultPFP.jpg";
-
-      menuPfp && (menuPfp.src = "./Images/defaultPFP.jpg");
-      menuName && (menuName.textContent = "Guest");
-      menuEmail && (menuEmail.textContent = "Not signed in");
->>>>>>> ee21aeda7ac9f2e6218f2f9fbe69c96ef44bdecd
-
-      profileImage.src = safe.photo;
-
-    } else {
       signInBtn?.classList.remove("hidden");
       signUpBtn?.classList.remove("hidden");
       signOutBtn?.classList.add("hidden");
-
-      profileImage.src = "./Images/defaultPFP.jpg";
+    } else {
+      profileImage.src = user.photo;
+      signInBtn?.classList.add("hidden");
+      signUpBtn?.classList.add("hidden");
+      signOutBtn?.classList.remove("hidden");
     }
-  });
-
-  // ==========================
-  // PLAY BUTTON
-  // ==========================
-  playBtn?.addEventListener("click", () => {
-    if (!currentUser) {
-      alert("Please sign in first");
-      return;
-    }
-
-<<<<<<< HEAD
-=======
-    profileImage.src = user.photo;
-
-    menuPfp && (menuPfp.src = user.photo);
-    menuName && (menuName.textContent = user.name);
-    menuEmail && (menuEmail.textContent = user.email);
-
-    signInBtn?.classList.add("hidden");
-    signUpBtn?.classList.add("hidden");
-    signOutBtn?.classList.remove("hidden");
   }
 
   /* =========================
@@ -385,9 +242,7 @@ document.addEventListener("DOMContentLoaded", () => {
   ========================= */
   playBtn?.addEventListener("click", () => {
     if (!currentUser) return alert("Sign in first");
->>>>>>> ee21aeda7ac9f2e6218f2f9fbe69c96ef44bdecd
     window.location.href = "games.html";
   });
 
 });
-
