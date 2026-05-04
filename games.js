@@ -26,6 +26,10 @@ let currentGameId = null;
 const createGameBtn = document.getElementById("createGameBtn");
 const lobbyNameInput = document.getElementById("lobbyNameInput");
 
+const guessInput = document.getElementById("guessInput");
+const guessBtn = document.getElementById("guessBtn");
+const guessList = document.getElementById("guessList");
+
 /* =========================
    AUTH (same pattern as home.js)
 ========================= */

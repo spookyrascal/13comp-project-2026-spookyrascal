@@ -20,15 +20,29 @@ import {
 let currentUser = null;
 let currentGameId = null;
 let gameData = null;
+let unsubscribeGame = null;
 
 /* =========================
-   SAFE DOM
+   DOM
 ========================= */
-const createGameBtn = document.getElementById("createGameBtn");
-const lobbyNameInput = document.getElementById("lobbyNameInput");
+const el = {
+  lobbyList: document.getElementById("lobbyList"),
+  lobbySection: document.getElementById("lobbySection"),
+  gameSection: document.getElementById("gameSection"),
+
+  lobbyInput: document.getElementById("lobbyNameInput"),
+  createBtn: document.getElementById("createGameBtn"),
+
+  guessInput: document.getElementById("guessInput"),
+  guessBtn: document.getElementById("guessBtn"),
+  guessList: document.getElementById("guessList"),
+
+  opponentInfo: document.getElementById("opponentInfo"),
+  turnInfo: document.getElementById("turnInfo")
+};
 
 /* =========================
-   AUTH (SINGLE SOURCE)
+   AUTH
 ========================= */
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
@@ -36,73 +50,57 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
-  try {
-    currentUser = await getUserProfile(user);
-  } catch (err) {
-    console.warn("Profile fallback used:", err);
-
-    currentUser = {
-      uid: user.uid,
-      name: user.displayName || "Player",
-      photo: user.photoURL || "./Images/defaultPFP.jpg"
-    };
-  }
-
+  currentUser = await getUserProfile(user);
   loadLobby();
 });
 
 /* =========================
    CREATE GAME
 ========================= */
-createGameBtn?.addEventListener("click", async () => {
-  if (!currentUser) return alert("Not signed in");
+el.createBtn?.addEventListener("click", async () => {
+  if (!currentUser) return;
 
-  const lobbyName = lobbyNameInput?.value?.trim() || "Lobby";
+  const lobbyName = el.lobbyInput?.value.trim() || "Lobby";
 
-  try {
-    const ref = await addDoc(collection(db, "games"), {
-      lobbyName,
+  const ref = await addDoc(collection(db, "games"), {
+    lobbyName,
 
-      player1Id: currentUser.uid,
-      player1Name: currentUser.name,
-      player1Photo: currentUser.photo,
+    player1Id: currentUser.uid,
+    player1Name: currentUser.name,
+    player1Photo: currentUser.photo,
 
-      player2Id: null,
-      player2Name: null,
+    player2Id: null,
+    player2Name: null,
+    player2Photo: null,
 
-      secretNumber: Math.floor(Math.random() * 100) + 1,
+    secretNumber: Math.floor(Math.random() * 100) + 1,
 
-      currentTurn: currentUser.uid,
-      status: "waiting",
+    currentTurn: currentUser.uid,
+    status: "waiting",
 
-      player1Guesses: [],
-      player2Guesses: [],
+    player1Guesses: [],
+    player2Guesses: [],
 
-      player1Attempts: 0,
-      player2Attempts: 0,
+    player1Attempts: 0,
+    player2Attempts: 0,
 
-      winnerId: null,
-      createdAt: serverTimestamp()
-    });
+    winnerId: null,
+    createdAt: serverTimestamp()
+  });
 
-    joinGame(ref.id);
-
-  } catch (err) {
-    console.error("Create game error:", err);
-  }
+  joinGame(ref.id);
 });
 
 /* =========================
    LOBBY
 ========================= */
 function loadLobby() {
-  const lobbyList = document.getElementById("lobbyList");
-  if (!lobbyList) return;
+  if (!el.lobbyList) return;
 
   const q = query(collection(db, "games"), where("status", "==", "waiting"));
 
   onSnapshot(q, (snapshot) => {
-    lobbyList.innerHTML = "";
+    el.lobbyList.innerHTML = "";
 
     snapshot.forEach((docSnap) => {
       const game = docSnap.data();
@@ -112,27 +110,26 @@ function loadLobby() {
 
       card.innerHTML = `
         <h3>${game.lobbyName}</h3>
-        <p>${game.player1Name}</p>
+        <p>Host: ${game.player1Name}</p>
         <button class="joinBtn">Join</button>
       `;
 
-      card.querySelector(".joinBtn")?.addEventListener("click", async () => {
+      const btn = card.querySelector(".joinBtn");
+
+      btn?.addEventListener("click", async () => {
         if (!currentUser) return;
 
-        try {
-          await updateDoc(doc(db, "games", docSnap.id), {
-            player2Id: currentUser.uid,
-            player2Name: currentUser.name,
-            status: "playing"
-          });
+        await updateDoc(doc(db, "games", docSnap.id), {
+          player2Id: currentUser.uid,
+          player2Name: currentUser.name,
+          player2Photo: currentUser.photo,
+          status: "playing"
+        });
 
-          joinGame(docSnap.id);
-        } catch (err) {
-          console.error("Join error:", err);
-        }
+        joinGame(docSnap.id);
       });
 
-      lobbyList.appendChild(card);
+      el.lobbyList.appendChild(card);
     });
   });
 }
@@ -143,8 +140,8 @@ function loadLobby() {
 function joinGame(id) {
   currentGameId = id;
 
-  document.getElementById("lobbySection")?.classList.add("hidden");
-  document.getElementById("gameSection")?.classList.remove("hidden");
+  el.lobbySection?.classList.add("hidden");
+  el.gameSection?.classList.remove("hidden");
 
   listenToGame(id);
 }
@@ -153,9 +150,11 @@ function joinGame(id) {
    GAME LISTENER
 ========================= */
 function listenToGame(id) {
+  if (unsubscribeGame) unsubscribeGame();
+
   const ref = doc(db, "games", id);
 
-  onSnapshot(ref, (snap) => {
+  unsubscribeGame = onSnapshot(ref, (snap) => {
     gameData = snap.data();
     if (!gameData) return;
 
@@ -164,35 +163,78 @@ function listenToGame(id) {
         ? gameData.player2Name
         : gameData.player1Name;
 
-    const opponentInfo = document.getElementById("opponentInfo");
-    const turnInfo = document.getElementById("turnInfo");
-
-    if (opponentInfo) {
-      opponentInfo.textContent = "Opponent: " + (opponent || "Waiting...");
+    if (el.opponentInfo) {
+      el.opponentInfo.textContent = `Opponent: ${opponent || "Waiting..."}`;
     }
 
-    if (turnInfo) {
-      turnInfo.textContent =
+    if (el.turnInfo) {
+      el.turnInfo.textContent =
         gameData.currentTurn === currentUser.uid
           ? "Your Turn"
           : "Opponent Turn";
     }
+
+    renderGuesses();
   });
 }
 
 /* =========================
-   PROFILE ICON 
+   GUESS SYSTEM
 ========================= */
-onAuthStateChanged(auth, async (user) => {
-  if (!user) return;
+el.guessBtn?.addEventListener("click", async () => {
+  if (!gameData || !currentGameId) return;
 
-  const profileImage = document.getElementById("profileImage");
-  if (!profileImage) return;
+  const guess = Number(el.guessInput.value);
 
-  try {
-    const profile = await getUserProfile(user);
-    profileImage.src = profile.photo || "./Images/defaultPFP.jpg";
-  } catch {
-    profileImage.src = user.photoURL || "./Images/defaultPFP.jpg";
+  if (!guess || guess < 1 || guess > 100) {
+    return alert("Pick a number 1–100");
   }
+
+  if (gameData.currentTurn !== currentUser.uid) {
+    return alert("Not your turn");
+  }
+
+  const isP1 = currentUser.uid === gameData.player1Id;
+
+  const guessField = isP1 ? "player1Guesses" : "player2Guesses";
+  const attemptField = isP1 ? "player1Attempts" : "player2Attempts";
+
+  const newGuesses = [...(gameData[guessField] || []), guess];
+
+  let updateData = {
+    [guessField]: newGuesses,
+    [attemptField]: (gameData[attemptField] || 0) + 1
+  };
+
+
+  if (guess === gameData.secretNumber) {
+    updateData.status = "finished";
+    updateData.winnerId = currentUser.uid;
+    updateData.currentTurn = null;
+  } else {
+    updateData.currentTurn =
+      currentUser.uid === gameData.player1Id
+        ? gameData.player2Id
+        : gameData.player1Id;
+  }
+
+  await updateDoc(doc(db, "games", currentGameId), updateData);
+
+  el.guessInput.value = "";
 });
+
+/* =========================
+   RENDER GUESSES
+========================= */
+function renderGuesses() {
+  if (!el.guessList || !gameData) return;
+
+  const guesses =
+    currentUser.uid === gameData.player1Id
+      ? gameData.player1Guesses
+      : gameData.player2Guesses;
+
+  el.guessList.innerHTML = (guesses || [])
+    .map(g => `<li>${g}</li>`)
+    .join("");
+}

@@ -2,71 +2,119 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Guess The Number</title>
+
   <link rel="stylesheet" href="./style.css">
 </head>
 
 <body>
 
+<!-- =========================
+     HEADER
+========================= -->
 <header>
-  <h1>🎯 Guess The Number</h1>
-  <span id="statusIcon" class="status-dot"></span>
 
-  <div class="profile">
-    <img id="profileImage" class="profile-img" src="./Images/defaultPFP.jpg" alt="Profile Picture">
+  <div class="header-left">
+    <h1>🎯 Guess The Number</h1>
+    <span id="statusIcon" class="status-dot"></span>
   </div>
+
+  <div class="header-right">
+    <img
+      id="profileImage"
+      class="profile-img"
+      src="./Images/defaultPFP.jpg"
+      alt="Profile"
+    />
+  </div>
+
 </header>
 
+<!-- =========================
+     MAIN WRAPPER
+========================= -->
 <main>
 
   <!-- =========================
        LOBBY
   ========================== -->
   <section id="lobbySection">
-    <h2>Game Lobby</h2>
+
+    <h2>🏟️ Game Lobby</h2>
 
     <div class="createBox">
-      <input type="text" id="lobbyNameInput" placeholder="Enter Lobby Name">
+      <input
+        type="text"
+        id="lobbyNameInput"
+        placeholder="Enter Lobby Name"
+      />
+
       <button id="createGameBtn">➕ Create Game</button>
     </div>
 
-    <h3>Waiting Games</h3>
-    <div id="lobbyList"></div>
+    <h3>🟢 Waiting Games</h3>
+
+    <div id="lobbyList" class="lobbyContainer"></div>
+
   </section>
 
   <!-- =========================
-       GAME
+       GAME SCREEN
   ========================== -->
   <section id="gameSection" class="hidden">
-    <h2 id="gameStatus">Loading game...</h2>
 
-    <p id="opponentInfo"></p>
-    <p id="turnInfo"></p>
+    <div class="gameHeader">
+      <h2 id="gameStatus">🎮 Game Started</h2>
+      <p id="opponentInfo">Opponent: Loading...</p>
+      <p id="turnInfo">Turn: Loading...</p>
+    </div>
 
     <div class="guessBox">
-      <input type="number" id="guessInput" placeholder="Enter 1–100">
+      <input
+        type="number"
+        id="guessInput"
+        placeholder="Guess 1–100"
+        min="1"
+        max="100"
+      />
+
       <button id="guessBtn">Submit Guess</button>
     </div>
 
     <p id="feedback"></p>
 
-    <h3>Your Guesses</h3>
-    <div id="guessHistory"></div>
+    <div class="historyBox">
+      <h3>📜 Your Guesses</h3>
+      <ul id="guessList"></ul>
+    </div>
+
   </section>
 
   <!-- =========================
        WIN SCREEN
   ========================== -->
   <section id="winScreen" class="hidden">
-    <h1 id="winText"></h1>
-    <button id="rematchBtn">🔄 Play Again</button>
-    <button id="leaveBtn">🏠 Return to Lobby</button>
+
+    <div class="winCard">
+
+      <h1 id="winText">🎉 You Win!</h1>
+
+      <div class="winButtons">
+        <button id="rematchBtn">🔄 Play Again</button>
+        <button id="leaveBtn">🏠 Return to Lobby</button>
+      </div>
+
+    </div>
+
   </section>
 
 </main>
 
+<!-- =========================
+     SCRIPTS
+========================= -->
 <script type="module" src="GTN.js"></script>
-<script type="module" src="./firebase.js"></script>
 
 </body>
 </html>
