@@ -60,14 +60,9 @@ header {
 
 header h1 {
   margin: 0;
-<<<<<<< HEAD
   font-size: 18px;
   letter-spacing: 0.5px;
   color: var(--text);
-=======
-  font-weight: 700;
-  letter-spacing: 1px;
->>>>>>> ee21aeda7ac9f2e6218f2f9fbe69c96ef44bdecd
 }
 
 /* =========================
