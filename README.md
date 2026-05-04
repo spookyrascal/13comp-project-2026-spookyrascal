@@ -105,3 +105,11 @@ V14 - 2nd May
 - Leaderboard working 
 
 - NEXT STEP: get the css cleaned up then do docmentation 
+
+V15 - 5th May
+
+- Code breaks easily :(
+- Working on the login system AGAIN
+- GTN isnt working properly
+
+- NEXT STEP: Get it done
