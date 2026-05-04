@@ -59,19 +59,6 @@ header h1 {
 }
 
 /* =========================
-   STATUS DOT 
-========================= */
-.status-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--online);
-  box-shadow: 0 0 10px var(--online);
-  margin-right: 10px;
-  display: inline-block;
-}
-
-/* =========================
    PROFILE ICON
 ========================= */
 .profile-img {

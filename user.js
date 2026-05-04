@@ -14,7 +14,7 @@ export async function getUserProfile(user) {
 
   return {
     uid: user.uid,
-    name: data.displayName || user.displayName || "Player",
+    name: data.displayName || user.displayName || null,
     email: data.email || user.email || "",
     age: data.age || null,
     photo: data.photoURL || user.photoURL || "./Images/defaultPFP.jpg"

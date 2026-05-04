@@ -18,48 +18,50 @@ import {
 
 const provider = new GoogleAuthProvider();
 
-/* =========================
-   SAFE USER 
-========================= */
-function safeUser(user, dbData = null) {
-  return {
-    uid: user?.uid,
-    name: dbData?.displayName || user?.displayName || "Player",
-    email: dbData?.email || user?.email || "",
-    photo: dbData?.photoURL || user?.photoURL || "./Images/defaultPFP.jpg",
-    age: dbData?.age ?? null
-  };
-}
-
-/* =========================
-   MAIN
-========================= */
 document.addEventListener("DOMContentLoaded", () => {
 
   let currentUser = null;
 
-  // =========================
-  // DOM
-  // =========================
-  const profileImage = document.getElementById("profileImage");
+  // ==========================
+  // SAFE USER HELPER 
+  // ==========================
+  function getSafeUser(user) {
+    return {
+      uid: user?.uid || null,
+      name: user?.displayName || "Player",
+      email: user?.email || "",
+      photo: user?.photoURL || "./Images/defaultPFP.jpg"
+    };
+  }
 
-  const menuPfp = document.getElementById("menuPfp");
-  const menuName = document.getElementById("menuName");
-  const menuEmail = document.getElementById("menuEmail");
+  // ==========================
+  // DOM
+  // ==========================
+  const profileBtn = document.getElementById("profileBtn");
+  const dropdownMenu = document.getElementById("dropdownMenu");
 
   const signInBtn = document.getElementById("signInBtn");
   const signUpBtn = document.getElementById("signUpBtn");
   const signOutBtn = document.getElementById("signOutBtn");
 
   const playBtn = document.getElementById("playBtn");
+  const profileImage = document.getElementById("profileImage");
 
   const signUpPopup = document.getElementById("signUpPopup");
+  const closePopup = document.getElementById("closePopup");
   const signUpForm = document.getElementById("signUpForm");
 
-  // =========================
+  // ==========================
+  // DROPDOWN
+  // ==========================
+  profileBtn?.addEventListener("click", () => {
+    dropdownMenu?.classList.toggle("hidden");
+  });
+
+  // ==========================
   // GOOGLE SIGN IN
-  // =========================
-  async function googleSignIn() {
+  // ==========================
+  async function handleGoogleSignIn() {
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
@@ -70,39 +72,64 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!snap.exists()) {
         await setDoc(ref, {
           uid: user.uid,
-          displayName: user.displayName || "Player",
-          email: user.email || "",
-          photoURL: user.photoURL || "./Images/defaultPFP.jpg",
+          displayName: user.displayName,
+          email: user.email,
           age: null,
+          photoURL: user.photoURL || "./Images/defaultPFP.jpg",
           isAdmin: false,
           createdAt: serverTimestamp()
         });
       }
 
     } catch (err) {
-      console.error("Google sign-in error:", err);
-      alert("Sign in failed");
+      console.error(err);
+      alert("Google sign-in failed");
     }
   }
 
-  signInBtn?.addEventListener("click", googleSignIn);
+  signInBtn?.addEventListener("click", handleGoogleSignIn);
 
-  // =========================
+  // ==========================
+  // POPUP CONTROL
+  // ==========================
+  signUpBtn?.addEventListener("click", () => {
+    signUpPopup.style.display = "flex";
+  });
+
+  closePopup?.addEventListener("click", () => {
+    signUpPopup.style.display = "none";
+  });
+
+  window.addEventListener("click", (e) => {
+    if (e.target === signUpPopup) signUpPopup.style.display = "none";
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") signUpPopup.style.display = "none";
+  });
+
+  // ==========================
   // EMAIL SIGN UP
-  // =========================
+  // ==========================
   signUpForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
 
+    const displayName = document.getElementById("displayName")?.value.trim();
+    const email = document.getElementById("signupEmail")?.value.trim().toLowerCase();
+    const password = document.getElementById("signupPassword")?.value;
+    const age = Number(document.getElementById("age")?.value);
+
+    if (!displayName || !email || !password || !age) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    if (age < 1 || age > 120) {
+      alert("Enter a valid age.");
+      return;
+    }
+
     try {
-      const displayName = document.getElementById("displayName")?.value.trim();
-      const email = document.getElementById("signupEmail")?.value.trim();
-      const password = document.getElementById("signupPassword")?.value;
-      const age = Number(document.getElementById("age")?.value);
-
-      if (!displayName || !email || !password || !age) {
-        return alert("Fill all fields");
-      }
-
       const cred = await createUserWithEmailAndPassword(auth, email, password);
       const user = cred.user;
 
@@ -123,74 +150,58 @@ document.addEventListener("DOMContentLoaded", () => {
         createdAt: serverTimestamp()
       });
 
+      alert("Account created successfully!");
       signUpPopup.style.display = "none";
       signUpForm.reset();
 
     } catch (err) {
-      console.error("Signup error:", err);
+      console.error(err);
       alert(err.message);
     }
   });
 
-  // =========================
+  // ==========================
   // SIGN OUT
-  // =========================
+  // ==========================
   signOutBtn?.addEventListener("click", () => {
     signOut(auth);
   });
 
-  // =========================
+  // ==========================
   // AUTH STATE 
-  // =========================
-  onAuthStateChanged(auth, async (user) => {
-
+  // ==========================
+  onAuthStateChanged(auth, (user) => {
     currentUser = user;
 
-    if (!user) {
-      profileImage.src = "./Images/defaultPFP.jpg";
+    const safe = getSafeUser(user);
 
-      if (menuPfp) menuPfp.src = "./Images/defaultPFP.jpg";
-      if (menuName) menuName.textContent = "Guest";
-      if (menuEmail) menuEmail.textContent = "Not signed in";
+    if (user) {
+      signInBtn?.classList.add("hidden");
+      signUpBtn?.classList.add("hidden");
+      signOutBtn?.classList.remove("hidden");
 
+      profileImage.src = safe.photo;
+
+    } else {
       signInBtn?.classList.remove("hidden");
       signUpBtn?.classList.remove("hidden");
       signOutBtn?.classList.add("hidden");
 
+      profileImage.src = "./Images/defaultPFP.jpg";
+    }
+  });
+
+  // ==========================
+  // PLAY BUTTON
+  // ==========================
+  playBtn?.addEventListener("click", () => {
+    if (!currentUser) {
+      alert("Please sign in first");
       return;
     }
 
-    let dbData = null;
-
-    try {
-      const snap = await getDoc(doc(db, "users", user.uid));
-      if (snap.exists()) dbData = snap.data();
-    } catch (err) {
-      console.warn("Firestore fetch failed:", err);
-    }
-
-    const safe = safeUser(user, dbData);
-
-    // top profile icon
-    profileImage.src = safe.photo;
-
-    // discord menu sync
-    if (menuPfp) menuPfp.src = safe.photo;
-    if (menuName) menuName.textContent = safe.name;
-    if (menuEmail) menuEmail.textContent = safe.email;
-
-    // UI buttons
-    signInBtn?.classList.add("hidden");
-    signUpBtn?.classList.add("hidden");
-    signOutBtn?.classList.remove("hidden");
-  });
-
-  // =========================
-  // PLAY BUTTON
-  // =========================
-  playBtn?.addEventListener("click", () => {
-    if (!currentUser) return alert("Sign in first");
     window.location.href = "games.html";
   });
 
 });
+
