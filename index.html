@@ -11,56 +11,31 @@
 
 <body>
 
-  <!-- =========================
-       HEADER
-  ========================== -->
   <header>
     <div class="header-left">
       <h1>Game Manager</h1>
     </div>
 
     <div class="header-right">
-
-      <!-- =========================
-           PROFILE WRAPPER
-      ========================== -->
       <div class="profile-wrapper">
 
-        <!-- PROFILE BUTTON -->
-        <button id="profileBtn" class="profile-trigger" aria-label="Profile Menu">
-
-          <img
-            id="profileImage"
-            class="profile-img"
-            src="./Images/defaultPFP.jpg"
-            alt="Profile Picture"
-            onerror="this.src='./Images/defaultPFP.jpg'">
-
+        <button id="profileBtn" class="profile-trigger">
+          <img id="profileImage" class="profile-img"
+            src="./Images/defaultPFP.jpg">
         </button>
 
-        <!-- =========================
-             MENU
-        ========================== -->
         <div id="dropdownMenu" class="discord-menu hidden">
 
-          <!-- USER HEADER -->
           <div class="discord-user">
-
-            <img
-              id="menuPfp"
-              src="./Images/defaultPFP.jpg"
-              alt="User Avatar">
-
-            <div class="discord-user-info">
+            <img id="menuPfp" src="./Images/defaultPFP.jpg">
+            <div>
               <span id="menuName">Guest</span>
               <small id="menuEmail">Not signed in</small>
             </div>
-
           </div>
 
           <div class="discord-divider"></div>
 
-          <!-- ACTIONS -->
           <button id="signInBtn">Sign In</button>
           <button id="signUpBtn">Sign Up</button>
           <button id="signOutBtn" class="danger hidden">Sign Out</button>
@@ -68,58 +43,41 @@
         </div>
 
       </div>
-
     </div>
-
   </header>
 
-  <!-- =========================
-       MAIN
-  ========================== -->
   <main>
-
     <button id="playBtn" class="play-btn">Play</button>
 
-    <!-- =========================
-         SIGN UP POPUP
-    ========================== -->
-    <div id="signUpPopup" class="popup-overlay" role="dialog" aria-modal="true">
-
+    <!-- SIGN UP -->
+    <div id="signUpPopup" class="popup-overlay">
       <div class="popup-content">
-
-        <span id="closePopup" class="close-btn">&times;</span>
+        <span id="closePopup">&times;</span>
 
         <h2>Create Account</h2>
 
         <form id="signUpForm">
-
-          <label for="displayName">Display Name</label>
-          <input type="text" id="displayName" maxlength="30" required>
-
-          <label for="age">Age</label>
-          <input type="number" id="age" min="1" max="120" required>
-
-          <label for="signupEmail">Email</label>
-          <input type="email" id="signupEmail" required>
-
-          <label for="signupPassword">Password</label>
-          <input type="password" id="signupPassword" minlength="6" required>
-
-          <button type="submit">Create Account</button>
-
+          <input type="text" id="displayName" placeholder="Name" required>
+          <input type="number" id="age" placeholder="Age" required>
+          <input type="email" id="signupEmail" placeholder="Email" required>
+          <input type="password" id="signupPassword" placeholder="Password" required>
+          <button type="submit">Create</button>
         </form>
-
       </div>
+    </div>
 
+
+    <div id="usernamePopup" class="popup-overlay" style="display:none;">
+      <div class="popup-content">
+        <h2>Choose Username</h2>
+        <input id="usernameInput" placeholder="Enter username" maxlength="30">
+        <button id="saveUsernameBtn">Save</button>
+      </div>
     </div>
 
   </main>
 
-  <!-- =========================
-       SCRIPTS
-  ========================== -->
   <script type="module" src="home.js"></script>
 
 </body>
-
 </html>

@@ -33,26 +33,16 @@ export async function getUserProfile(user) {
 
     const data = snap.exists() ? snap.data() : {};
 
-    const name = resolveName(user, data);
-    const photo = resolvePhoto(user, data);
-
     return {
       uid: user.uid,
-      name,
+      name: resolveName(user, data),
       email: data.email || user.email || "",
-      age: data.age ?? null,
-      photo
+      age: data.age || null,
+      photo: resolvePhoto(user, data)
     };
 
-  } catch (err) {
-    console.warn("getUserProfile failed, using auth fallback:", err);
-
-    return {
-      uid: user.uid,
-      name: user.displayName || user.email?.split("@")[0] || "Player",
-      email: user.email || "",
-      age: null,
-      photo: user.photoURL || "./Images/defaultPFP.jpg"
-    };
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+    return null;
   }
 }
