@@ -98,3 +98,10 @@ V13 - 30th April
 
 - Trying to fix up sign in system + Leaderboard 
 - FOCUS is to keep doing thissss
+
+V14 - 2nd May 
+
+- Got sign in system working FINALLY 
+- Leaderboard working 
+
+- NEXT STEP: get the css cleaned up then do docmentation 

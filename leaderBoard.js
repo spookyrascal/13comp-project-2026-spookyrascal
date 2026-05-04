@@ -7,11 +7,14 @@ import {
   getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+/* =========================
+   DOM
+========================= */
 const tableBody = document.querySelector("#LeaderboardTable tbody");
 const profilePic = document.getElementById("profileImage");
 
 /* =========================
-   PROFILE
+   PROFILE SYNC
 ========================= */
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
@@ -19,52 +22,93 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
-  const profile = await getUserProfile(user);
-  profilePic.src = profile.photo;
+  try {
+    const profile = await getUserProfile(user);
+    profilePic.src = profile.photo;
+  } catch (err) {
+    console.warn("Profile load failed:", err);
+    profilePic.src = user.photoURL || "./Images/defaultPFP.jpg";
+
+    profileImage.src = user.photo;
+    document.getElementById("profileName").textContent = user.name;
+  }
 });
 
 /* =========================
-   LOAD + SORT BY WIN RATE
+   SAFE CALC HELPERS
+========================= */
+function safeNumber(value) {
+  const num = Number(value);
+  return isNaN(num) ? 0 : num;
+}
+
+function calculateWinRate(wins, games) {
+  const w = safeNumber(wins);
+  const g = safeNumber(games);
+
+  if (g <= 0) return 0;
+  return w / g;
+}
+
+/* =========================
+   LOAD LEADERBOARD
 ========================= */
 async function loadLeaderboard() {
-  const snapshot = await getDocs(collection(db, "leaderboard"));
+  try {
+    const snapshot = await getDocs(collection(db, "leaderboard"));
 
-  let players = [];
+    const players = [];
 
-  snapshot.forEach((docSnap) => {
-    const data = docSnap.data();
+    snapshot.forEach((docSnap) => {
+      const data = docSnap.data();
 
-    const wins = data.wins || 0;
-    const games = data.gamesPlayed || 0;
+      const wins = safeNumber(data.wins);
+      const games = safeNumber(data.gamesPlayed);
+      const winRate = calculateWinRate(wins, games);
 
-    const winRate = games > 0 ? wins / games : 0;
-
-    players.push({
-      ...data,
-      winRate
+      players.push({
+        uid: data.uid,
+        displayName: data.displayName || "Player",
+        photoURL: data.photoURL || "./Images/defaultPFP.jpg",
+        wins,
+        gamesPlayed: games,
+        winRate
+      });
     });
-  });
 
-  // SORT BY WIN RATE (highest first)
-  players.sort((a, b) => b.winRate - a.winRate);
+    // SORT: highest win rate first
+    players.sort((a, b) => b.winRate - a.winRate);
+
+    renderTable(players);
+
+  } catch (err) {
+    console.error("Leaderboard load error:", err);
+  }
+}
+
+/* =========================
+   RENDER
+========================= */
+function renderTable(players) {
+  if (!tableBody) return;
 
   tableBody.innerHTML = "";
 
   players.forEach((p, index) => {
-    const row = document.createElement("tr");
-
     const winRatePercent = (p.winRate * 100).toFixed(1);
+
+    const row = document.createElement("tr");
 
     row.innerHTML = `
       <td>${index + 1}</td>
 
       <td class="playerCell">
-        <img src="${p.photoURL || './Images/defaultPFP.jpg'}" class="lb-pfp">
-        <span>${p.displayName || "Player"}</span>
+        <img src="${p.photoURL}" class="lb-pfp">
+        <span>${p.displayName}</span>
       </td>
 
-      <td>${p.wins || 0}</td>
-      <td>${p.gamesPlayed || 0}</td>
+      <td>${p.wins}</td>
+      <td>${p.gamesPlayed}</td>
       <td>${winRatePercent}%</td>
     `;
 
@@ -72,5 +116,8 @@ async function loadLeaderboard() {
   });
 }
 
+/* =========================
+   INIT
+========================= */
 loadLeaderboard();
 setInterval(loadLeaderboard, 15000);

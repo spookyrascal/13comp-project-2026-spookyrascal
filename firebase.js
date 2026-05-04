@@ -1,11 +1,21 @@
+// ==========================
+// FIREBASE CORE
+// ==========================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
+// ==========================
+// AUTH
+// ==========================
 import {
   getAuth,
-  signInAnonymously,
-  onAuthStateChanged
+  onAuthStateChanged,
+  setPersistence,
+  browserLocalPersistence
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
+// ==========================
+// FIRESTORE
+// ==========================
 import {
   getFirestore,
   doc,
@@ -14,6 +24,9 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+// ==========================
+// ANALYTICS
+// ==========================
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
 
 
@@ -40,31 +53,33 @@ const db = getFirestore(app);
 
 
 // ==========================
-// OPTIONAL ANON LOGIN (SAFE)
+//  PERSISTENT LOGIN 
 // ==========================
-// ⚠️ NOTE: This is NOT needed for your game login system,
-// but kept safe here so it won't interfere with Google/email users.
-signInAnonymously(auth).catch(() => {
-  console.warn("Anonymous auth not used / failed (safe to ignore)");
-});
+setPersistence(auth, browserLocalPersistence)
+  .then(() => {
+    console.log(" Persistent login enabled");
+  })
+  .catch((err) => {
+    console.error("Persistence error:", err);
+  });
 
 
 // ==========================
-// ANALYTICS
+// ANALYTICS (SAFE)
 // ==========================
 try {
   getAnalytics(app);
 } catch {
-  console.warn("Analytics not available");
+  console.warn("Analytics not supported here");
 }
 
 
 // ==========================
-// USER NORMALISATION (IMPORTANT FIX)
+// SAFE NAME HELPER
 // ==========================
-function getSafeName(user, snapData) {
+function getSafeName(user, data) {
   return (
-    snapData?.displayName ||
+    data?.displayName ||
     user?.displayName ||
     user?.email?.split("@")[0] ||
     "Player"
@@ -73,32 +88,48 @@ function getSafeName(user, snapData) {
 
 
 // ==========================
-// SINGLE SOURCE USER SYNC
+// GLOBAL USER SYNC (FIXED)
 // ==========================
 onAuthStateChanged(auth, async (user) => {
   if (!user) return;
 
-  const ref = doc(db, "users", user.uid);
-  const snap = await getDoc(ref);
-  const data = snap.exists() ? snap.data() : {};
+  try {
+    const ref = doc(db, "users", user.uid);
+    const snap = await getDoc(ref);
+    const data = snap.exists() ? snap.data() : {};
 
-  const safeName = getSafeName(user, data);
+    const safeName = getSafeName(user, data);
 
-  // Create user if doesn't exist
-  if (!snap.exists()) {
-    await setDoc(ref, {
-      uid: user.uid,
-      displayName: safeName,
-      email: user.email || "",
-      age: null,
-      photoURL: user.photoURL || "./Images/defaultPFP.jpg",
-      isAdmin: false,
-      createdAt: serverTimestamp()
-    });
-  } else {
-    if (!data.displayName && user.displayName) {
-      await setDoc(ref, { displayName: user.displayName }, { merge: true });
+    // ======================
+    // CREATE USER
+    // ======================
+    if (!snap.exists()) {
+      await setDoc(ref, {
+        uid: user.uid,
+        displayName: safeName,
+        email: user.email || "",
+        age: null,
+        photoURL: user.photoURL || "./Images/defaultPFP.jpg",
+        isAdmin: false,
+        createdAt: serverTimestamp()
+      });
+
+      console.log("🆕 User created:", safeName);
     }
+
+    // ======================
+    // FIX MISSING NAME
+    // ======================
+    else if (!data.displayName && user.displayName) {
+      await setDoc(ref, {
+        displayName: user.displayName
+      }, { merge: true });
+
+      console.log("🔧 Fixed missing displayName");
+    }
+
+  } catch (err) {
+    console.error("User sync error:", err);
   }
 });
 
