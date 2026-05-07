@@ -18,6 +18,8 @@
   --hover: #6B8F71;
 
   --border: rgba(0, 0, 0, 0.08);
+
+  --online: #57f287;
 }
 
 /* =========================
@@ -62,7 +64,6 @@ header h1 {
   margin: 0;
   font-size: 18px;
   letter-spacing: 0.5px;
-  color: var(--text);
 }
 
 /* =========================
@@ -74,14 +75,12 @@ header h1 {
   align-items: center;
 }
 
-
 #profileBtn {
   background: none;
   border: none;
   padding: 0;
   cursor: pointer;
 }
-
 
 .profile-img {
   width: 44px;
@@ -101,7 +100,7 @@ header h1 {
 }
 
 /* =========================
-   DROPDOWN MENU
+   DROPDOWN (ACCOUNT PANEL FIXED)
 ========================= */
 .discord-menu {
   position: absolute;
@@ -132,7 +131,7 @@ header h1 {
   pointer-events: auto;
 }
 
-/* user section */
+/* USER HEADER */
 .discord-user {
   display: flex;
   align-items: center;
@@ -167,13 +166,13 @@ header h1 {
   color: #4b5b4e;
 }
 
-/* divider */
+/* DIVIDER */
 .discord-divider {
   height: 1px;
   background: var(--border);
 }
 
-/* dropdown buttons */
+/* BUTTONS */
 .discord-menu button {
   width: 100%;
   padding: 12px 14px;
@@ -194,7 +193,6 @@ header h1 {
   padding-left: 18px;
 }
 
-/* danger button */
 .discord-menu .danger {
   color: #c0392b;
 }
@@ -242,7 +240,7 @@ button:hover {
 }
 
 /* =========================
-   GAME CARDS 
+   GAME CARDS
 ========================= */
 .gameContainer {
   display: flex;
@@ -297,10 +295,8 @@ button:hover {
 .createBox input {
   padding: 10px;
   border-radius: 10px;
-
   border: 1px solid var(--border);
   outline: none;
-
   width: 220px;
 }
 
@@ -351,20 +347,26 @@ button:hover {
   text-align: center;
 }
 
-/* guess history */
+#feedback {
+  margin-top: 10px;
+  font-weight: bold;
+  font-size: 18px;
+}
+
 #guessHistory {
   margin-top: 15px;
-
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   justify-content: center;
 }
 
-.guessItem {
+.guessChip {
   padding: 6px 10px;
-  background: var(--soft);
   border-radius: 999px;
+
+  background: var(--soft);
+  font-weight: 600;
 }
 
 /* =========================
@@ -372,6 +374,91 @@ button:hover {
 ========================= */
 #winScreen {
   margin-top: 60px;
+}
+
+.gameOver {
+  font-size: 28px;
+  font-weight: 800;
+  margin-top: 20px;
+}
+
+/* =========================
+  LEADERBOARD 
+========================= */
+#LeaderboardTable {
+  width: 92%;
+  max-width: 900px;
+
+  border-collapse: separate;
+  border-spacing: 0 12px;
+
+  margin-top: 20px;
+}
+
+/* HEADER */
+#LeaderboardTable thead tr {
+  background: linear-gradient(135deg, var(--secondary), var(--accent));
+  color: white;
+}
+
+#LeaderboardTable th {
+  padding: 14px;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ROW CARDS */
+#LeaderboardTable tbody tr {
+  background: var(--card);
+  box-shadow: 0 8px 18px var(--shadow);
+
+  transition: 0.2s ease;
+  border-radius: 14px;
+}
+
+#LeaderboardTable tbody tr:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 25px var(--shadow-strong);
+}
+
+/* CELLS */
+#LeaderboardTable td {
+  padding: 14px;
+  border: none;
+}
+
+/* PLAYER CELL */
+.playerCell {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+}
+
+.lb-pfp {
+  width: 38px;
+  height: 38px;
+
+  border-radius: 50%;
+  object-fit: cover;
+
+  border: 2px solid var(--accent);
+  box-shadow: 0 4px 10px var(--shadow);
+}
+
+/* TOP 3 HIGHLIGHT */
+#LeaderboardTable tbody tr:nth-child(1) {
+  background: linear-gradient(135deg, #f9f295, #f0c929);
+  font-weight: 700;
+}
+
+#LeaderboardTable tbody tr:nth-child(2) {
+  background: linear-gradient(135deg, #d9e4f5, #aabbd6);
+}
+
+#LeaderboardTable tbody tr:nth-child(3) {
+  background: linear-gradient(135deg, #f5d0c5, #e6a57e);
 }
 
 /* =========================

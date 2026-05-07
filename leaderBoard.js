@@ -12,9 +12,10 @@ import {
 ========================= */
 const tableBody = document.querySelector("#LeaderboardTable tbody");
 const profilePic = document.getElementById("profileImage");
+const profileName = document.getElementById("profileName");
 
 /* =========================
-   PROFILE SYNC
+   AUTH + PROFILE
 ========================= */
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
@@ -24,92 +25,114 @@ onAuthStateChanged(auth, async (user) => {
 
   try {
     const profile = await getUserProfile(user);
-    profilePic.src = profile.photo;
+
+    if (profilePic) profilePic.src = profile.photo || "./Images/defaultPFP.jpg";
+    if (profileName) profileName.textContent = profile.name || "Player";
+
   } catch (err) {
     console.warn("Profile load failed:", err);
-    profilePic.src = user.photoURL || "./Images/defaultPFP.jpg";
 
-    profileImage.src = user.photo;
-    document.getElementById("profileName").textContent = user.name;
+    if (profilePic) profilePic.src = user.photoURL || "./Images/defaultPFP.jpg";
+    if (profileName) profileName.textContent = user.displayName || "Player";
   }
 });
 
 /* =========================
-   SAFE CALC HELPERS
+   HELPERS
 ========================= */
-function safeNumber(value) {
-  const num = Number(value);
-  return isNaN(num) ? 0 : num;
+function num(v) {
+  const n = Number(v);
+  return isNaN(n) ? 0 : n;
 }
 
-function calculateWinRate(wins, games) {
-  const w = safeNumber(wins);
-  const g = safeNumber(games);
-
-  if (g <= 0) return 0;
-  return w / g;
+function winRate(wins, games) {
+  if (!games) return 0;
+  return wins / games;
 }
 
 /* =========================
    LOAD LEADERBOARD
 ========================= */
 async function loadLeaderboard() {
+  if (!tableBody) return;
+
+  tableBody.innerHTML = `
+    <tr>
+      <td colspan="5">Loading leaderboard...</td>
+    </tr>
+  `;
+
   try {
     const snapshot = await getDocs(collection(db, "leaderboard"));
 
     const players = [];
 
     snapshot.forEach((docSnap) => {
-      const data = docSnap.data();
+      const d = docSnap.data();
 
-      const wins = safeNumber(data.wins);
-      const games = safeNumber(data.gamesPlayed);
-      const winRate = calculateWinRate(wins, games);
+      const wins = num(d.wins);
+      const games = num(d.gamesPlayed);
 
       players.push({
-        uid: data.uid,
-        displayName: data.displayName || "Player",
-        photoURL: data.photoURL || "./Images/defaultPFP.jpg",
+        uid: d.uid,
+        name: d.displayName || "Player",
+        photo: d.photoURL || "./Images/defaultPFP.jpg",
         wins,
-        gamesPlayed: games,
-        winRate
+        games,
+        rate: winRate(wins, games)
       });
     });
 
-    // SORT: highest win rate first
-    players.sort((a, b) => b.winRate - a.winRate);
+    if (players.length === 0) {
+      tableBody.innerHTML = `
+        <tr>
+          <td colspan="5">No players yet 😭</td>
+        </tr>
+      `;
+      return;
+    }
 
-    renderTable(players);
+    players.sort((a, b) => {
+      // better ranking logic: win rate first, then wins
+      if (b.rate === a.rate) return b.wins - a.wins;
+      return b.rate - a.rate;
+    });
+
+    render(players);
 
   } catch (err) {
-    console.error("Leaderboard load error:", err);
+    console.error(err);
+
+    tableBody.innerHTML = `
+      <tr>
+        <td colspan="5">Failed to load leaderboard</td>
+      </tr>
+    `;
   }
 }
 
 /* =========================
    RENDER
 ========================= */
-function renderTable(players) {
-  if (!tableBody) return;
-
+function render(players) {
   tableBody.innerHTML = "";
 
-  players.forEach((p, index) => {
-    const winRatePercent = (p.winRate * 100).toFixed(1);
-
+  players.forEach((p, i) => {
     const row = document.createElement("tr");
 
+    const percent = (p.rate * 100).toFixed(1);
+
     row.innerHTML = `
-      <td>${index + 1}</td>
+      <td><strong>#${i + 1}</strong></td>
 
       <td class="playerCell">
-        <img src="${p.photoURL}" class="lb-pfp">
-        <span>${p.displayName}</span>
+        <img class="lb-pfp" src="${p.photo}">
+        <span>${p.name}</span>
       </td>
 
       <td>${p.wins}</td>
-      <td>${p.gamesPlayed}</td>
-      <td>${winRatePercent}%</td>
+      <td>${p.games}</td>
+      <td>${percent}%</td>
     `;
 
     tableBody.appendChild(row);

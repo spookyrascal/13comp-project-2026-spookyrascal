@@ -7,12 +7,13 @@ import {
   collection,
   addDoc,
   doc,
+  getDoc,
   updateDoc,
   onSnapshot,
   query,
   where,
   serverTimestamp,
-  getDoc
+  arrayUnion
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* =========================
@@ -20,48 +21,53 @@ import {
 ========================= */
 let currentUser = null;
 let currentGameId = null;
-let gameData = null;
-let unsubscribeGame = null;
 
 /* =========================
    DOM
 ========================= */
-const el = {
-  lobbyList: document.getElementById("lobbyList"),
-  lobbySection: document.getElementById("lobbySection"),
-  gameSection: document.getElementById("gameSection"),
+const createGameBtn = document.getElementById("createGameBtn");
+const lobbyNameInput = document.getElementById("lobbyNameInput");
 
-  lobbyInput: document.getElementById("lobbyNameInput"),
-  createBtn: document.getElementById("createGameBtn"),
+const guessInput = document.getElementById("guessInput");
+const guessBtn = document.getElementById("guessBtn");
 
-  guessInput: document.getElementById("guessInput"),
-  guessBtn: document.getElementById("guessBtn"),
-  guessList: document.getElementById("guessList"),
+const feedback = document.getElementById("feedback");
+const guessHistory = document.getElementById("guessHistory");
 
-  opponentInfo: document.getElementById("opponentInfo"),
-  turnInfo: document.getElementById("turnInfo")
-};
+const gameSection = document.getElementById("gameSection");
+const lobbySection = document.getElementById("lobbySection");
+const winScreen = document.getElementById("winScreen");
+const winText = document.getElementById("winText");
 
 /* =========================
    AUTH
 ========================= */
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
-    window.location.href = "../../index.html";
+    window.location.href = "index.html";
     return;
   }
 
-  currentUser = await getUserProfile(user);
+  try {
+    currentUser = await getUserProfile(user);
+  } catch {
+    currentUser = {
+      uid: user.uid,
+      name: user.displayName || "Player",
+      photo: user.photoURL || "./Images/defaultPFP.jpg"
+    };
+  }
+
   loadLobby();
 });
 
 /* =========================
    CREATE GAME
 ========================= */
-el.createBtn?.addEventListener("click", async () => {
+createGameBtn?.addEventListener("click", async () => {
   if (!currentUser) return;
 
-  const lobbyName = el.lobbyInput?.value.trim() || "Lobby";
+  const lobbyName = lobbyNameInput?.value?.trim() || "Lobby";
 
   const ref = await addDoc(collection(db, "games"), {
     lobbyName,
@@ -72,7 +78,6 @@ el.createBtn?.addEventListener("click", async () => {
 
     player2Id: null,
     player2Name: null,
-    player2Photo: null,
 
     secretNumber: Math.floor(Math.random() * 100) + 1,
 
@@ -81,9 +86,6 @@ el.createBtn?.addEventListener("click", async () => {
 
     player1Guesses: [],
     player2Guesses: [],
-
-    player1Attempts: 0,
-    player2Attempts: 0,
 
     winnerId: null,
     createdAt: serverTimestamp()
@@ -96,12 +98,13 @@ el.createBtn?.addEventListener("click", async () => {
    LOBBY
 ========================= */
 function loadLobby() {
-  if (!el.lobbyList) return;
+  const lobbyList = document.getElementById("lobbyList");
+  if (!lobbyList) return;
 
   const q = query(collection(db, "games"), where("status", "==", "waiting"));
 
   onSnapshot(q, (snapshot) => {
-    el.lobbyList.innerHTML = "";
+    lobbyList.innerHTML = "";
 
     snapshot.forEach((docSnap) => {
       const game = docSnap.data();
@@ -115,22 +118,19 @@ function loadLobby() {
         <button class="joinBtn">Join</button>
       `;
 
-      const btn = card.querySelector(".joinBtn");
-
-      btn?.addEventListener("click", async () => {
+      card.querySelector(".joinBtn")?.addEventListener("click", async () => {
         if (!currentUser) return;
 
         await updateDoc(doc(db, "games", docSnap.id), {
           player2Id: currentUser.uid,
           player2Name: currentUser.name,
-          player2Photo: currentUser.photo,
           status: "playing"
         });
 
         joinGame(docSnap.id);
       });
 
-      el.lobbyList.appendChild(card);
+      lobbyList.appendChild(card);
     });
   });
 }
@@ -141,101 +141,116 @@ function loadLobby() {
 function joinGame(id) {
   currentGameId = id;
 
-  el.lobbySection?.classList.add("hidden");
-  el.gameSection?.classList.remove("hidden");
+  lobbySection?.classList.add("hidden");
+  gameSection?.classList.remove("hidden");
+  winScreen?.classList.add("hidden");
 
   listenToGame(id);
 }
 
 /* =========================
-   GAME LISTENER
-========================= */
-function listenToGame(id) {
-  if (unsubscribeGame) unsubscribeGame();
-
-  const ref = doc(db, "games", id);
-
-  unsubscribeGame = onSnapshot(ref, (snap) => {
-    gameData = snap.data();
-    if (!gameData) return;
-
-    const opponent =
-      currentUser.uid === gameData.player1Id
-        ? gameData.player2Name
-        : gameData.player1Name;
-
-    if (el.opponentInfo) {
-      el.opponentInfo.textContent = `Opponent: ${opponent || "Waiting..."}`;
-    }
-
-    if (el.turnInfo) {
-      el.turnInfo.textContent =
-        gameData.currentTurn === currentUser.uid
-          ? "Your Turn"
-          : "Opponent Turn";
-    }
-
-    renderGuesses();
-  });
-}
-
-/* =========================
    GUESS SYSTEM
 ========================= */
-el.guessBtn?.addEventListener("click", async () => {
-  if (!gameData || !currentGameId) return;
+guessBtn?.addEventListener("click", async () => {
+  if (!currentGameId || !currentUser) return;
 
-  const guess = Number(el.guessInput.value);
+  const guess = Number(guessInput.value);
+  if (!guess) return;
 
-  if (!guess || guess < 1 || guess > 100) {
-    return alert("Pick a number 1–100");
+  const ref = doc(db, "games", currentGameId);
+  const snap = await getDoc(ref);
+  const data = snap.data();
+
+  if (!data || data.status !== "playing") return;
+
+  const isPlayer1 = currentUser.uid === data.player1Id;
+
+  if (data.currentTurn !== currentUser.uid) {
+    feedback.textContent = "⏳ Not your turn!";
+    return;
   }
 
-  if (gameData.currentTurn !== currentUser.uid) {
-    return alert("Not your turn");
-  }
+  let result = "";
 
-  const isP1 = currentUser.uid === gameData.player1Id;
-
-  const guessField = isP1 ? "player1Guesses" : "player2Guesses";
-  const attemptField = isP1 ? "player1Attempts" : "player2Attempts";
-
-  const newGuesses = [...(gameData[guessField] || []), guess];
-
-  let updateData = {
-    [guessField]: newGuesses,
-    [attemptField]: (gameData[attemptField] || 0) + 1
-  };
-
-
-  if (guess === gameData.secretNumber) {
-    updateData.status = "finished";
-    updateData.winnerId = currentUser.uid;
-    updateData.currentTurn = null;
+  if (guess === data.secretNumber) {
+    result = "🎉 Correct! You win!";
+  } else if (guess < data.secretNumber) {
+    result = "📉 Too low!";
   } else {
-    updateData.currentTurn =
-      currentUser.uid === gameData.player1Id
-        ? gameData.player2Id
-        : gameData.player1Id;
+    result = "📈 Too high!";
   }
 
-  await updateDoc(doc(db, "games", currentGameId), updateData);
+  feedback.textContent = result;
 
-  el.guessInput.value = "";
+  await updateDoc(ref, {
+    [isPlayer1 ? "player1Guesses" : "player2Guesses"]: arrayUnion(guess),
+
+    currentTurn:
+      data.currentTurn === data.player1Id
+        ? data.player2Id
+        : data.player1Id,
+
+    winnerId: guess === data.secretNumber ? currentUser.uid : data.winnerId,
+
+    status: guess === data.secretNumber ? "finished" : "playing"
+  });
+
+  guessInput.value = "";
 });
 
 /* =========================
-   RENDER GUESSES
+   GAME LISTENER
 ========================= */
-function renderGuesses() {
-  if (!el.guessList || !gameData) return;
+function listenToGame(id) {
+  const ref = doc(db, "games", id);
 
-  const guesses =
-    currentUser.uid === gameData.player1Id
-      ? gameData.player1Guesses
-      : gameData.player2Guesses;
+  onSnapshot(ref, (snap) => {
+    const data = snap.data();
+    if (!data) return;
 
-  el.guessList.innerHTML = (guesses || [])
-    .map(g => `<li>${g}</li>`)
-    .join("");
+    const opponent =
+      currentUser.uid === data.player1Id
+        ? data.player2Name
+        : data.player1Name;
+
+    document.getElementById("opponentInfo").textContent =
+      "Opponent: " + (opponent || "Waiting...");
+
+    document.getElementById("turnInfo").textContent =
+      data.currentTurn === currentUser.uid
+        ? "🎯 Your Turn"
+        : "⏳ Opponent Turn";
+
+    /* =========================
+       GUESS HISTORY
+    ========================= */
+    const guesses =
+      currentUser.uid === data.player1Id
+        ? data.player1Guesses
+        : data.player2Guesses;
+
+    if (guessHistory) {
+      guessHistory.innerHTML = guesses
+        .map(g => `<div class="guessChip">${g}</div>`)
+        .join("");
+    }
+
+    /* =========================
+       GAME OVER
+    ========================= */
+    if (data.status === "finished") {
+      const win = data.winnerId === currentUser.uid;
+
+      gameSection?.classList.add("hidden");
+      winScreen?.classList.remove("hidden");
+
+      winText.textContent = win
+        ? "🏆 YOU WON!"
+        : "💀 YOU LOST";
+
+      feedback.textContent = win
+        ? "Clean win 😎"
+        : "Unlucky… try again 💀";
+    }
+  });
 }
