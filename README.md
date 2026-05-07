@@ -113,3 +113,9 @@ V15 - 5th May
 - GTN isnt working properly
 
 - NEXT STEP: Get it done
+
+V16 - 7th May
+
+- LEADERBOARD IS GONNA BE THE DEATH OF ME 
+
+- NEXT STEP: LEADERBOARD
