@@ -13,7 +13,8 @@ import {
   query,
   where,
   serverTimestamp,
-  arrayUnion
+  arrayUnion,
+  setDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* =========================
@@ -21,6 +22,7 @@ import {
 ========================= */
 let currentUser = null;
 let currentGameId = null;
+let gameEnded = false;
 
 /* =========================
    DOM
@@ -140,6 +142,7 @@ function loadLobby() {
 ========================= */
 function joinGame(id) {
   currentGameId = id;
+  gameEnded = false;
 
   lobbySection?.classList.add("hidden");
   gameSection?.classList.remove("hidden");
@@ -149,13 +152,41 @@ function joinGame(id) {
 }
 
 /* =========================
+   UPDATE LEADERBOARD (🔥 NEW)
+========================= */
+async function updateLeaderboard(uid, name, photo, win) {
+  const ref = doc(db, "leaderboard", uid);
+  const snap = await getDoc(ref);
+
+  if (!snap.exists()) {
+    await setDoc(ref, {
+      uid,
+      displayName: name,
+      photoURL: photo,
+      wins: win ? 1 : 0,
+      gamesPlayed: 1
+    });
+  } else {
+    const data = snap.data();
+
+    await updateDoc(ref, {
+      wins: data.wins + (win ? 1 : 0),
+      gamesPlayed: data.gamesPlayed + 1
+    });
+  }
+}
+
+/* =========================
    GUESS SYSTEM
 ========================= */
 guessBtn?.addEventListener("click", async () => {
-  if (!currentGameId || !currentUser) return;
+  if (!currentGameId || !currentUser || gameEnded) return;
 
   const guess = Number(guessInput.value);
-  if (!guess) return;
+  if (!guess || guess < 1 || guess > 100) {
+    feedback.textContent = "Enter 1–100";
+    return;
+  }
 
   const ref = doc(db, "games", currentGameId);
   const snap = await getDoc(ref);
@@ -163,24 +194,26 @@ guessBtn?.addEventListener("click", async () => {
 
   if (!data || data.status !== "playing") return;
 
-  const isPlayer1 = currentUser.uid === data.player1Id;
-
   if (data.currentTurn !== currentUser.uid) {
     feedback.textContent = "⏳ Not your turn!";
     return;
   }
 
-  let result = "";
+  let resultText = "";
 
   if (guess === data.secretNumber) {
-    result = "🎉 Correct! You win!";
+    resultText = "🎉 Correct! You win!";
   } else if (guess < data.secretNumber) {
-    result = "📉 Too low!";
+    resultText = "📉 Too low!";
   } else {
-    result = "📈 Too high!";
+    resultText = "📈 Too high!";
   }
 
-  feedback.textContent = result;
+  feedback.textContent = resultText;
+
+  const isPlayer1 = currentUser.uid === data.player1Id;
+
+  const isWin = guess === data.secretNumber;
 
   await updateDoc(ref, {
     [isPlayer1 ? "player1Guesses" : "player2Guesses"]: arrayUnion(guess),
@@ -190,9 +223,9 @@ guessBtn?.addEventListener("click", async () => {
         ? data.player2Id
         : data.player1Id,
 
-    winnerId: guess === data.secretNumber ? currentUser.uid : data.winnerId,
+    winnerId: isWin ? currentUser.uid : data.winnerId,
 
-    status: guess === data.secretNumber ? "finished" : "playing"
+    status: isWin ? "finished" : "playing"
   });
 
   guessInput.value = "";
@@ -204,7 +237,7 @@ guessBtn?.addEventListener("click", async () => {
 function listenToGame(id) {
   const ref = doc(db, "games", id);
 
-  onSnapshot(ref, (snap) => {
+  onSnapshot(ref, async (snap) => {
     const data = snap.data();
     if (!data) return;
 
@@ -229,16 +262,16 @@ function listenToGame(id) {
         ? data.player1Guesses
         : data.player2Guesses;
 
-    if (guessHistory) {
-      guessHistory.innerHTML = guesses
-        .map(g => `<div class="guessChip">${g}</div>`)
-        .join("");
-    }
+    guessHistory.innerHTML = guesses
+      .map(g => `<div class="guessChip">${g}</div>`)
+      .join("");
 
     /* =========================
        GAME OVER
     ========================= */
-    if (data.status === "finished") {
+    if (data.status === "finished" && !gameEnded) {
+      gameEnded = true;
+
       const win = data.winnerId === currentUser.uid;
 
       gameSection?.classList.add("hidden");
@@ -251,6 +284,13 @@ function listenToGame(id) {
       feedback.textContent = win
         ? "Clean win 😎"
         : "Unlucky… try again 💀";
+
+      await updateLeaderboard(
+        currentUser.uid,
+        currentUser.name,
+        currentUser.photo,
+        win
+      );
     }
   });
 }
