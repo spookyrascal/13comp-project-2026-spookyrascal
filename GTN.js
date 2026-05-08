@@ -12,7 +12,8 @@ import {
   query,
   where,
   serverTimestamp,
-  arrayUnion
+  arrayUnion,
+  increment
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* =========================
@@ -22,8 +23,6 @@ let user = null;
 let gameId = null;
 let unsub = null;
 let ended = false;
-
-/* track last distances for HOTTER/COLDER */
 let lastDistance = null;
 
 /* =========================
@@ -53,21 +52,29 @@ const leaveBtn = document.getElementById("leaveBtn");
    AUTH
 ========================= */
 initAuth((u) => {
-  renderUserHeader(u);
 
   if (!u) {
     location.href = "index.html";
     return;
   }
 
-  user = u;
+  user = {
+    uid: u.uid,
+    name: u.displayName || "Player",
+    email: u.email || "",
+    photo: u.photoURL || "./Images/defaultPFP.jpg"
+  };
+
+  renderUserHeader(user);
+
   loadLobby();
 });
 
 /* =========================
    CREATE GAME
 ========================= */
-createBtn.addEventListener("click", async () => {
+createBtn?.addEventListener("click", async () => {
+
   if (!user) return;
 
   const name = lobbyInput.value.trim() || "Lobby";
@@ -92,7 +99,8 @@ createBtn.addEventListener("click", async () => {
     player2Guesses: [],
 
     winnerId: null,
-    createdAt: serverTimestamp()
+    createdAt: serverTimestamp(),
+    lastActive: serverTimestamp()
   });
 
   join(ref.id);
@@ -102,12 +110,18 @@ createBtn.addEventListener("click", async () => {
    LOBBY
 ========================= */
 function loadLobby() {
-  const q = query(collection(db, "games"), where("status", "==", "waiting"));
+
+  const q = query(
+    collection(db, "games"),
+    where("status", "==", "waiting")
+  );
 
   onSnapshot(q, (snap) => {
+
     lobbyList.innerHTML = "";
 
     snap.forEach((docSnap) => {
+
       const g = docSnap.data();
 
       if (g.player1Id === user.uid) return;
@@ -122,11 +136,13 @@ function loadLobby() {
       `;
 
       div.querySelector("button").onclick = async () => {
+
         await updateDoc(doc(db, "games", docSnap.id), {
           player2Id: user.uid,
           player2Name: user.name,
           player2Photo: user.photo,
-          status: "playing"
+          status: "playing",
+          lastActive: serverTimestamp()
         });
 
         join(docSnap.id);
@@ -141,6 +157,7 @@ function loadLobby() {
    JOIN GAME
 ========================= */
 function join(id) {
+
   gameId = id;
   ended = false;
   lastDistance = null;
@@ -154,21 +171,29 @@ function join(id) {
 }
 
 /* =========================
-   HOT / COLD SYSTEM
+   EXIT GAME 
 ========================= */
-function getHotCold(distance) {
-  if (distance === 0) return "🎯 EXACT!";
-  if (distance <= 3) return "🔥 BURNING";
-  if (distance <= 7) return "☀️ HOT";
-  if (distance <= 15) return "🌤️ WARM";
-  if (distance <= 30) return "❄️ COLD";
-  return "🧊 FREEZING";
+function exitGame() {
+
+  gameId = null;
+  lastDistance = null;
+  ended = false;
+
+  if (unsub) unsub();
+
+  gameSection.classList.add("hidden");
+  winScreen.classList.add("hidden");
+  lobbySection.classList.remove("hidden");
+
+  feedback.textContent = "";
+  history.innerHTML = "";
 }
 
 /* =========================
    GUESS SYSTEM
 ========================= */
-guessBtn.onclick = async () => {
+guessBtn?.addEventListener("click", async () => {
+
   if (!gameId || ended) return;
 
   const guess = Number(guessInput.value);
@@ -182,59 +207,92 @@ guessBtn.onclick = async () => {
   const snap = await getDoc(ref);
   const g = snap.data();
 
-  if (g.currentTurn !== user.uid) {
+  if (!g || g.currentTurn !== user.uid) {
     feedback.textContent = "Not your turn";
     return;
   }
 
   const isP1 = user.uid === g.player1Id;
-  const secret = g.secretNumber;
+  const opponentId = isP1 ? g.player2Id : g.player1Id;
 
-  const distance = Math.abs(guess - secret);
+  const distance = Math.abs(guess - g.secretNumber);
 
-  const baseFeedback = getHotCold(distance);
-
-  /* HOTTER / COLDER logic */
   let trend = "";
 
   if (lastDistance !== null) {
-    if (distance < lastDistance) trend = " 🔥 GETTING HOTTER";
-    if (distance > lastDistance) trend = " 🧊 GETTING COLDER";
-    if (distance === lastDistance) trend = " 😐 SAME";
+    trend =
+      distance < lastDistance ? " 🔥 HOTTER" :
+      distance > lastDistance ? " 🧊 COLDER" :
+      " 😐 SAME";
   }
 
   lastDistance = distance;
 
-  feedback.textContent = baseFeedback + trend;
+  feedback.textContent =
+    distance === 0
+      ? "🎯 EXACT!"
+      : distance <= 3
+        ? "🔥 BURNING"
+        : distance <= 10
+          ? "☀️ HOT"
+          : "❄️ COLD" + trend;
 
   const win = distance === 0;
 
-  await updateDoc(ref, {
+  const updates = {
     [isP1 ? "player1Guesses" : "player2Guesses"]: arrayUnion(guess),
     currentTurn: isP1 ? g.player2Id : g.player1Id,
-    winnerId: win ? user.uid : g.winnerId,
+    lastActive: serverTimestamp(),
     status: win ? "finished" : "playing"
-  });
+  };
+
+  /* =========================
+     WIN HANDLING 
+  ========================= */
+  if (win && !ended) {
+
+    ended = true;
+
+    updates.winnerId = user.uid;
+
+    await updateDoc(doc(db, "users", user.uid), {
+      wins: increment(1),
+      gamesPlayed: increment(1)
+    });
+
+    if (opponentId) {
+      await updateDoc(doc(db, "users", opponentId), {
+        gamesPlayed: increment(1)
+      });
+    }
+
+    setTimeout(() => {
+      exitGame();
+    }, 2500);
+  }
+
+  await updateDoc(ref, updates);
 
   guessInput.value = "";
-};
+});
 
 /* =========================
    LISTENER
 ========================= */
 function listen(id) {
+
   const ref = doc(db, "games", id);
 
   unsub = onSnapshot(ref, (snap) => {
+
     const g = snap.data();
     if (!g) return;
 
-    const opp =
-      user.uid === g.player1Id
+    opponent.textContent =
+      "Opponent: " +
+      (user.uid === g.player1Id
         ? g.player2Name
-        : g.player1Name;
-
-    opponent.textContent = "Opponent: " + (opp || "Waiting");
+        : g.player1Name || "Waiting");
 
     turn.textContent =
       g.currentTurn === user.uid
@@ -246,33 +304,34 @@ function listen(id) {
         ? g.player1Guesses
         : g.player2Guesses;
 
-    history.innerHTML = (guesses || [])
-      .map(x => `<div class="guessChip">${x}</div>`)
-      .join("");
+    history.innerHTML =
+      (guesses || [])
+        .map(x => `<div class="guessChip">${x}</div>`)
+        .join("");
 
+    /* =========================
+       GAME END STATE
+    ========================= */
     if (g.status === "finished" && !ended) {
-      ended = true;
 
-      const win = g.winnerId === user.uid;
+      ended = true;
 
       gameSection.classList.add("hidden");
       winScreen.classList.remove("hidden");
 
-      winText.textContent = win ? "YOU WIN 🔥" : "YOU LOSE 💀";
+      winText.textContent =
+        g.winnerId === user.uid
+          ? "YOU WIN 🔥"
+          : "YOU LOSE 💀";
+
+      setTimeout(() => {
+        exitGame();
+      }, 3000);
     }
   });
 }
 
 /* =========================
-   LEAVE
+   LEAVE BUTTON
 ========================= */
-leaveBtn.onclick = () => {
-  gameId = null;
-  lastDistance = null;
-
-  gameSection.classList.add("hidden");
-  winScreen.classList.add("hidden");
-  lobbySection.classList.remove("hidden");
-
-  if (unsub) unsub();
-};
+leaveBtn?.addEventListener("click", exitGame);

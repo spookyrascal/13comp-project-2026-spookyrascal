@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <title>My Profile</title>
+
+  <link rel="stylesheet" href="style.css"/>
+
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <header class="topbar">
+
+    <h1>👤 My Profile</h1>
+
+    <div class="profileMiniHeader">
+
+      <img
+        id="headerProfileImage"
+        class="profile-img"
+        src="./Images/defaultPFP.jpg"
+      />
+
+      <button id="backBtn">
+        ← Back
+      </button>
+
+    </div>
+
+  </header>
+
+  <!-- MAIN -->
+  <main class="profilePage">
+
+    <!-- HERO -->
+    <section class="profileHero">
+
+      <img id="profilePreview" src="./Images/defaultPFP.jpg"/>
+
+      <div class="profileInfo">
+
+        <h2 id="profileDisplayName">Player</h2>
+
+        <p id="profileEmail">loading...</p>
+
+        <p id="profileAge">Age: --</p>
+
+      </div>
+
+    </section>
+
+    <!-- STATS -->
+    <section class="statsGrid">
+
+      <div class="statCard stat-win">
+        <h3>Wins</h3>
+        <div class="value" id="winsStat">0</div>
+      </div>
+
+      <div class="statCard stat-loss">
+        <h3>Losses</h3>
+        <div class="value" id="lossesStat">0</div>
+      </div>
+
+      <div class="statCard">
+        <h3>Games Played</h3>
+        <div class="value" id="gamesStat">0</div>
+      </div>
+
+      <div class="statCard">
+        <h3>Win Rate</h3>
+        <div class="value" id="rateStat">0%</div>
+      </div>
+
+    </section>
+
+    <!-- EDIT PROFILE -->
+    <section class="profileSection">
+
+      <h3>Edit Profile</h3>
+
+      <input id="usernameInput" type="text" placeholder="New username"/>
+
+      <input id="ageInput" type="number" placeholder="Age"/>
+
+      <input id="photoInput" type="text" placeholder="Paste image URL"/>
+
+      <img id="livePreview" class="editPreview" src="./Images/defaultPFP.jpg"/>
+
+      <button id="saveProfileBtn" class="btn-primary saveBtn">
+        Save Changes
+      </button>
+
+    </section>
+
+    <!-- ACHIEVEMENTS -->
+    <section class="profileSection">
+
+      <h3>Achievements</h3>
+
+      <div class="badgeRow" id="badgeRow"></div>
+
+    </section>
+
+  </main>
+
+  <script type="module" src="./profile.js"></script>
+
+</body>
+
+</html>
