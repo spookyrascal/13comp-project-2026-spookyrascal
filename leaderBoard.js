@@ -6,7 +6,7 @@ import {
 
 import {
   collection,
-  getDocs,
+  onSnapshot,
   doc,
   getDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -16,109 +16,65 @@ import {
 ========================= */
 
 const tableBody =
-  document.querySelector(
-    "#LeaderboardTable tbody"
-  );
+  document.querySelector("#LeaderboardTable tbody");
 
 const profileImage =
-  document.getElementById(
-    "profileImage"
-  );
+  document.getElementById("profileImage");
 
 const profileName =
-  document.getElementById(
-    "profileName"
-  );
+  document.getElementById("profileName");
 
 /* =========================
    HELPERS
 ========================= */
 
 function num(v) {
-
-  const n = Number(v);
-
-  return isNaN(n) ? 0 : n;
+  return Number(v) || 0;
 }
 
-function calcRate(wins, games) {
-
-  if (!games) return 0;
-
-  return wins / games;
+function winRate(wins, games) {
+  return games ? wins / games : 0;
 }
 
 /* =========================
-   AUTH
+   AUTH HEADER
 ========================= */
 
 onAuthStateChanged(auth, async (user) => {
 
-  // guest
   if (!user) {
 
-    profileImage.src =
-      "./Images/defaultPFP.jpg";
-
-    profileName.textContent =
-      "Guest";
+    profileImage.src = "./Images/defaultPFP.jpg";
+    profileName.textContent = "Guest";
 
     return;
   }
 
-  try {
+  const snap =
+    await getDoc(doc(db, "leaderboard", user.uid));
 
-    const userRef = doc(
-      db,
-      "users",
-      user.uid
-    );
+  const data = snap.data() || {};
 
-    const snap =
-      await getDoc(userRef);
+  profileImage.src =
+    data.photoURL ||
+    user.photoURL ||
+    "./Images/defaultPFP.jpg";
 
-    const data =
-      snap.data() || {};
-
-    profileImage.src =
-      data.photoURL ||
-      user.photoURL ||
-      "./Images/defaultPFP.jpg";
-
-    profileName.textContent =
-      data.username ||
-      user.displayName ||
-      "Player";
-
-  } catch (err) {
-
-    console.error(err);
-
-  }
+  profileName.textContent =
+    data.displayName ||
+    user.displayName ||
+    "Player";
 });
 
 /* =========================
-   LOAD LEADERBOARD
+   LOAD LEADERBOARD (LIVE)
 ========================= */
 
-async function loadLeaderboard() {
+function loadLeaderboard() {
 
-  if (!tableBody) return;
+  const ref = collection(db, "leaderboard");
 
-  tableBody.innerHTML = `
-    <tr>
-      <td colspan="5">
-        Loading leaderboard...
-      </td>
-    </tr>
-  `;
-
-  try {
-
-    const snapshot =
-      await getDocs(
-        collection(db, "leaderboard")
-      );
+  onSnapshot(ref, (snapshot) => {
 
     const players = [];
 
@@ -126,43 +82,38 @@ async function loadLeaderboard() {
 
       const d = docSnap.data();
 
-      const wins =
-        num(d.wins);
+      const wins = num(d.wins);
+      const games = num(d.gamesPlayed);
+      const best = num(d.bestScore);
 
-      const games =
-        num(d.gamesPlayed);
+      const rate = winRate(wins, games);
+
+      // ranking score (NOT stored, just computed)
+      const rankPoints =
+        (wins * 10) +
+        (best * 2) +
+        (rate * 50);
 
       players.push({
 
-        uid:
-          d.uid || "",
-
-        name:
-          d.username ||
-          d.displayName ||
-          "Player",
-
-        photo:
-          d.photoURL ||
-          "./Images/defaultPFP.jpg",
+        id: docSnap.id,
+        name: d.displayName || "Player",
+        photo: d.photoURL || "./Images/defaultPFP.jpg",
 
         wins,
-
         games,
-
-        rate:
-          calcRate(wins, games)
+        best,
+        rate,
+        rankPoints
 
       });
-
     });
 
-    // no players
     if (!players.length) {
 
       tableBody.innerHTML = `
         <tr>
-          <td colspan="5">
+          <td colspan="6">
             No players yet 😭
           </td>
         </tr>
@@ -171,87 +122,54 @@ async function loadLeaderboard() {
       return;
     }
 
-    // ranking
-    players.sort((a, b) => {
+    // SORT BY RANK POINTS
+    players.sort((a, b) =>
+      b.rankPoints - a.rankPoints
+    );
 
-      // highest winrate first
-      if (b.rate !== a.rate) {
-        return b.rate - a.rate;
-      }
-
-      // then wins
-      return b.wins - a.wins;
-    });
-
-    renderLeaderboard(players);
-
-  } catch (err) {
-
-    console.error(err);
-
-    tableBody.innerHTML = `
-      <tr>
-        <td colspan="5">
-          Failed to load leaderboard
-        </td>
-      </tr>
-    `;
-  }
+    render(players);
+  });
 }
 
 /* =========================
-   RENDER
+   RENDER TABLE
 ========================= */
 
-function renderLeaderboard(players) {
+function render(players) {
 
   tableBody.innerHTML = "";
 
-  players.forEach((player, index) => {
+  players.forEach((p, i) => {
+
+    const percent =
+      (p.rate * 100).toFixed(1);
 
     const row =
       document.createElement("tr");
 
-    const percent =
-      (player.rate * 100).toFixed(1);
-
     row.innerHTML = `
 
-      <td>
-        <strong>
-          #${index + 1}
-        </strong>
-      </td>
+      <td><strong>#${i + 1}</strong></td>
 
       <td class="playerCell">
 
         <img
           class="lb-pfp"
-          src="${player.photo}"
-          alt="PFP"
-        >
+          src="${p.photo}"
+        />
 
-        <span>
-          ${player.name}
-        </span>
+        <span>${p.name}</span>
 
       </td>
 
-      <td>
-        ${player.wins}
-      </td>
+      <td>${p.wins}</td>
+      <td>${p.games}</td>
+      <td>${percent}%</td>
+      <td>${p.best}</td>
 
-      <td>
-        ${player.games}
-      </td>
-
-      <td>
-        ${percent}%
-      </td>
     `;
 
     tableBody.appendChild(row);
-
   });
 }
 
