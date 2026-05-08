@@ -4,35 +4,21 @@
 <head>
 
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  />
+  <title>Leaderboard</title>
 
-  <title>
-    Leaderboard
-  </title>
-
-  <link
-    rel="stylesheet"
-    href="style.css"
-  />
+  <link rel="stylesheet" href="style.css"/>
 
 </head>
 
 <body>
 
-  <!-- =========================
-       HEADER
-  ========================== -->
+  <!-- HEADER -->
   <header class="leaderboardHeader">
 
-    <h1>
-      🏆 Leaderboard
-    </h1>
+    <h1>🏆 Leaderboard</h1>
 
-    <!-- PROFILE -->
     <div class="profileContainer">
 
       <div class="profileMini">
@@ -41,16 +27,10 @@
           id="profileImage"
           class="profile-img"
           src="./Images/defaultPFP.jpg"
-          alt="Profile Picture"
+          alt="Profile"
         />
 
-        <div class="profileText">
-
-          <p id="profileName">
-            Guest
-          </p>
-
-        </div>
+        <p id="profileName">Guest</p>
 
       </div>
 
@@ -58,9 +38,7 @@
 
   </header>
 
-  <!-- =========================
-       MAIN
-  ========================== -->
+  <!-- MAIN -->
   <main>
 
     <div class="tableWrap">
@@ -68,31 +46,14 @@
       <table id="LeaderboardTable">
 
         <thead>
-
           <tr>
-
-            <th>
-              Rank
-            </th>
-
-            <th>
-              Player
-            </th>
-
-            <th>
-              Wins
-            </th>
-
-            <th>
-              Games Played
-            </th>
-
-            <th>
-              Win Rate
-            </th>
-
+            <th>Rank</th>
+            <th>Player</th>
+            <th>Wins</th>
+            <th>Games</th>
+            <th>Win Rate</th>
+            <th>Best Score</th>
           </tr>
-
         </thead>
 
         <tbody>
@@ -103,23 +64,13 @@
 
     </div>
 
-    <!-- BACK -->
-    <button
-      class="backBtn"
-      onclick="history.back()"
-    >
+    <button class="backBtn" onclick="history.back()">
       ← Back
     </button>
 
   </main>
 
-  <!-- =========================
-       SCRIPT
-  ========================== -->
-  <script
-    type="module"
-    src="./leaderBoard.js"
-  ></script>
+  <script type="module" src="./leaderboard.js"></script>
 
 </body>
 
