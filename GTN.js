@@ -12,8 +12,7 @@ import {
   query,
   where,
   serverTimestamp,
-  arrayUnion,
-  setDoc
+  arrayUnion
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* =========================
@@ -23,6 +22,9 @@ let user = null;
 let gameId = null;
 let unsub = null;
 let ended = false;
+
+/* track last distances for HOTTER/COLDER */
+let lastDistance = null;
 
 /* =========================
    DOM
@@ -48,7 +50,7 @@ const winText = document.getElementById("winText");
 const leaveBtn = document.getElementById("leaveBtn");
 
 /* =========================
-   AUTH (FIXED)
+   AUTH
 ========================= */
 initAuth((u) => {
   renderUserHeader(u);
@@ -136,11 +138,12 @@ function loadLobby() {
 }
 
 /* =========================
-   JOIN
+   JOIN GAME
 ========================= */
 function join(id) {
   gameId = id;
   ended = false;
+  lastDistance = null;
 
   lobbySection.classList.add("hidden");
   gameSection.classList.remove("hidden");
@@ -151,7 +154,19 @@ function join(id) {
 }
 
 /* =========================
-   GUESS
+   HOT / COLD SYSTEM
+========================= */
+function getHotCold(distance) {
+  if (distance === 0) return "🎯 EXACT!";
+  if (distance <= 3) return "🔥 BURNING";
+  if (distance <= 7) return "☀️ HOT";
+  if (distance <= 15) return "🌤️ WARM";
+  if (distance <= 30) return "❄️ COLD";
+  return "🧊 FREEZING";
+}
+
+/* =========================
+   GUESS SYSTEM
 ========================= */
 guessBtn.onclick = async () => {
   if (!gameId || ended) return;
@@ -173,13 +188,26 @@ guessBtn.onclick = async () => {
   }
 
   const isP1 = user.uid === g.player1Id;
-  const win = guess === g.secretNumber;
+  const secret = g.secretNumber;
 
-  feedback.textContent = win
-    ? "Correct!"
-    : guess < g.secretNumber
-      ? "Too low"
-      : "Too high";
+  const distance = Math.abs(guess - secret);
+
+  const baseFeedback = getHotCold(distance);
+
+  /* HOTTER / COLDER logic */
+  let trend = "";
+
+  if (lastDistance !== null) {
+    if (distance < lastDistance) trend = " 🔥 GETTING HOTTER";
+    if (distance > lastDistance) trend = " 🧊 GETTING COLDER";
+    if (distance === lastDistance) trend = " 😐 SAME";
+  }
+
+  lastDistance = distance;
+
+  feedback.textContent = baseFeedback + trend;
+
+  const win = distance === 0;
 
   await updateDoc(ref, {
     [isP1 ? "player1Guesses" : "player2Guesses"]: arrayUnion(guess),
@@ -197,7 +225,7 @@ guessBtn.onclick = async () => {
 function listen(id) {
   const ref = doc(db, "games", id);
 
-  unsub = onSnapshot(ref, async (snap) => {
+  unsub = onSnapshot(ref, (snap) => {
     const g = snap.data();
     if (!g) return;
 
@@ -209,7 +237,9 @@ function listen(id) {
     opponent.textContent = "Opponent: " + (opp || "Waiting");
 
     turn.textContent =
-      g.currentTurn === user.uid ? "Your turn" : "Opponent turn";
+      g.currentTurn === user.uid
+        ? "🔥 Your turn"
+        : "⏳ Opponent turn";
 
     const guesses =
       user.uid === g.player1Id
@@ -228,7 +258,7 @@ function listen(id) {
       gameSection.classList.add("hidden");
       winScreen.classList.remove("hidden");
 
-      winText.textContent = win ? "YOU WIN" : "YOU LOSE";
+      winText.textContent = win ? "YOU WIN 🔥" : "YOU LOSE 💀";
     }
   });
 }
@@ -238,6 +268,7 @@ function listen(id) {
 ========================= */
 leaveBtn.onclick = () => {
   gameId = null;
+  lastDistance = null;
 
   gameSection.classList.add("hidden");
   winScreen.classList.add("hidden");
