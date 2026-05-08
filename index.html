@@ -2,12 +2,18 @@
 <html lang="en">
 
 <head>
+
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
 
   <title>Game Manager</title>
 
   <link rel="stylesheet" href="style.css" />
+
 </head>
 
 <body>
@@ -19,21 +25,39 @@
 
     <h1>🎮 Game Manager</h1>
 
-    <!-- AUTH BUTTONS (LOGGED OUT STATE) -->
-    <div id="authButtons" class="auth-buttons">
+    <!-- =========================
+         AUTH BUTTONS
+    ========================== -->
+    <div
+      id="authButtons"
+      class="auth-buttons"
+    >
 
-      <button id="loginBtn">Login</button>
-      <button id="emailSignupBtn">Sign Up</button>
+      <button id="googleLoginBtn">
+        Sign in with Google
+      </button>
+
+      <button id="openAuthBtn">
+        Login / Sign Up
+      </button>
 
     </div>
 
-    <!-- PROFILE (LOGGED IN STATE) -->
-    <div id="profileArea" class="profile-area hidden">
+    <!-- =========================
+         PROFILE AREA
+    ========================== -->
+    <div
+      id="profileArea"
+      class="profile-area hidden"
+    >
 
       <div class="profile-wrapper">
 
         <!-- PROFILE BUTTON -->
-        <button id="profileBtn" class="profile-trigger">
+        <button
+          id="profileBtn"
+          class="profile-trigger"
+        >
 
           <img
             id="profileImage"
@@ -44,8 +68,11 @@
 
         </button>
 
-        <!-- DROPDOWN -->
-        <div id="dropdownMenu" class="menu hidden">
+        <!-- DROPDOWN MENU -->
+        <div
+          id="dropdownMenu"
+          class="menu hidden"
+        >
 
           <!-- USER INFO -->
           <div class="menu-user">
@@ -58,9 +85,13 @@
 
             <div class="menu-user-text">
 
-              <span id="menuName">Guest</span>
-              <small id="menuEmail">Not signed in</small>
-              <small id="menuAge">Age: -</small>
+              <span id="menuName">
+                Guest
+              </span>
+
+              <small id="menuEmail">
+                Not signed in
+              </small>
 
             </div>
 
@@ -84,80 +115,71 @@
   </header>
 
   <!-- =========================
-       MAIN
+       MAIN CONTENT
   ========================== -->
   <main>
 
-    <h2 id="welcomeText">Welcome 👋</h2>
+    <h2 id="welcomeText">
+      Welcome 👋
+    </h2>
 
-    <button id="playBtn" class="play-btn">
+    <button
+      id="playBtn"
+      class="play-btn"
+    >
       ▶ Play
     </button>
 
   </main>
 
   <!-- =========================
-       USERNAME POPUP
+       AUTH POPUP
   ========================== -->
-  <div id="usernamePopup" class="popup hidden">
+  <div
+    id="authPopup"
+    class="popup hidden"
+  >
 
     <div class="popup-content">
 
-      <h2>Choose Username</h2>
+      <!-- TITLE -->
+      <h2 id="authTitle">
+        Login
+      </h2>
 
+      <!-- USERNAME -->
       <input
-        id="usernameInput"
-        type="text"
-        placeholder="Enter username"
-        maxlength="20"
-      />
-
-      <button id="saveUsernameBtn">
-        Save Username
-      </button>
-
-    </div>
-
-  </div>
-
-  <!-- =========================
-       SIGNUP POPUP
-  ========================== -->
-  <div id="signupPopup" class="popup hidden">
-
-    <div class="popup-content">
-
-      <h2>Create Account</h2>
-
-      <input
-        id="signupUsername"
+        id="authUsername"
         type="text"
         placeholder="Username"
         maxlength="20"
+        class="hidden"
       />
 
+      <!-- EMAIL -->
       <input
-        id="signupEmail"
+        id="authEmail"
         type="email"
         placeholder="Email"
       />
 
+      <!-- PASSWORD -->
       <input
-        id="signupPassword"
+        id="authPassword"
         type="password"
         placeholder="Password"
       />
 
-      <input
-        id="signupAge"
-        type="number"
-        placeholder="Age"
-        min="5"
-        max="120"
-      />
+      <!-- SUBMIT -->
+      <button id="submitAuthBtn">
+        Login
+      </button>
 
-      <button id="createAccountBtn">
-        Create Account
+      <!-- SWITCH MODE -->
+      <button id="switchAuthModeBtn">
+
+        Need an account?
+
       </button>
 
     </div>
@@ -167,7 +189,10 @@
   <!-- =========================
        SCRIPT
   ========================== -->
-  <script type="module" src="home.js"></script>
+  <script
+    type="module"
+    src="home.js"
+  ></script>
 
 </body>
 
