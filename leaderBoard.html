@@ -2,11 +2,23 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Leaderboard</title>
 
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>
+    Leaderboard
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="style.css"
+  />
+
 </head>
 
 <body>
@@ -16,28 +28,38 @@
   ========================== -->
   <header class="leaderboardHeader">
 
-    <h1>🏆 Leaderboard</h1>
+    <h1>
+      🏆 Leaderboard
+    </h1>
 
-<!-- PROFILE -->
-<div class="profileContainer">
+    <!-- PROFILE -->
+    <div class="profileContainer">
 
-  <div class="profileMini">
+      <div class="profileMini">
 
-    <img
-      id="profileImage"
-      class="profile-img"
-      src="./Images/defaultPFP.jpg"
-      alt="Profile Picture"
-    >
+        <img
+          id="profileImage"
+          class="profile-img"
+          src="./Images/defaultPFP.jpg"
+          alt="Profile Picture"
+        />
 
-    <div class="profileText">
-      <p id="profileName">Guest</p>
+        <div class="profileText">
+
+          <p id="profileName">
+            Guest
+          </p>
+
+        </div>
+
+      </div>
+
     </div>
-  </div>
-</div>
+
+  </header>
 
   <!-- =========================
-       MAIN TABLE
+       MAIN
   ========================== -->
   <main>
 
@@ -46,34 +68,58 @@
       <table id="LeaderboardTable">
 
         <thead>
+
           <tr>
-            <th>Rank</th>
-            <th>Player</th>
-            <th>Wins</th>
-            <th>Games Played</th>
-            <th>Win Rate</th>
+
+            <th>
+              Rank
+            </th>
+
+            <th>
+              Player
+            </th>
+
+            <th>
+              Wins
+            </th>
+
+            <th>
+              Games Played
+            </th>
+
+            <th>
+              Win Rate
+            </th>
+
           </tr>
+
         </thead>
 
         <tbody>
-          <!-- JS injects rows here -->
+          <!-- injected -->
         </tbody>
 
       </table>
 
     </div>
 
-    <!-- Back Button -->
-    <button class="backBtn" onclick="history.back()">
+    <!-- BACK -->
+    <button
+      class="backBtn"
+      onclick="history.back()"
+    >
       ← Back
     </button>
 
   </main>
 
   <!-- =========================
-       SCRIPTS 
+       SCRIPT
   ========================== -->
-  <script type="module" src="./leaderBoard.js"></script>
+  <script
+    type="module"
+    src="./leaderBoard.js"
+  ></script>
 
 </body>
 

@@ -1,6 +1,17 @@
 import { auth, db } from "./firebase.js";
 import { getUserProfile } from "./user.js";
+import { initAuth } from "./authState.js";
+import { renderUserHeader } from "./ui.js";
 
+initAuth((user) => {
+
+  renderUserHeader(user);
+
+  if (!user) {
+    window.location.href = "index.html";
+    return;
+  }
+});
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 import {
@@ -94,7 +105,7 @@ createGameBtn?.addEventListener("click", async () => {
 });
 
 /* =========================
-   LOBBY (SAFE INIT)
+   LOBBY
 ========================= */
 function loadLobby() {
   const lobbyList = document.getElementById("lobbyList");

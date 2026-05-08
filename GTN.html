@@ -1,11 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta charset="UTF-8" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>Guess The Number</title>
 
-  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./style.css" />
+
 </head>
 
 <body>
@@ -14,107 +19,97 @@
      HEADER
 ========================= -->
 <header>
-
+  <img id="profileImage" class="profile-img" />
+  <span id="menuName"></span>
+  <small id="menuEmail"></small>
   <div class="header-left">
     <h1>🎯 Guess The Number</h1>
-    <span id="statusIcon" class="status-dot"></span>
   </div>
 
   <div class="header-right">
+
     <img
       id="profileImage"
       class="profile-img"
       src="./Images/defaultPFP.jpg"
       alt="Profile"
     />
+
   </div>
 
 </header>
 
 <!-- =========================
-     MAIN WRAPPER
+     MAIN
 ========================= -->
 <main>
 
-  <!-- =========================
-       LOBBY
-  ========================== -->
+  <!-- LOBBY -->
   <section id="lobbySection">
 
-    <h2>🏟️ Game Lobby</h2>
+    <h2>🏟️ Lobby</h2>
 
     <div class="createBox">
+
       <input
-        type="text"
         id="lobbyNameInput"
-        placeholder="Enter Lobby Name"
+        placeholder="Lobby name"
       />
 
-      <button id="createGameBtn">➕ Create Game</button>
+      <button id="createGameBtn">
+        Create Game
+      </button>
+
     </div>
 
-    <h3>🟢 Waiting Games</h3>
-
-    <div id="lobbyList" class="lobbyContainer"></div>
+    <div id="lobbyList"></div>
 
   </section>
 
-  <!-- =========================
-       GAME SCREEN
-  ========================== -->
+  <!-- GAME -->
   <section id="gameSection" class="hidden">
 
-    <div class="gameHeader">
-      <h2 id="gameStatus">🎮 Game Started</h2>
-      <p id="opponentInfo">Opponent: Loading...</p>
-      <p id="turnInfo">Turn: Loading...</p>
-    </div>
+    <h2>🎮 Game</h2>
+
+    <p id="opponentInfo">Opponent: ...</p>
+
+    <p id="turnInfo">Turn: ...</p>
 
     <div class="guessBox">
+
       <input
-        type="number"
         id="guessInput"
-        placeholder="Guess 1–100"
+        type="number"
         min="1"
         max="100"
+        placeholder="1-100"
       />
 
-      <button id="guessBtn">Submit Guess</button>
+      <button id="guessBtn">Guess</button>
+
     </div>
 
     <p id="feedback"></p>
 
-    <div class="historyBox">
-      <h3>📜 Your Guesses</h3>
-      <ul id="guessList"></ul>
-    </div>
+    <h3>Your guesses</h3>
+
+    <div id="guessHistory"></div>
 
   </section>
 
-  <!-- =========================
-       WIN SCREEN
-  ========================== -->
+  <!-- WIN -->
   <section id="winScreen" class="hidden">
 
-    <div class="winCard">
+    <h1 id="winText">Win</h1>
 
-      <h1 id="winText">🎉 You Win!</h1>
-
-      <div class="winButtons">
-        <button id="rematchBtn">🔄 Play Again</button>
-        <button id="leaveBtn">🏠 Return to Lobby</button>
-      </div>
-
-    </div>
+    <button id="leaveBtn">Leave</button>
 
   </section>
 
 </main>
 
-<!-- =========================
-     SCRIPTS
-========================= -->
-<script type="module" src="GTN.js"></script>
+<script type="module" src="./GTN.js"></script>
 
 </body>
+
 </html>

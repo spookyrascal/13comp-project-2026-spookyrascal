@@ -2,11 +2,12 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Interactive Game Manager</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <link rel="stylesheet" href="style.css">
+  <title>Game Manager</title>
+
+  <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
@@ -14,62 +15,76 @@
   <!-- =========================
        HEADER
   ========================== -->
-  <header>
+  <header class="topbar">
 
-    <div class="header-left">
-      <h1>🎮 Game Manager</h1>
+    <h1>🎮 Game Manager</h1>
+
+    <!-- AUTH BUTTONS (LOGGED OUT STATE) -->
+    <div id="authButtons" class="auth-buttons">
+
+      <button id="loginBtn">Login</button>
+      <button id="emailSignupBtn">Sign Up</button>
+
     </div>
 
-    <div class="header-right">
+    <!-- PROFILE (LOGGED IN STATE) -->
+    <div id="profileArea" class="profile-area hidden">
 
       <div class="profile-wrapper">
 
         <!-- PROFILE BUTTON -->
-        <button id="profileBtn" class="profile-trigger" aria-expanded="false">
+        <button id="profileBtn" class="profile-trigger">
 
           <img
             id="profileImage"
             class="profile-img"
             src="./Images/defaultPFP.jpg"
             alt="Profile"
-          >
+          />
 
         </button>
 
         <!-- DROPDOWN -->
-        <div id="dropdownMenu" class="discord-menu hidden">
+        <div id="dropdownMenu" class="menu hidden">
 
           <!-- USER INFO -->
-          <div class="discord-user">
+          <div class="menu-user">
 
             <img
               id="menuPfp"
               src="./Images/defaultPFP.jpg"
               alt="User"
-            >
+            />
 
-            <div class="discord-user-info">
+            <div class="menu-user-text">
+
               <span id="menuName">Guest</span>
               <small id="menuEmail">Not signed in</small>
+              <small id="menuAge">Age: -</small>
+
             </div>
 
           </div>
 
-          <div class="discord-divider"></div>
-
           <!-- ACTIONS -->
-          <button id="signInBtn">Sign In</button>
-          <button id="signUpBtn">Sign Up</button>
-          <button id="signOutBtn" class="danger hidden">Sign Out</button>
+          <div class="menu-actions">
+
+            <button id="logoutBtn">
+              Logout
+            </button>
+
+          </div>
 
         </div>
+
       </div>
+
     </div>
 
   </header>
 
   <!-- =========================
-       MAIN HUB
+       MAIN
   ========================== -->
   <main>
 
@@ -79,58 +94,79 @@
       ▶ Play
     </button>
 
-    <!-- STATUS FEEDBACK -->
-    <p id="authStatus" style="margin-top:10px; font-weight:600;"></p>
-
-    <!-- =========================
-         SIGN UP POPUP
-    ========================== -->
-    <div id="signUpPopup" class="popup-overlay">
-
-      <div class="popup-content">
-
-        <span id="closePopup">&times;</span>
-
-        <h2>Create Account</h2>
-
-        <form id="signUpForm">
-
-          <input type="text" id="displayName" placeholder="Name" required>
-          <input type="number" id="age" placeholder="Age" required>
-          <input type="email" id="signupEmail" placeholder="Email" required>
-          <input type="password" id="signupPassword" placeholder="Password" required>
-
-          <button type="submit">Create Account</button>
-
-        </form>
-
-      </div>
-
-    </div>
-
-    <!-- =========================
-         USERNAME POPUP
-    ========================== -->
-    <div id="usernamePopup" class="popup-overlay" style="display:none;">
-
-      <div class="popup-content">
-
-        <h2>Choose Username</h2>
-
-        <input
-          id="usernameInput"
-          placeholder="Enter username"
-          maxlength="30"
-        >
-
-        <button id="saveUsernameBtn">Save</button>
-
-      </div>
-
-    </div>
-
   </main>
 
+  <!-- =========================
+       USERNAME POPUP
+  ========================== -->
+  <div id="usernamePopup" class="popup hidden">
+
+    <div class="popup-content">
+
+      <h2>Choose Username</h2>
+
+      <input
+        id="usernameInput"
+        type="text"
+        placeholder="Enter username"
+        maxlength="20"
+      />
+
+      <button id="saveUsernameBtn">
+        Save Username
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- =========================
+       SIGNUP POPUP
+  ========================== -->
+  <div id="signupPopup" class="popup hidden">
+
+    <div class="popup-content">
+
+      <h2>Create Account</h2>
+
+      <input
+        id="signupUsername"
+        type="text"
+        placeholder="Username"
+        maxlength="20"
+      />
+
+      <input
+        id="signupEmail"
+        type="email"
+        placeholder="Email"
+      />
+
+      <input
+        id="signupPassword"
+        type="password"
+        placeholder="Password"
+      />
+
+      <input
+        id="signupAge"
+        type="number"
+        placeholder="Age"
+        min="5"
+        max="120"
+      />
+
+      <button id="createAccountBtn">
+        Create Account
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- =========================
+       SCRIPT
+  ========================== -->
   <script type="module" src="home.js"></script>
 
 </body>

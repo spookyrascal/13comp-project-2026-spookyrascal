@@ -1,7 +1,6 @@
 import { auth, db } from "./firebase.js";
-import { getUserProfile } from "./user.js";
-
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { initAuth } from "./authState.js";
+import { renderUserHeader } from "./ui.js";
 
 import {
   collection,
@@ -20,70 +19,71 @@ import {
 /* =========================
    STATE
 ========================= */
-let currentUser = null;
-let currentGameId = null;
-let gameEnded = false;
+let user = null;
+let gameId = null;
+let unsub = null;
+let ended = false;
 
 /* =========================
    DOM
 ========================= */
-const createGameBtn = document.getElementById("createGameBtn");
-const lobbyNameInput = document.getElementById("lobbyNameInput");
+const lobbySection = document.getElementById("lobbySection");
+const gameSection = document.getElementById("gameSection");
+const winScreen = document.getElementById("winScreen");
+
+const lobbyList = document.getElementById("lobbyList");
+const createBtn = document.getElementById("createGameBtn");
+const lobbyInput = document.getElementById("lobbyNameInput");
 
 const guessInput = document.getElementById("guessInput");
 const guessBtn = document.getElementById("guessBtn");
 
 const feedback = document.getElementById("feedback");
-const guessHistory = document.getElementById("guessHistory");
+const history = document.getElementById("guessHistory");
 
-const gameSection = document.getElementById("gameSection");
-const lobbySection = document.getElementById("lobbySection");
-const winScreen = document.getElementById("winScreen");
+const opponent = document.getElementById("opponentInfo");
+const turn = document.getElementById("turnInfo");
+
 const winText = document.getElementById("winText");
+const leaveBtn = document.getElementById("leaveBtn");
 
 /* =========================
-   AUTH
+   AUTH (FIXED)
 ========================= */
-onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    window.location.href = "index.html";
+initAuth((u) => {
+  renderUserHeader(u);
+
+  if (!u) {
+    location.href = "index.html";
     return;
   }
 
-  try {
-    currentUser = await getUserProfile(user);
-  } catch {
-    currentUser = {
-      uid: user.uid,
-      name: user.displayName || "Player",
-      photo: user.photoURL || "./Images/defaultPFP.jpg"
-    };
-  }
-
+  user = u;
   loadLobby();
 });
 
 /* =========================
    CREATE GAME
 ========================= */
-createGameBtn?.addEventListener("click", async () => {
-  if (!currentUser) return;
+createBtn.addEventListener("click", async () => {
+  if (!user) return;
 
-  const lobbyName = lobbyNameInput?.value?.trim() || "Lobby";
+  const name = lobbyInput.value.trim() || "Lobby";
 
   const ref = await addDoc(collection(db, "games"), {
-    lobbyName,
+    lobbyName: name,
 
-    player1Id: currentUser.uid,
-    player1Name: currentUser.name,
-    player1Photo: currentUser.photo,
+    player1Id: user.uid,
+    player1Name: user.name,
+    player1Photo: user.photo,
 
     player2Id: null,
     player2Name: null,
+    player2Photo: null,
 
     secretNumber: Math.floor(Math.random() * 100) + 1,
 
-    currentTurn: currentUser.uid,
+    currentTurn: user.uid,
     status: "waiting",
 
     player1Guesses: [],
@@ -93,204 +93,155 @@ createGameBtn?.addEventListener("click", async () => {
     createdAt: serverTimestamp()
   });
 
-  joinGame(ref.id);
+  join(ref.id);
 });
 
 /* =========================
    LOBBY
 ========================= */
 function loadLobby() {
-  const lobbyList = document.getElementById("lobbyList");
-  if (!lobbyList) return;
-
   const q = query(collection(db, "games"), where("status", "==", "waiting"));
 
-  onSnapshot(q, (snapshot) => {
+  onSnapshot(q, (snap) => {
     lobbyList.innerHTML = "";
 
-    snapshot.forEach((docSnap) => {
-      const game = docSnap.data();
+    snap.forEach((docSnap) => {
+      const g = docSnap.data();
 
-      const card = document.createElement("div");
-      card.className = "lobbyCard";
+      if (g.player1Id === user.uid) return;
 
-      card.innerHTML = `
-        <h3>${game.lobbyName}</h3>
-        <p>Host: ${game.player1Name}</p>
-        <button class="joinBtn">Join</button>
+      const div = document.createElement("div");
+      div.className = "lobbyCard";
+
+      div.innerHTML = `
+        <h3>${g.lobbyName}</h3>
+        <p>${g.player1Name}</p>
+        <button>Join</button>
       `;
 
-      card.querySelector(".joinBtn")?.addEventListener("click", async () => {
-        if (!currentUser) return;
-
+      div.querySelector("button").onclick = async () => {
         await updateDoc(doc(db, "games", docSnap.id), {
-          player2Id: currentUser.uid,
-          player2Name: currentUser.name,
+          player2Id: user.uid,
+          player2Name: user.name,
+          player2Photo: user.photo,
           status: "playing"
         });
 
-        joinGame(docSnap.id);
-      });
+        join(docSnap.id);
+      };
 
-      lobbyList.appendChild(card);
+      lobbyList.appendChild(div);
     });
   });
 }
 
 /* =========================
-   JOIN GAME
+   JOIN
 ========================= */
-function joinGame(id) {
-  currentGameId = id;
-  gameEnded = false;
+function join(id) {
+  gameId = id;
+  ended = false;
 
-  lobbySection?.classList.add("hidden");
-  gameSection?.classList.remove("hidden");
-  winScreen?.classList.add("hidden");
+  lobbySection.classList.add("hidden");
+  gameSection.classList.remove("hidden");
+  winScreen.classList.add("hidden");
 
-  listenToGame(id);
+  if (unsub) unsub();
+  listen(id);
 }
 
 /* =========================
-   UPDATE LEADERBOARD (🔥 NEW)
+   GUESS
 ========================= */
-async function updateLeaderboard(uid, name, photo, win) {
-  const ref = doc(db, "leaderboard", uid);
-  const snap = await getDoc(ref);
-
-  if (!snap.exists()) {
-    await setDoc(ref, {
-      uid,
-      displayName: name,
-      photoURL: photo,
-      wins: win ? 1 : 0,
-      gamesPlayed: 1
-    });
-  } else {
-    const data = snap.data();
-
-    await updateDoc(ref, {
-      wins: data.wins + (win ? 1 : 0),
-      gamesPlayed: data.gamesPlayed + 1
-    });
-  }
-}
-
-/* =========================
-   GUESS SYSTEM
-========================= */
-guessBtn?.addEventListener("click", async () => {
-  if (!currentGameId || !currentUser || gameEnded) return;
+guessBtn.onclick = async () => {
+  if (!gameId || ended) return;
 
   const guess = Number(guessInput.value);
+
   if (!guess || guess < 1 || guess > 100) {
-    feedback.textContent = "Enter 1–100";
+    feedback.textContent = "1–100 only";
     return;
   }
 
-  const ref = doc(db, "games", currentGameId);
+  const ref = doc(db, "games", gameId);
   const snap = await getDoc(ref);
-  const data = snap.data();
+  const g = snap.data();
 
-  if (!data || data.status !== "playing") return;
-
-  if (data.currentTurn !== currentUser.uid) {
-    feedback.textContent = "⏳ Not your turn!";
+  if (g.currentTurn !== user.uid) {
+    feedback.textContent = "Not your turn";
     return;
   }
 
-  let resultText = "";
+  const isP1 = user.uid === g.player1Id;
+  const win = guess === g.secretNumber;
 
-  if (guess === data.secretNumber) {
-    resultText = "🎉 Correct! You win!";
-  } else if (guess < data.secretNumber) {
-    resultText = "📉 Too low!";
-  } else {
-    resultText = "📈 Too high!";
-  }
-
-  feedback.textContent = resultText;
-
-  const isPlayer1 = currentUser.uid === data.player1Id;
-
-  const isWin = guess === data.secretNumber;
+  feedback.textContent = win
+    ? "Correct!"
+    : guess < g.secretNumber
+      ? "Too low"
+      : "Too high";
 
   await updateDoc(ref, {
-    [isPlayer1 ? "player1Guesses" : "player2Guesses"]: arrayUnion(guess),
-
-    currentTurn:
-      data.currentTurn === data.player1Id
-        ? data.player2Id
-        : data.player1Id,
-
-    winnerId: isWin ? currentUser.uid : data.winnerId,
-
-    status: isWin ? "finished" : "playing"
+    [isP1 ? "player1Guesses" : "player2Guesses"]: arrayUnion(guess),
+    currentTurn: isP1 ? g.player2Id : g.player1Id,
+    winnerId: win ? user.uid : g.winnerId,
+    status: win ? "finished" : "playing"
   });
 
   guessInput.value = "";
-});
+};
 
 /* =========================
-   GAME LISTENER
+   LISTENER
 ========================= */
-function listenToGame(id) {
+function listen(id) {
   const ref = doc(db, "games", id);
 
-  onSnapshot(ref, async (snap) => {
-    const data = snap.data();
-    if (!data) return;
+  unsub = onSnapshot(ref, async (snap) => {
+    const g = snap.data();
+    if (!g) return;
 
-    const opponent =
-      currentUser.uid === data.player1Id
-        ? data.player2Name
-        : data.player1Name;
+    const opp =
+      user.uid === g.player1Id
+        ? g.player2Name
+        : g.player1Name;
 
-    document.getElementById("opponentInfo").textContent =
-      "Opponent: " + (opponent || "Waiting...");
+    opponent.textContent = "Opponent: " + (opp || "Waiting");
 
-    document.getElementById("turnInfo").textContent =
-      data.currentTurn === currentUser.uid
-        ? "🎯 Your Turn"
-        : "⏳ Opponent Turn";
+    turn.textContent =
+      g.currentTurn === user.uid ? "Your turn" : "Opponent turn";
 
-    /* =========================
-       GUESS HISTORY
-    ========================= */
     const guesses =
-      currentUser.uid === data.player1Id
-        ? data.player1Guesses
-        : data.player2Guesses;
+      user.uid === g.player1Id
+        ? g.player1Guesses
+        : g.player2Guesses;
 
-    guessHistory.innerHTML = guesses
-      .map(g => `<div class="guessChip">${g}</div>`)
+    history.innerHTML = (guesses || [])
+      .map(x => `<div class="guessChip">${x}</div>`)
       .join("");
 
-    /* =========================
-       GAME OVER
-    ========================= */
-    if (data.status === "finished" && !gameEnded) {
-      gameEnded = true;
+    if (g.status === "finished" && !ended) {
+      ended = true;
 
-      const win = data.winnerId === currentUser.uid;
+      const win = g.winnerId === user.uid;
 
-      gameSection?.classList.add("hidden");
-      winScreen?.classList.remove("hidden");
+      gameSection.classList.add("hidden");
+      winScreen.classList.remove("hidden");
 
-      winText.textContent = win
-        ? "🏆 YOU WON!"
-        : "💀 YOU LOST";
-
-      feedback.textContent = win
-        ? "Clean win 😎"
-        : "Unlucky… try again 💀";
-
-      await updateLeaderboard(
-        currentUser.uid,
-        currentUser.name,
-        currentUser.photo,
-        win
-      );
+      winText.textContent = win ? "YOU WIN" : "YOU LOSE";
     }
   });
 }
+
+/* =========================
+   LEAVE
+========================= */
+leaveBtn.onclick = () => {
+  gameId = null;
+
+  gameSection.classList.add("hidden");
+  winScreen.classList.add("hidden");
+  lobbySection.classList.remove("hidden");
+
+  if (unsub) unsub();
+};
