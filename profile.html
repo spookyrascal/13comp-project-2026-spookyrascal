@@ -3,7 +3,7 @@
 
 <head>
 
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
   <title>My Profile</title>
@@ -13,6 +13,9 @@
 </head>
 
 <body>
+
+  <!-- TOAST -->
+  <div id="toast"></div>
 
   <!-- HEADER -->
   <header class="topbar">
@@ -25,9 +28,10 @@
         id="headerProfileImage"
         class="profile-img"
         src="./Images/defaultPFP.jpg"
+        alt="Profile Picture"
       />
 
-      <button id="backBtn">
+      <button id="backBtn" class="btn-secondary">
         ← Back
       </button>
 
@@ -41,11 +45,16 @@
     <!-- HERO -->
     <section class="profileHero">
 
-      <img id="profilePreview" src="./Images/defaultPFP.jpg"/>
+      <img
+        id="profilePreview"
+        class="heroAvatar"
+        src="./Images/defaultPFP.jpg"
+        alt="User Avatar"
+      />
 
       <div class="profileInfo">
 
-        <h2 id="profileDisplayName">Player</h2>
+        <h2 id="profileDisplayName">Loading...</h2>
 
         <p id="profileEmail">loading...</p>
 
@@ -81,23 +90,53 @@
     </section>
 
     <!-- EDIT PROFILE -->
-    <section class="profileSection">
+<section class="profileSection">
 
-      <h3>Edit Profile</h3>
+  <h3>Edit Profile</h3>
 
-      <input id="usernameInput" type="text" placeholder="New username"/>
+  <label>Username</label>
+  <input
+    id="usernameInput"
+    type="text"
+    maxlength="20"
+    placeholder="New username"
+  />
 
-      <input id="ageInput" type="number" placeholder="Age"/>
+  <label>Email</label>
+  <input
+    id="emailInput"
+    type="email"
+    placeholder="Enter email"
+  />
 
-      <input id="photoInput" type="text" placeholder="Paste image URL"/>
+  <label>Age</label>
+  <input
+    id="ageInput"
+    type="number"
+    min="1"
+    max="120"
+    placeholder="Age"
+  />
 
-      <img id="livePreview" class="editPreview" src="./Images/defaultPFP.jpg"/>
+  <label>Profile Photo URL</label>
+  <input
+    id="photoInput"
+    type="text"
+    placeholder="Paste image URL"
+  />
 
-      <button id="saveProfileBtn" class="btn-primary saveBtn">
-        Save Changes
-      </button>
+  <img
+    id="livePreview"
+    class="editPreview"
+    src="./Images/defaultPFP.jpg"
+    alt="Preview"
+  />
 
-    </section>
+  <button id="saveProfileBtn" class="btn-primary saveBtn">
+    Save Changes
+  </button>
+
+</section>
 
     <!-- ACHIEVEMENTS -->
     <section class="profileSection">

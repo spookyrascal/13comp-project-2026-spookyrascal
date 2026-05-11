@@ -23,11 +23,12 @@
     <!-- AUTH BUTTONS -->
     <div id="authButtons" class="authButtons">
 
+      <!-- FIXED: added text -->
       <button id="googleLoginBtn" class="btn-primary">
-        Sign in with Google
+        Continue with Google
       </button>
 
-      <button id="openAuthBtn">
+      <button id="openAuthBtn" class="btn-secondary">
         Login / Sign Up
       </button>
 
@@ -38,7 +39,6 @@
 
       <div class="profile-wrapper">
 
-        <!-- PROFILE BUTTON -->
         <button id="profileBtn" class="profileBtn" title="Open Profile">
 
           <img
@@ -53,7 +53,6 @@
         <!-- DROPDOWN -->
         <div id="dropdownMenu" class="menu hidden">
 
-          <!-- USER -->
           <div class="menu-user">
 
             <img
@@ -64,9 +63,7 @@
 
             <div class="menu-user-info">
 
-              <span id="menuName">
-                Guest
-              </span>
+              <span id="menuName">Guest</span>
 
               <small id="menuEmail"></small>
 
@@ -74,10 +71,8 @@
 
           </div>
 
-          <!-- DIVIDER -->
           <div class="menuDivider"></div>
 
-          <!-- BUTTONS -->
           <button id="profilePageBtn" class="menuBtn">
             👤 My Profile
           </button>
@@ -106,125 +101,59 @@
   ========================== -->
   <main class="homeMain">
 
-    <!-- HERO -->
     <section class="homeHero">
 
       <div class="heroGlow"></div>
 
-      <h2>
-        Welcome 👋
-      </h2>
+      <h2>Welcome 👋</h2>
 
       <p class="muted">
         Compete, win games, climb the leaderboard, and show off your stats!
       </p>
 
-      <!-- PLAY -->
       <button id="playBtn" class="play-btn">
         ▶ Play
       </button>
 
-      <!-- QUICK STATS -->
       <div id="quickStats" class="statsRow hidden">
 
         <div class="miniStat">
-
           <span>Wins</span>
-
-          <strong id="statWins">
-            0
-          </strong>
-
+          <strong id="statWins">0</strong>
         </div>
 
         <div class="miniStat">
-
           <span>Games</span>
-
-          <strong id="statGames">
-            0
-          </strong>
-
+          <strong id="statGames">0</strong>
         </div>
 
         <div class="miniStat">
-
           <span>Win Rate</span>
-
-          <strong id="statRate">
-            0%
-          </strong>
-
+          <strong id="statRate">0%</strong>
         </div>
 
       </div>
 
     </section>
 
-    <!-- FEATURE CARDS -->
     <section class="homeCards">
 
-      <!-- PLAY -->
-      <div
-        class="gameCard"
-        onclick="window.location.href='games.html'"
-      >
-
-        <div class="cardIcon">
-          🎯
-        </div>
-
-        <h3>
-          Multiplayer Games
-        </h3>
-
-        <p>
-          Challenge other players in real-time
-          guessing battles.
-        </p>
-
+      <div class="gameCard" onclick="window.location.href='games.html'">
+        <div class="cardIcon">🎯</div>
+        <h3>Multiplayer Games</h3>
+        <p>Challenge other players in real-time guessing battles.</p>
       </div>
 
-      <!-- PROFILE -->
-      <div
-        class="gameCard"
-        onclick="window.location.href='profile.html'"
-      >
-
-        <div class="cardIcon">
-          👤
-        </div>
-
-        <h3>
-          Player Profile
-        </h3>
-
-        <p>
-          Edit your profile, upload a pfp,
-          and view your stats.
-        </p>
-
+      <div class="gameCard" onclick="window.location.href='profile.html'">
+        <div class="cardIcon">👤</div>
+        <h3>Player Profile</h3>
+        <p>Edit your profile, upload a pfp, and view your stats.</p>
       </div>
 
-      <!-- LEADERBOARD -->
-      <div
-        class="gameCard"
-        onclick="window.location.href='./leaderBoard.html'"
-      >
-
-        <div class="cardIcon">
-          🏆
-        </div>
-
-        <h3>
-          Leaderboards
-        </h3>
-
-        <p>
-          Compare your stats against
-          every other player.
-        </p>
-
+      <div class="gameCard" onclick="window.location.href='leaderboard.html'">
+        <div class="cardIcon">🏆</div>
+        <h3>Leaderboards</h3>
+        <p>Compare your stats against every other player.</p>
       </div>
 
     </section>
@@ -238,11 +167,8 @@
 
     <div class="popup-content">
 
-      <h2 id="authTitle">
-        Login
-      </h2>
+      <h2 id="authTitle">Login</h2>
 
-      <!-- USERNAME -->
       <input
         id="authUsername"
         type="text"
@@ -250,14 +176,12 @@
         class="hidden"
       />
 
-      <!-- EMAIL -->
       <input
         id="authEmail"
         type="email"
         placeholder="Email"
       />
 
-      <!-- AGE -->
       <input
         id="authAge"
         type="number"
@@ -265,19 +189,16 @@
         class="hidden"
       />
 
-      <!-- PASSWORD -->
       <input
         id="authPassword"
         type="password"
         placeholder="Password"
       />
 
-      <!-- SUBMIT -->
       <button id="submitAuthBtn">
         Login
       </button>
 
-      <!-- SWITCH -->
       <button id="switchAuthModeBtn">
         Need an account?
       </button>
@@ -292,5 +213,4 @@
   <script type="module" src="home.js"></script>
 
 </body>
-
 </html>

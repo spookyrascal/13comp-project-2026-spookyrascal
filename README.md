@@ -120,5 +120,10 @@ V16 - 7th May
 
 - NEXT STEP: LEADERBOARD
 
+V17 - 12th May 
 
+- Didnt do Leaderboard
+- Worked on CSS
+
+- NEXT STEP: uhhhhhhh maybe css?
 
