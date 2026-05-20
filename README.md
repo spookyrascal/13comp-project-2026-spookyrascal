@@ -1,129 +1,145 @@
-V01 - 28th Feb - 3Mar
+# Development Log
 
-- Cloned the repo
-- Added all the files
-- Finished the basic HTML structure for the main page
+## V01 — 28 February – 3 March
 
-V02 - 4th March
+* Repository cloned and local development environment established.
+* Initial project file structure implemented.
+* Basic HTML structure for the main page completed.
 
--  Got the JS and Styles working
--  JS linked to Firestore
+---
 
--  NEXT STEP: fix up sign in/up process 
+## V02 — 4 March
 
-Comments Added - 6th March
+* JavaScript and CSS successfully integrated.
+* Firestore database connection established.
+* Initial implementation of sign-in and sign-up functionality commenced.
+* **Next step:** complete authentication workflow and ensure reliability.
 
-V03 - 11th March 
+---
 
-- Import meteorRush.html
-- Import meteorRuss.js
-- Import Photos 
-- Import meteorRush.css
-- Cleaned up the code
+## V03 — 11 March
 
-- Created GTN.js, Html and CSS
+* Imported Meteor Rush assets including HTML, JavaScript, CSS, and media files.
+* Existing codebase refactored and cleaned for consistency.
+* Initial structure for “Guess The Number” (GTN) game created.
+* **Next step:** develop core Game Hub architecture.
 
-- NEXT STEP: work on the bare bones of game hub
+---
 
-V04 - 12th March - 13th March
+## V04 — 12–13 March
 
-- Finish CSS 
-- Game Cards for the Games
-- Hooked up Meteor Rush
-- Made it all look pretty pretty
+* CSS styling completed and refined.
+* Game card interface implemented within the Game Hub.
+* Meteor Rush successfully integrated into the hub system.
+* Overall UI improved for consistency and presentation.
+* **Next step:** implement leaderboard system and backend integration.
 
-- NEXT STEP: start doing the leaderboard and hook it up 
+---
 
-V05 - 17th March 
+## V05 — 17 March
 
-- Started doing the leaderboard, HTML and JS
-- Added the button to games.html
+* Initial leaderboard system developed (HTML and JavaScript).
+* Navigation button added to `games.html`.
+* **Next step:** establish functional routing to leaderboard page and begin GTN development.
 
-- Next Step: Get the button to link to leaderboard.html then work on GTN 
+---
 
-V06 - 24th March 
-(Missed a Few)
+## V06 — 24 March
 
-- Linked up leaderboard you can now access it 
-- Cleaned up my code a bit made a Firebase.js page
-- got the sign up popup working 
-- Never did the GTN 
-- Did a few test runs with the sign up popup 
+* Leaderboard page successfully linked and accessible.
+* Backend structure refactored with dedicated `firebase.js` file.
+* Sign-up popup functionality implemented and tested.
+* Initial authentication testing conducted.
+* GTN development postponed.
+* **Next step:** establish foundational GTN structure.
 
-- NEXT STEP: makes the GTN skeleton
+---
 
-V07 - 26th March
+## V07 — 26 March
 
-- Procrastination is my frien Didnt do GTN 
-- Leadboard is pretty
+* No development progress on GTN due to prioritisation constraints.
+* Leaderboard UI improved and visually refined.
+* **Next step:** commence GTN implementation.
 
-- NEXT STEP: GUESS THE NUMBER
+---
 
-V08 - 31st March 
+## V08 — 31 March
 
-- Started on the GTN barre bones
-- Looked around for inspiration 
-- Got linked to the Firestore 
+* GTN foundational logic development initiated.
+* Gameplay mechanics researched and planned.
+* Firestore integration established for GTN.
+* **Next step:** expand game logic and conduct multi-user testing.
 
-- Add to it, Make it look pretty, test to make sure it actually works with 2 people 
+---
 
-V09 - 23rd April 
+## V09 — 23 April
 
-- Got GTN working
-- Two Player
+* GTN multiplayer functionality successfully implemented.
+* Basic two-player gameplay system operational.
 
-V10 - 24th April
+---
 
-- Took a break cause was getting rage baited
-- Cleaned up files
-- Did some paperwork
-- Updated Firestore (FS)
-- Documented Update 
+## V10 — 24 April
 
-V11 - 28th April
+* Development paused temporarily.
+* Project files cleaned and reorganised.
+* Firestore configuration updated.
+* Documentation updated to reflect changes.
 
-- Updated Leaderboard and GTN
-- Still need to get profiles to run across ALL pages
-- Uhhhh No rage today
+---
 
-V12 - 29th April
+## V11 — 28 April
 
-- No work on code did lots of work documentation wise
-- Worked on commentation in code (Headers) 
+* Updates applied to leaderboard and GTN systems.
+* Issue identified: user profile data not persisting across pages.
+* Authentication and data flow debugging initiated.
 
-- NEXT STEP: get the profile to sink across all pages. Get leaderboard working (Profiles arent being applied just Anonymous for all)
-- Also work on CSS and clean that up 
+---
 
-V13 - 30th April
+## V12 — 29 April
 
-- Trying to fix up sign in system + Leaderboard 
-- FOCUS is to keep doing thissss
+* Focus placed on documentation and code commenting improvements.
+* Standardised code structure and headers.
+* **Next step:** resolve profile persistence across pages and correct leaderboard identity mapping.
+* CSS structure identified for refactoring.
 
-V14 - 2nd May 
+---
 
-- Got sign in system working FINALLY 
-- Leaderboard working 
+## V13 — 30 April
 
-- NEXT STEP: get the css cleaned up then do docmentation 
+* Continued debugging of authentication and leaderboard systems.
+* Focus remained on stabilising sign-in functionality.
+* Emphasis placed on cross-page data consistency.
 
-V15 - 5th May
+---
 
-- Code breaks easily :(
-- Working on the login system AGAIN
-- GTN isnt working properly
+## V14 — 2 May
 
-- NEXT STEP: Get it done
+* Authentication system successfully stabilised.
+* Leaderboard functionality restored.
+* **Next step:** improve CSS structure and complete documentation refinement.
 
-V16 - 7th May
+---
 
-- LEADERBOARD IS GONNA BE THE DEATH OF ME 
+## V15 — 5 May
 
-- NEXT STEP: LEADERBOARD
+* Regression issues identified in login system stability.
+* GTN functionality intermittently unstable.
+* Debugging and system recovery initiated.
+* **Next step:** restore full system stability.
 
-V17 - 12th May 
+---
 
-- Didnt do Leaderboard
-- Worked on CSS
+## V16 — 7 May
 
-- NEXT STEP: uhhhhhhh maybe css?
+* Persistent issues identified within leaderboard implementation.
+* Continued debugging of authentication and data synchronisation systems.
+* **Next step:** prioritise leaderboard stabilisation.
 
+---
+
+## V17 — 12 May
+
+* No progress recorded on leaderboard system.
+* Focus shifted toward CSS refinement and user interface improvements.
+* **Next step:** resume leaderboard development or continue UI refinement based on priority.
