@@ -52,7 +52,6 @@ const leaveBtn = document.getElementById("leaveBtn");
    AUTH
 ========================= */
 initAuth((u) => {
-
   if (!u) {
     location.href = "index.html";
     return;
@@ -66,7 +65,6 @@ initAuth((u) => {
   };
 
   renderUserHeader(user);
-
   loadLobby();
 });
 
@@ -74,7 +72,6 @@ initAuth((u) => {
    CREATE GAME
 ========================= */
 createBtn?.addEventListener("click", async () => {
-
   if (!user) return;
 
   const name = lobbyInput.value.trim() || "Lobby";
@@ -110,33 +107,31 @@ createBtn?.addEventListener("click", async () => {
    LOBBY
 ========================= */
 function loadLobby() {
-
   const q = query(
     collection(db, "games"),
     where("status", "==", "waiting")
   );
 
   onSnapshot(q, (snap) => {
-
     lobbyList.innerHTML = "";
 
     snap.forEach((docSnap) => {
-
       const g = docSnap.data();
 
       if (g.player1Id === user.uid) return;
 
-      const div = document.createElement("div");
-      div.className = "lobbyCard";
+      const card = document.createElement("div");
+      card.className = "lobbyCard";
 
-      div.innerHTML = `
+      const opponentName = g.player1Name || "Unknown Player";
+
+      card.innerHTML = `
         <h3>${g.lobbyName}</h3>
-        <p>${g.player1Name}</p>
+        <p>Host: ${opponentName}</p>
         <button>Join</button>
       `;
 
-      div.querySelector("button").onclick = async () => {
-
+      card.querySelector("button").onclick = async () => {
         await updateDoc(doc(db, "games", docSnap.id), {
           player2Id: user.uid,
           player2Name: user.name,
@@ -148,7 +143,7 @@ function loadLobby() {
         join(docSnap.id);
       };
 
-      lobbyList.appendChild(div);
+      lobbyList.appendChild(card);
     });
   });
 }
@@ -157,7 +152,6 @@ function loadLobby() {
    JOIN GAME
 ========================= */
 function join(id) {
-
   gameId = id;
   ended = false;
   lastDistance = null;
@@ -171,10 +165,9 @@ function join(id) {
 }
 
 /* =========================
-   EXIT GAME 
+   EXIT GAME
 ========================= */
 function exitGame() {
-
   gameId = null;
   lastDistance = null;
   ended = false;
@@ -193,13 +186,12 @@ function exitGame() {
    GUESS SYSTEM
 ========================= */
 guessBtn?.addEventListener("click", async () => {
-
   if (!gameId || ended) return;
 
   const guess = Number(guessInput.value);
 
   if (!guess || guess < 1 || guess > 100) {
-    feedback.textContent = "1–100 only";
+    feedback.textContent = "Enter a number 1–100";
     return;
   }
 
@@ -207,7 +199,9 @@ guessBtn?.addEventListener("click", async () => {
   const snap = await getDoc(ref);
   const g = snap.data();
 
-  if (!g || g.currentTurn !== user.uid) {
+  if (!g) return;
+
+  if (g.currentTurn !== user.uid) {
     feedback.textContent = "Not your turn";
     return;
   }
@@ -217,25 +211,19 @@ guessBtn?.addEventListener("click", async () => {
 
   const distance = Math.abs(guess - g.secretNumber);
 
-  let trend = "";
+  let msg = "";
+
+  if (distance === 0) msg = "Correct!";
+  else if (distance <= 3) msg = "Very hot";
+  else if (distance <= 10) msg = "Warm";
+  else msg = "Cold";
 
   if (lastDistance !== null) {
-    trend =
-      distance < lastDistance ? " 🔥 HOTTER" :
-      distance > lastDistance ? " 🧊 COLDER" :
-      " 😐 SAME";
+    msg += distance < lastDistance ? " (getting closer)" : " (getting colder)";
   }
 
   lastDistance = distance;
-
-  feedback.textContent =
-    distance === 0
-      ? "🎯 EXACT!"
-      : distance <= 3
-        ? "🔥 BURNING"
-        : distance <= 10
-          ? "☀️ HOT"
-          : "❄️ COLD" + trend;
+  feedback.textContent = msg;
 
   const win = distance === 0;
 
@@ -246,13 +234,8 @@ guessBtn?.addEventListener("click", async () => {
     status: win ? "finished" : "playing"
   };
 
-  /* =========================
-     WIN HANDLING 
-  ========================= */
   if (win && !ended) {
-
     ended = true;
-
     updates.winnerId = user.uid;
 
     await updateDoc(doc(db, "users", user.uid), {
@@ -266,13 +249,10 @@ guessBtn?.addEventListener("click", async () => {
       });
     }
 
-    setTimeout(() => {
-      exitGame();
-    }, 2500);
+    setTimeout(exitGame, 2000);
   }
 
   await updateDoc(ref, updates);
-
   guessInput.value = "";
 });
 
@@ -280,40 +260,37 @@ guessBtn?.addEventListener("click", async () => {
    LISTENER
 ========================= */
 function listen(id) {
-
   const ref = doc(db, "games", id);
 
   unsub = onSnapshot(ref, (snap) => {
-
     const g = snap.data();
     if (!g) return;
 
-    opponent.textContent =
-      "Opponent: " +
-      (user.uid === g.player1Id
+    const opponentName =
+      user.uid === g.player1Id
         ? g.player2Name
-        : g.player1Name || "Waiting");
+        : g.player1Name;
+
+    opponent.textContent =
+      opponentName
+        ? `Opponent: ${opponentName}`
+        : "Opponent: Waiting for opponent...";
 
     turn.textContent =
       g.currentTurn === user.uid
-        ? "🔥 Your turn"
-        : "⏳ Opponent turn";
+        ? "Your turn"
+        : "Opponent's turn";
 
     const guesses =
       user.uid === g.player1Id
         ? g.player1Guesses
         : g.player2Guesses;
 
-    history.innerHTML =
-      (guesses || [])
-        .map(x => `<div class="guessChip">${x}</div>`)
-        .join("");
+    history.innerHTML = (guesses || [])
+      .map((g, i) => `<div>${i + 1}: ${g}</div>`)
+      .join("");
 
-    /* =========================
-       GAME END STATE
-    ========================= */
     if (g.status === "finished" && !ended) {
-
       ended = true;
 
       gameSection.classList.add("hidden");
@@ -321,17 +298,15 @@ function listen(id) {
 
       winText.textContent =
         g.winnerId === user.uid
-          ? "YOU WIN 🔥"
-          : "YOU LOSE 💀";
+          ? "You win"
+          : "You lose";
 
-      setTimeout(() => {
-        exitGame();
-      }, 3000);
+      setTimeout(exitGame, 2500);
     }
   });
 }
 
 /* =========================
-   LEAVE BUTTON
+   LEAVE
 ========================= */
 leaveBtn?.addEventListener("click", exitGame);
