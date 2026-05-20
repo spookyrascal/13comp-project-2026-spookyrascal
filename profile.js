@@ -10,8 +10,6 @@ import {
 
 import {
   doc,
-  getDoc,
-  updateDoc,
   setDoc,
   serverTimestamp,
   onSnapshot
@@ -25,6 +23,9 @@ const state = {
   user: null,
   profile: null
 };
+
+let unsubscribeProfile = null;
+let toastTimeout = null;
 
 /* =========================
    DOM
@@ -89,11 +90,32 @@ const toast =
 ========================= */
 
 const BADGES = [
-  { text: "🏆 First Win", check: p => p.wins >= 1 },
-  { text: "🔥 10 Wins", check: p => p.wins >= 10 },
-  { text: "👑 Elite Player", check: p => p.wins >= 25, rare: true },
-  { text: "🎮 Grinder", check: p => p.games >= 50 },
-  { text: "⚡ High Win Rate", check: p => p.rate >= 75 && p.games >= 10, rare: true }
+  {
+    text: "🏆 First Win",
+    check: p => p.wins >= 1
+  },
+
+  {
+    text: "🔥 10 Wins",
+    check: p => p.wins >= 10
+  },
+
+  {
+    text: "👑 Elite Player",
+    check: p => p.wins >= 25,
+    rare: true
+  },
+
+  {
+    text: "🎮 Grinder",
+    check: p => p.games >= 50
+  },
+
+  {
+    text: "⚡ High Win Rate",
+    check: p => p.rate >= 75 && p.games >= 10,
+    rare: true
+  }
 ];
 
 /* =========================
@@ -101,10 +123,13 @@ const BADGES = [
 ========================= */
 
 function showToast(message) {
+
+  clearTimeout(toastTimeout);
+
   toast.textContent = message;
   toast.classList.add("show");
 
-  setTimeout(() => {
+  toastTimeout = setTimeout(() => {
     toast.classList.remove("show");
   }, 3000);
 }
@@ -114,52 +139,71 @@ function showToast(message) {
 ========================= */
 
 onAuthStateChanged(auth, async (user) => {
+
   if (!user) {
-    location.href = "index.html";
+    window.location.replace("index.html");
     return;
   }
 
   state.user = user;
 
-  await loadProfile();
   listenToProfile();
 });
-
-/* =========================
-   LOAD PROFILE
-========================= */
-
-async function loadProfile() {
-  const ref = doc(db, "users", state.user.uid);
-  const snap = await getDoc(ref);
-
-  let data = snap.exists() ? snap.data() : {};
-
-  if (!data.email) {
-    await setDoc(ref, {
-      email: state.user.email
-    }, { merge: true });
-
-    data.email = state.user.email;
-  }
-
-  state.profile = data;
-  renderProfile();
-}
 
 /* =========================
    REALTIME PROFILE
 ========================= */
 
 function listenToProfile() {
+
+  if (unsubscribeProfile) {
+    unsubscribeProfile();
+  }
+
   const ref = doc(db, "users", state.user.uid);
 
-  onSnapshot(ref, (snap) => {
-    if (!snap.exists()) return;
+  unsubscribeProfile = onSnapshot(
+    ref,
+    async (snap) => {
 
-    state.profile = snap.data();
-    renderProfile();
-  });
+      if (!snap.exists()) {
+
+        const starterData = {
+          displayName:
+            state.user.displayName || "Player",
+
+          email:
+            state.user.email || "",
+
+          photoURL:
+            state.user.photoURL ||
+            "./Images/defaultPFP.jpg",
+
+          age: null,
+
+          wins: 0,
+          losses: 0,
+          gamesPlayed: 0,
+
+          createdAt: serverTimestamp(),
+          lastActive: serverTimestamp()
+        };
+
+        await setDoc(ref, starterData);
+
+        return;
+      }
+
+      state.profile = snap.data();
+
+      renderProfile();
+    },
+
+    (error) => {
+      console.error(error);
+      showToast("Failed to sync profile");
+    }
+  );
 }
 
 /* =========================
@@ -167,185 +211,361 @@ function listenToProfile() {
 ========================= */
 
 function renderProfile() {
+
   const user = state.user;
   const data = state.profile;
 
   if (!user || !data) return;
 
-  const photo = data.photoURL || "./Images/defaultPFP.jpg";
+  const photo =
+    data.photoURL ||
+    "./Images/defaultPFP.jpg";
 
-  const wins = Number(data.wins) || 0;
-  const losses = Number(data.losses) || 0;
-  const games = Number(data.gamesPlayed) || 0;
+  const wins =
+    Number(data.wins) || 0;
+
+  const losses =
+    Number(data.losses) || 0;
+
+  const games =
+    Number(data.gamesPlayed) || 0;
 
   const rate =
-    games > 0 ? Math.round((wins / games) * 100) : 0;
+    games > 0
+      ? Math.round((wins / games) * 100)
+      : 0;
+
+  /* IMAGES */
 
   headerProfileImage.src = photo;
   profilePreview.src = photo;
   livePreview.src = photo;
 
-  profileDisplayName.textContent = data.displayName || "Player";
-  profileEmail.textContent = data.email || user.email;
+  /* TEXT */
+
+  profileDisplayName.textContent =
+    data.displayName || "Player";
+
+  profileEmail.textContent =
+    data.email || user.email;
 
   profileAge.textContent =
-    data.age ? `Age: ${data.age}` : "Age: Not set";
+    data.age
+      ? `Age: ${data.age}`
+      : "Age: Not set";
 
-  usernameInput.value = data.displayName || "";
-  emailInput.value = data.email || user.email || "";
-  ageInput.value = data.age || "";
-  photoInput.value = data.photoURL || "";
+  /* INPUTS */
+
+  usernameInput.value =
+    data.displayName || "";
+
+  emailInput.value =
+    data.email || user.email || "";
+
+  ageInput.value =
+    data.age || "";
+
+  photoInput.value =
+    data.photoURL || "";
+
+  /* STATS */
 
   winsStat.textContent = wins;
   lossesStat.textContent = losses;
   gamesStat.textContent = games;
-  rateStat.textContent = rate + "%";
+  rateStat.textContent = `${rate}%`;
 
-  renderBadges({ wins, games, rate });
+  renderBadges({
+    wins,
+    losses,
+    games,
+    rate
+  });
 }
 
 /* =========================
-   LIVE IMAGE PREVIEW
+   IMAGE PREVIEW
 ========================= */
 
 photoInput.addEventListener("input", () => {
-  const url = photoInput.value.trim() || "./Images/defaultPFP.jpg";
-  livePreview.src = url;
+
+  const url = photoInput.value.trim();
+
+  if (!url) {
+    livePreview.src =
+      "./Images/defaultPFP.jpg";
+
+    return;
+  }
+
+  try {
+
+    new URL(url);
+
+    livePreview.src = url;
+
+  } catch {
+
+    livePreview.src =
+      "./Images/defaultPFP.jpg";
+  }
 });
 
 /* =========================
    IMAGE FALLBACKS
 ========================= */
 
-[profilePreview, livePreview, headerProfileImage].forEach(img => {
+[
+  profilePreview,
+  livePreview,
+  headerProfileImage
+].forEach((img) => {
+
   img.onerror = () => {
-    img.src = "./Images/defaultPFP.jpg";
+
+    img.src =
+      "./Images/defaultPFP.jpg";
   };
 });
 
 /* =========================
-   SAVE PROFILE 
+   SAVE PROFILE
 ========================= */
 
-saveProfileBtn.addEventListener("click", async () => {
+saveProfileBtn.addEventListener(
+  "click",
+  async () => {
 
-  try {
+    try {
 
-    saveProfileBtn.disabled = true;
-    saveProfileBtn.textContent = "Saving...";
+      saveProfileBtn.disabled = true;
+      saveProfileBtn.textContent = "Saving...";
 
-    const newName = usernameInput.value.trim();
-    const newEmail = emailInput.value.trim();
-    const ageRaw = ageInput.value.trim();
-    const newPhoto = photoInput.value.trim();
+      const newName =
+        usernameInput.value.trim();
 
-    /* VALIDATION */
+      const newEmail =
+        emailInput.value.trim();
 
-    if (newName.length < 3) throw new Error("Username must be at least 3 characters");
-    if (newName.length > 20) throw new Error("Username too long");
-    if (!newEmail.includes("@")) throw new Error("Invalid email");
+      const ageRaw =
+        ageInput.value.trim();
 
-    let newAge = null;
+      const newPhoto =
+        photoInput.value.trim();
 
-    if (ageRaw !== "") {
-      newAge = Number(ageRaw);
+      /* =========================
+         VALIDATION
+      ========================= */
 
-      if (isNaN(newAge)) throw new Error("Age must be a number");
-      if (newAge < 1 || newAge > 120) throw new Error("Invalid age");
-    }
+      if (newName.length < 3) {
+        throw new Error(
+          "Username must be at least 3 characters"
+        );
+      }
 
-    const finalPhoto = newPhoto || "./Images/defaultPFP.jpg";
+      if (newName.length > 20) {
+        throw new Error(
+          "Username too long"
+        );
+      }
 
-    /* =========================
-       EMAIL UPDATE 
-    ========================= */
+      const emailRegex =
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (newEmail !== state.user.email) {
+      if (!emailRegex.test(newEmail)) {
+        throw new Error("Invalid email");
+      }
 
-      const password = prompt("Enter your password to confirm email change:");
+      let newAge = null;
 
-      if (!password) throw new Error("Email change cancelled");
+      if (ageRaw !== "") {
 
-      const credential = EmailAuthProvider.credential(
-        state.user.email,
-        password
+        newAge = Number(ageRaw);
+
+        if (isNaN(newAge)) {
+          throw new Error(
+            "Age must be a number"
+          );
+        }
+
+        if (newAge < 1 || newAge > 120) {
+          throw new Error(
+            "Invalid age"
+          );
+        }
+      }
+
+      /* =========================
+         PHOTO URL
+      ========================= */
+
+      let finalPhoto =
+        "./Images/defaultPFP.jpg";
+
+      if (newPhoto) {
+
+        try {
+
+          new URL(newPhoto);
+
+          finalPhoto = newPhoto;
+
+        } catch {
+
+          throw new Error(
+            "Invalid image URL"
+          );
+        }
+      }
+
+      /* =========================
+         EMAIL UPDATE
+      ========================= */
+
+      if (newEmail !== state.user.email) {
+
+        const password = prompt(
+          "Enter your password to confirm email change:"
+        );
+
+        if (!password) {
+          throw new Error(
+            "Email change cancelled"
+          );
+        }
+
+        const credential =
+          EmailAuthProvider.credential(
+            state.user.email,
+            password
+          );
+
+        await reauthenticateWithCredential(
+          state.user,
+          credential
+        );
+
+        await updateEmail(
+          state.user,
+          newEmail
+        );
+      }
+
+      /* =========================
+         FIREBASE AUTH PROFILE
+      ========================= */
+
+      await updateProfile(
+        state.user,
+        {
+          displayName: newName,
+          photoURL: finalPhoto
+        }
       );
 
-      await reauthenticateWithCredential(state.user, credential);
-      await updateEmail(state.user, newEmail);
+      /* =========================
+         FIRESTORE PROFILE
+      ========================= */
+
+      const updateData = {
+        displayName: newName,
+        email: newEmail,
+        age: newAge,
+        photoURL: finalPhoto,
+        lastActive: serverTimestamp()
+      };
+
+      await setDoc(
+        doc(db, "users", state.user.uid),
+        updateData,
+        { merge: true }
+      );
+
+      state.profile = {
+        ...state.profile,
+        ...updateData
+      };
+
+      renderProfile();
+
+      showToast(
+        "🔥 Profile updated successfully"
+      );
+
+    } catch (err) {
+
+      console.error(err);
+
+      switch (err.code) {
+
+        case "auth/wrong-password":
+          showToast("Incorrect password");
+          break;
+
+        case "auth/requires-recent-login":
+          showToast(
+            "Please log in again before changing email"
+          );
+          break;
+
+        case "auth/email-already-in-use":
+          showToast(
+            "That email is already in use"
+          );
+          break;
+
+        case "auth/invalid-email":
+          showToast("Invalid email");
+          break;
+
+        default:
+          showToast(
+            err.message || "Update failed"
+          );
+      }
+
+    } finally {
+
+      saveProfileBtn.disabled = false;
+      saveProfileBtn.textContent =
+        "Save Changes";
     }
-
-    /* UPDATE PROFILE AUTH */
-
-    await updateProfile(state.user, {
-      displayName: newName,
-      photoURL: finalPhoto
-    });
-
-    /* UPDATE FIRESTORE */
-
-    const updateData = {
-      displayName: newName,
-      email: newEmail,
-      age: newAge,
-      photoURL: finalPhoto,
-      lastActive: serverTimestamp()
-    };
-
-    await updateDoc(
-      doc(db, "users", state.user.uid),
-      updateData
-    );
-
-    state.profile = {
-      ...state.profile,
-      ...updateData
-    };
-
-    renderProfile();
-
-    showToast("🔥 Profile Updated");
-
-  } catch (err) {
-
-    console.error(err);
-
-    if (err.code === "auth/wrong-password") {
-      showToast("Incorrect password");
-
-    } else if (err.code === "auth/requires-recent-login") {
-      showToast("Please log in again before changing email");
-
-    } else {
-      showToast(err.message || "Update failed");
-    }
-
-  } finally {
-    saveProfileBtn.disabled = false;
-    saveProfileBtn.textContent = "Save Changes";
   }
-});
+);
 
 /* =========================
    BADGES
 ========================= */
 
 function renderBadges(profile) {
+
   badgeRow.innerHTML = "";
 
-  const unlocked = BADGES.filter(b => b.check(profile));
+  const unlocked =
+    BADGES.filter(
+      badge => badge.check(profile)
+    );
 
   if (!unlocked.length) {
-    unlocked.push({ text: "🌱 Beginner" });
+
+    unlocked.push({
+      text: "🌱 Beginner"
+    });
   }
 
-  unlocked.forEach(badge => {
-    const el = document.createElement("div");
+  unlocked.forEach((badge) => {
+
+    const el =
+      document.createElement("div");
 
     el.className = "badge";
-    if (badge.rare) el.classList.add("rare");
+
+    if (badge.rare) {
+      el.classList.add("rare");
+    }
 
     el.textContent = badge.text;
+
     badgeRow.appendChild(el);
   });
 }
@@ -354,6 +574,23 @@ function renderBadges(profile) {
    BACK BUTTON
 ========================= */
 
-backBtn.addEventListener("click", () => {
-  window.location.href = "index.html";
-});
+backBtn.addEventListener(
+  "click",
+  () => {
+    window.location.href = "index.html";
+  }
+);
+
+/* =========================
+   CLEANUP
+========================= */
+
+window.addEventListener(
+  "beforeunload",
+  () => {
+
+    if (unsubscribeProfile) {
+      unsubscribeProfile();
+    }
+  }
+);

@@ -17,17 +17,17 @@
   <header class="topbar">
 
     <h1 class="logoText">
-       Game Manager
+      Game Manager
     </h1>
 
     <!-- AUTH BUTTONS (LOGGED OUT STATE) -->
     <div id="authButtons" class="authButtons">
 
-      <button id="googleLoginBtn" class="btn-primary">
+      <button id="googleLoginBtn" class="btn-primary" type="button">
         Continue with Google
       </button>
 
-      <button id="openAuthBtn" class="btn-secondary">
+      <button id="openAuthBtn" class="btn-secondary" type="button">
         Login or Create Account
       </button>
 
@@ -38,7 +38,12 @@
 
       <div class="profile-wrapper">
 
-        <button id="profileBtn" class="profileBtn" title="Open profile menu">
+        <button
+          id="profileBtn"
+          class="profileBtn"
+          title="Open profile menu"
+          type="button"
+        >
 
           <img
             id="profileImage"
@@ -71,16 +76,28 @@
 
           <div class="menuDivider"></div>
 
-          <button id="profilePageBtn" class="menuBtn">
+          <button
+            id="profilePageBtn"
+            class="menuBtn"
+            type="button"
+          >
+            Profile
           </button>
 
           <button
             onclick="window.location.href='leaderboard.html'"
             class="menuBtn"
+            type="button"
           >
+            Leaderboard
           </button>
 
-          <button id="logoutBtn" class="menuBtn dangerBtn">
+          <button
+            id="logoutBtn"
+            class="menuBtn dangerBtn"
+            type="button"
+          >
+            Logout
           </button>
 
         </div>
@@ -100,13 +117,13 @@
 
       <div class="heroGlow"></div>
 
-      <h2>Welcome</h2>
+      <h2>Welcome ヾ(˶ᵔ ᗜ ᵔ˶)</h2>
 
       <p class="muted">
         Compete in multiplayer games and climb the leaderboard.
       </p>
 
-      <button id="playBtn" class="play-btn">
+      <button id="playBtn" class="play-btn" type="button">
         Play
       </button>
 
@@ -134,17 +151,26 @@
     <!-- NAV CARDS -->
     <section class="homeCards">
 
-      <div class="gameCard" onclick="window.location.href='games.html'">
+      <div
+        class="gameCard"
+        onclick="window.location.href='games.html'"
+      >
         <h3>Multiplayer Games</h3>
         <p>Challenge other players in real-time guessing battles.</p>
       </div>
 
-      <div class="gameCard" onclick="window.location.href='profile.html'">
+      <div
+        class="gameCard"
+        onclick="window.location.href='profile.html'"
+      >
         <h3>Player Profile</h3>
         <p>Edit your profile, upload a pfp, and view your stats.</p>
       </div>
 
-      <div class="gameCard" onclick="window.location.href='leaderboard.html'">
+      <div
+        class="gameCard"
+        onclick="window.location.href='leaderboard.html'"
+      >
         <h3>Leaderboards</h3>
         <p>Compare your stats against every other player.</p>
       </div>
@@ -189,11 +215,11 @@
         placeholder="Password"
       />
 
-      <button id="submitAuthBtn">
+      <button id="submitAuthBtn" type="button">
         Login
       </button>
 
-      <button id="switchAuthModeBtn">
+      <button id="switchAuthModeBtn" type="button">
         Create account instead
       </button>
 
