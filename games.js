@@ -2,26 +2,34 @@ import { auth } from "./firebase.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 /* =========================
-   DOM
+   DOM ELEMENTS
 ========================= */
 const profileImage = document.getElementById("profileImage");
 
 /* =========================
-   AUTH STATE
+   CONSTANTS
+========================= */
+const DEFAULT_PFP = "./Images/defaultPFP.jpg";
+
+/* =========================
+   HELPERS
+========================= */
+function setProfileImage(url) {
+  if (!profileImage) return;
+
+  profileImage.src = url && url.trim() !== ""
+    ? url
+    : DEFAULT_PFP;
+}
+
+/* =========================
+   AUTH LISTENER
 ========================= */
 onAuthStateChanged(auth, (user) => {
-
   if (!user) {
-    if (profileImage) {
-      profileImage.src = "./Images/defaultPFP.jpg";
-    }
+    setProfileImage(DEFAULT_PFP);
     return;
   }
 
-  const photo =
-    user.photoURL || "./Images/defaultPFP.jpg";
-
-  if (profileImage) {
-    profileImage.src = photo;
-  }
+  setProfileImage(user.photoURL);
 });
