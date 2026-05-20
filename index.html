@@ -20,37 +20,36 @@
        Game Manager
     </h1>
 
-    <!-- AUTH BUTTONS -->
+    <!-- AUTH BUTTONS (LOGGED OUT STATE) -->
     <div id="authButtons" class="authButtons">
 
-      <!-- FIXED: added text -->
       <button id="googleLoginBtn" class="btn-primary">
         Continue with Google
       </button>
 
       <button id="openAuthBtn" class="btn-secondary">
-        Login / Sign Up
+        Login or Create Account
       </button>
 
     </div>
 
-    <!-- PROFILE AREA -->
+    <!-- PROFILE AREA (LOGGED IN STATE) -->
     <div id="profileArea" class="profileArea hidden">
 
       <div class="profile-wrapper">
 
-        <button id="profileBtn" class="profileBtn" title="Open Profile">
+        <button id="profileBtn" class="profileBtn" title="Open profile menu">
 
           <img
             id="profileImage"
             class="profile-img"
             src="./Images/defaultPFP.jpg"
-            alt="Profile"
+            alt="User profile picture"
           />
 
         </button>
 
-        <!-- DROPDOWN -->
+        <!-- DROPDOWN MENU -->
         <div id="dropdownMenu" class="menu hidden">
 
           <div class="menu-user">
@@ -58,13 +57,12 @@
             <img
               id="menuPfp"
               src="./Images/defaultPFP.jpg"
-              alt="Profile"
+              alt="Profile picture"
             />
 
             <div class="menu-user-info">
 
               <span id="menuName">Guest</span>
-
               <small id="menuEmail"></small>
 
             </div>
@@ -105,11 +103,11 @@
       <h2>Welcome</h2>
 
       <p class="muted">
-        Compete, win games, climb the leaderboard, and show off your stats!
+        Compete in multiplayer games and climb the leaderboard.
       </p>
 
       <button id="playBtn" class="play-btn">
-        ▶ Play
+        Play
       </button>
 
       <div id="quickStats" class="statsRow hidden">
@@ -133,6 +131,7 @@
 
     </section>
 
+    <!-- NAV CARDS -->
     <section class="homeCards">
 
       <div class="gameCard" onclick="window.location.href='games.html'">
@@ -163,6 +162,7 @@
 
       <h2 id="authTitle">Login</h2>
 
+      <!-- ONLY SHOW WHEN SIGN UP -->
       <input
         id="authUsername"
         type="text"
@@ -179,7 +179,7 @@
       <input
         id="authAge"
         type="number"
-        placeholder="Age"
+        placeholder="Age (optional)"
         class="hidden"
       />
 
@@ -194,7 +194,7 @@
       </button>
 
       <button id="switchAuthModeBtn">
-        Need an account?
+        Create account instead
       </button>
 
     </div>
@@ -207,4 +207,5 @@
   <script type="module" src="home.js"></script>
 
 </body>
+
 </html>

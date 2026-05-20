@@ -21,103 +21,100 @@ import {
 /* =========================
    AUTH PROVIDER
 ========================= */
-
 const provider = new GoogleAuthProvider();
 
 /* =========================
    DOM
 ========================= */
+const el = (id) => document.getElementById(id);
 
-const authPopup = document.getElementById("authPopup");
-const openAuthBtn = document.getElementById("openAuthBtn");
-const googleLoginBtn = document.getElementById("googleLoginBtn");
+const authPopup = el("authPopup");
+const openAuthBtn = el("openAuthBtn");
+const googleLoginBtn = el("googleLoginBtn");
 
-const authTitle = document.getElementById("authTitle");
-const authUsername = document.getElementById("authUsername");
-const authAge = document.getElementById("authAge");
+const authTitle = el("authTitle");
+const authUsername = el("authUsername");
+const authAge = el("authAge");
+const authEmail = el("authEmail");
+const authPassword = el("authPassword");
 
-const authEmail = document.getElementById("authEmail");
-const authPassword = document.getElementById("authPassword");
+const submitAuthBtn = el("submitAuthBtn");
+const switchAuthModeBtn = el("switchAuthModeBtn");
 
-const submitAuthBtn = document.getElementById("submitAuthBtn");
-const switchAuthModeBtn = document.getElementById("switchAuthModeBtn");
+const authButtons = el("authButtons");
+const profileArea = el("profileArea");
 
-const authButtons = document.getElementById("authButtons");
-const profileArea = document.getElementById("profileArea");
+const profileImage = el("profileImage");
+const menuPfp = el("menuPfp");
+const menuName = el("menuName");
+const menuEmail = el("menuEmail");
 
-const profileImage = document.getElementById("profileImage");
+const dropdownMenu = el("dropdownMenu");
 
-const menuPfp = document.getElementById("menuPfp");
-const menuName = document.getElementById("menuName");
-const menuEmail = document.getElementById("menuEmail");
+const profileBtn = el("profileBtn");
+const profilePageBtn = el("profilePageBtn");
+const logoutBtn = el("logoutBtn");
+const playBtn = el("playBtn");
 
-const dropdownMenu = document.getElementById("dropdownMenu");
-
-const profileBtn = document.getElementById("profileBtn");
-const profilePageBtn = document.getElementById("profilePageBtn");
-const logoutBtn = document.getElementById("logoutBtn");
-
-const playBtn = document.getElementById("playBtn");
-
-const quickStats = document.getElementById("quickStats");
-const statWins = document.getElementById("statWins");
-const statGames = document.getElementById("statGames");
-const statRate = document.getElementById("statRate");
+const quickStats = el("quickStats");
+const statWins = el("statWins");
+const statGames = el("statGames");
+const statRate = el("statRate");
 
 /* =========================
    STATE
 ========================= */
-
 let isLogin = true;
 
 /* =========================
-   OPEN POPUP 
+   HELPERS
 ========================= */
+const DEFAULT_PFP = "./Images/defaultPFP.jpg";
 
-openAuthBtn?.addEventListener("click", () => {
-  if (!authPopup) return;
+function safeSetImage(img, url) {
+  if (!img) return;
+  img.src = url || DEFAULT_PFP;
+}
 
-  authPopup.classList.remove("hidden");
+/* =========================
+   POPUP CONTROL
+========================= */
+function openPopup() {
+  authPopup?.classList.remove("hidden");
   updateMode();
-});
+}
+
+function closePopup() {
+  authPopup?.classList.add("hidden");
+  resetForm();
+}
+
+function resetForm() {
+  if (authEmail) authEmail.value = "";
+  if (authPassword) authPassword.value = "";
+  if (authUsername) authUsername.value = "";
+  if (authAge) authAge.value = "";
+}
 
 /* =========================
-   CLOSE POPUP
+   MODE SWITCH
 ========================= */
-
-authPopup?.addEventListener("click", (e) => {
-  if (e.target === authPopup) {
-    authPopup.classList.add("hidden");
-  }
-});
-
-/* =========================
-   SWITCH LOGIN / SIGNUP
-========================= */
-
-switchAuthModeBtn?.addEventListener("click", () => {
-  isLogin = !isLogin;
-  updateMode();
-});
-
-/* =========================
-   UPDATE UI MODE
-========================= */
-
 function updateMode() {
+  if (!authTitle) return;
+
   if (isLogin) {
     authTitle.textContent = "Login";
 
-    authUsername.classList.add("hidden");
-    authAge.classList.add("hidden");
+    authUsername?.classList.add("hidden");
+    authAge?.classList.add("hidden");
 
     submitAuthBtn.textContent = "Login";
     switchAuthModeBtn.textContent = "Need an account?";
   } else {
     authTitle.textContent = "Create Account";
 
-    authUsername.classList.remove("hidden");
-    authAge.classList.remove("hidden");
+    authUsername?.classList.remove("hidden");
+    authAge?.classList.remove("hidden");
 
     submitAuthBtn.textContent = "Sign Up";
     switchAuthModeBtn.textContent = "Already have an account?";
@@ -127,16 +124,27 @@ function updateMode() {
 updateMode();
 
 /* =========================
+   EVENTS
+========================= */
+openAuthBtn?.addEventListener("click", openPopup);
+
+authPopup?.addEventListener("click", (e) => {
+  if (e.target === authPopup) closePopup();
+});
+
+switchAuthModeBtn?.addEventListener("click", () => {
+  isLogin = !isLogin;
+  updateMode();
+});
+
+/* =========================
    GOOGLE LOGIN
 ========================= */
-
 googleLoginBtn?.addEventListener("click", async () => {
   try {
     const result = await signInWithPopup(auth, provider);
     await syncUser(result.user);
-
-    authPopup?.classList.add("hidden");
-
+    closePopup();
   } catch (err) {
     console.error(err);
     alert(err.message);
@@ -144,52 +152,43 @@ googleLoginBtn?.addEventListener("click", async () => {
 });
 
 /* =========================
-   EMAIL LOGIN / SIGNUP
+   EMAIL AUTH
 ========================= */
-
 submitAuthBtn?.addEventListener("click", async () => {
+  const email = authEmail?.value?.trim();
+  const password = authPassword?.value;
 
-  const email = authEmail.value.trim();
-  const password = authPassword.value;
-
-  const username = authUsername.value.trim();
-  const age = Number(authAge.value);
+  const username = authUsername?.value?.trim();
+  const age = Number(authAge?.value);
 
   if (!email || !password) {
-    alert("Fill in all required fields");
+    alert("Fill required fields");
     return;
   }
 
   try {
+    let user;
 
-    /* LOGIN */
     if (isLogin) {
-
       const cred = await signInWithEmailAndPassword(auth, email, password);
-      await syncUser(cred.user);
-    }
-
-    /* SIGN UP */
-    else {
-
+      user = cred.user;
+    } else {
       if (!username) {
         alert("Enter username");
         return;
       }
 
       const cred = await createUserWithEmailAndPassword(auth, email, password);
-      const user = cred.user;
+      user = cred.user;
 
-      await updateProfile(user, {
-        displayName: username
-      });
+      await updateProfile(user, { displayName: username });
 
       await setDoc(doc(db, "users", user.uid), {
         uid: user.uid,
         displayName: username,
         email,
         age: age || 0,
-        photoURL: "./Images/defaultPFP.jpg",
+        photoURL: DEFAULT_PFP,
         wins: 0,
         losses: 0,
         gamesPlayed: 0,
@@ -198,13 +197,8 @@ submitAuthBtn?.addEventListener("click", async () => {
       });
     }
 
-    /* RESET */
-    authEmail.value = "";
-    authPassword.value = "";
-    authUsername.value = "";
-    authAge.value = "";
-
-    authPopup.classList.add("hidden");
+    await syncUser(user);
+    closePopup();
 
   } catch (err) {
     console.error(err);
@@ -213,10 +207,11 @@ submitAuthBtn?.addEventListener("click", async () => {
 });
 
 /* =========================
-   SYNC USER
+   USER SYNC (SAFE)
 ========================= */
-
 async function syncUser(user) {
+  if (!user) return;
+
   const ref = doc(db, "users", user.uid);
   const snap = await getDoc(ref);
 
@@ -225,7 +220,7 @@ async function syncUser(user) {
       uid: user.uid,
       displayName: user.displayName || "Player",
       email: user.email || "",
-      photoURL: user.photoURL || "./Images/defaultPFP.jpg",
+      photoURL: user.photoURL || DEFAULT_PFP,
       wins: 0,
       losses: 0,
       gamesPlayed: 0,
@@ -233,36 +228,28 @@ async function syncUser(user) {
       createdAt: serverTimestamp(),
       lastActive: serverTimestamp()
     });
-
     return;
   }
 
-  const data = snap.data();
-
   await updateDoc(ref, {
-    wins: data.wins ?? 0,
-    losses: data.losses ?? 0,
-    gamesPlayed: data.gamesPlayed ?? 0,
     lastActive: serverTimestamp()
   });
 }
 
 /* =========================
-   AUTH STATE LISTENER
+   AUTH STATE
 ========================= */
-
 onAuthStateChanged(auth, async (user) => {
-
   if (!user) {
-
     authButtons?.classList.remove("hidden");
     profileArea?.classList.add("hidden");
     quickStats?.classList.add("hidden");
 
-    profileImage.src = "./Images/defaultPFP.jpg";
-    menuPfp.src = "./Images/defaultPFP.jpg";
-    menuName.textContent = "Guest";
-    menuEmail.textContent = "";
+    safeSetImage(profileImage, DEFAULT_PFP);
+    safeSetImage(menuPfp, DEFAULT_PFP);
+
+    if (menuName) menuName.textContent = "Guest";
+    if (menuEmail) menuEmail.textContent = "";
 
     return;
   }
@@ -272,34 +259,32 @@ onAuthStateChanged(auth, async (user) => {
 
   await syncUser(user);
 
-  const ref = doc(db, "users", user.uid);
-  const snap = await getDoc(ref);
+  const snap = await getDoc(doc(db, "users", user.uid));
   const data = snap.data();
 
-  const pfp = data?.photoURL || "./Images/defaultPFP.jpg";
+  const pfp = data?.photoURL || DEFAULT_PFP;
 
-  profileImage.src = pfp;
-  menuPfp.src = pfp;
+  safeSetImage(profileImage, pfp);
+  safeSetImage(menuPfp, pfp);
 
-  menuName.textContent = data?.displayName || "Player";
-  menuEmail.textContent = data?.email || "";
+  if (menuName) menuName.textContent = data?.displayName || "Player";
+  if (menuEmail) menuEmail.textContent = data?.email || "";
 
   const wins = data?.wins || 0;
   const games = data?.gamesPlayed || 0;
 
-  const rate = games > 0 ? Math.round((wins / games) * 100) : 0;
+  const rate = games ? Math.round((wins / games) * 100) : 0;
 
-  statWins.textContent = wins;
-  statGames.textContent = games;
-  statRate.textContent = `${rate}%`;
+  if (statWins) statWins.textContent = wins;
+  if (statGames) statGames.textContent = games;
+  if (statRate) statRate.textContent = `${rate}%`;
 
   quickStats?.classList.remove("hidden");
 });
 
 /* =========================
-   DROPDOWN MENU
+   MENU
 ========================= */
-
 profileBtn?.addEventListener("click", (e) => {
   e.stopPropagation();
   dropdownMenu?.classList.toggle("hidden");
@@ -312,7 +297,6 @@ document.addEventListener("click", () => {
 /* =========================
    NAV
 ========================= */
-
 profilePageBtn?.addEventListener("click", () => {
   window.location.href = "profile.html";
 });
@@ -329,10 +313,12 @@ playBtn?.addEventListener("click", () => {
 /* =========================
    LOGOUT
 ========================= */
-
 logoutBtn?.addEventListener("click", async () => {
   try {
     await signOut(auth);
+    isLogin = true;
+    updateMode();
+    closePopup();
   } catch (err) {
     console.error(err);
     alert(err.message);

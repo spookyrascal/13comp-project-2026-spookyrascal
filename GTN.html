@@ -2,64 +2,41 @@
 <html lang="en">
 
 <head>
-
   <meta charset="UTF-8" />
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <title>Guess The Number</title>
-
   <link rel="stylesheet" href="./style.css" />
-
 </head>
 
 <body>
 
-<!-- =========================
-     HEADER
-========================= -->
 <header>
-  <img id="profileImage" class="profile-img" />
-  <span id="menuName"></span>
-  <small id="menuEmail"></small>
+
   <div class="header-left">
-    <h1>🎯 Guess The Number</h1>
+    <h1>Guess The Number</h1>
   </div>
 
   <div class="header-right">
-
     <img
       id="profileImage"
       class="profile-img"
       src="./Images/defaultPFP.jpg"
       alt="Profile"
     />
-
   </div>
 
 </header>
 
-<!-- =========================
-     MAIN
-========================= -->
 <main>
 
   <!-- LOBBY -->
   <section id="lobbySection">
 
-    <h2>🏟️ Lobby</h2>
+    <h2>Lobby</h2>
 
     <div class="createBox">
-
-      <input
-        id="lobbyNameInput"
-        placeholder="Lobby name"
-      />
-
-      <button id="createGameBtn">
-        Create Game
-      </button>
-
+      <input id="lobbyNameInput" placeholder="Lobby name" />
+      <button id="createGameBtn">Create Game</button>
     </div>
 
     <div id="lobbyList"></div>
@@ -69,29 +46,17 @@
   <!-- GAME -->
   <section id="gameSection" class="hidden">
 
-    <h2>🎮 Game</h2>
+    <h2>Game</h2>
 
     <p id="opponentInfo">Opponent: ...</p>
-
     <p id="turnInfo">Turn: ...</p>
 
     <div class="guessBox">
-
-      <input
-        id="guessInput"
-        type="number"
-        min="1"
-        max="100"
-        placeholder="1-100"
-      />
-
+      <input id="guessInput" type="number" min="1" max="100" />
       <button id="guessBtn">Guess</button>
-
     </div>
 
     <p id="feedback"></p>
-
-    <h3>Your guesses</h3>
 
     <div id="guessHistory"></div>
 
@@ -100,8 +65,7 @@
   <!-- WIN -->
   <section id="winScreen" class="hidden">
 
-    <h1 id="winText">Win</h1>
-
+    <h1 id="winText"></h1>
     <button id="leaveBtn">Leave</button>
 
   </section>
@@ -111,5 +75,4 @@
 <script type="module" src="./GTN.js"></script>
 
 </body>
-
 </html>

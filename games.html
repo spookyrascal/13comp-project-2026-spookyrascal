@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Game Hub</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -10,17 +11,15 @@
 
 <header class="topbar">
 
-  <h1>🎮 Game Hub</h1>
+  <h1>Game Hub</h1>
 
   <div class="profile-wrapper">
-
     <img
       id="profileImage"
       class="profile-img"
       src="./Images/defaultPFP.jpg"
-      alt="Profile"
+      alt="User profile picture"
     />
-
   </div>
 
 </header>
@@ -29,30 +28,34 @@
 
   <h2>Choose a Game</h2>
 
-  <div class="gameContainer">
+  <section class="gameContainer">
 
+    <!-- Meteor Rush -->
     <a href="meteorRush.html" class="gameCard">
-      <img src="./Images/meteorRush.jpg">
+      <img src="./Images/meteorRush.jpg" alt="Meteor Rush game thumbnail">
       <h3>Meteor Rush</h3>
       <p>Dodge meteors and survive</p>
     </a>
 
+    <!-- Guess The Number -->
     <a href="GTN.html" class="gameCard">
-      <img src="./Images/gtn.jpg">
+      <img src="./Images/gtn.jpg" alt="Guess The Number game thumbnail">
       <h3>Guess The Number</h3>
       <p>Multiplayer guessing battle</p>
     </a>
 
+    <!-- Leaderboard -->
     <a href="leaderBoard.html" class="gameCard leaderboardCard">
-      <img src="./Images/trophy.png">
+      <img src="./Images/trophy.png" alt="Leaderboard trophy icon">
       <h3>Leaderboard</h3>
       <p>Top players ranked</p>
     </a>
 
-  </div>
+  </section>
 
 </main>
 
 <script type="module" src="games.js"></script>
+
 </body>
 </html>
