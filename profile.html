@@ -2,14 +2,10 @@
 <html lang="en">
 
 <head>
-
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
   <title>My Profile</title>
-
   <link rel="stylesheet" href="style.css"/>
-
 </head>
 
 <body>
@@ -60,6 +56,9 @@
 
         <p id="profileAge">Age: --</p>
 
+        <!-- 🆕 GLOBAL RANK (leaderboard system) -->
+        <p id="rankDisplay" class="rankText">Global Rank: --</p>
+
       </div>
 
     </section>
@@ -89,54 +88,71 @@
 
     </section>
 
+    <!-- 🆕 RANK / SCORE HIGHLIGHT CARD -->
+    <section class="profileSection">
+
+      <h3>Competitive Rank</h3>
+
+      <div class="rankCard">
+
+        <p>Score</p>
+        <div id="scoreStat" class="bigValue">0</div>
+
+        <p>Tier</p>
+        <div id="tierStat" class="bigValue">Bronze</div>
+
+      </div>
+
+    </section>
+
     <!-- EDIT PROFILE -->
-<section class="profileSection">
+    <section class="profileSection">
 
-  <h3>Edit Profile</h3>
+      <h3>Edit Profile</h3>
 
-  <label>Username</label>
-  <input
-    id="usernameInput"
-    type="text"
-    maxlength="20"
-    placeholder="New username"
-  />
+      <label>Username</label>
+      <input
+        id="usernameInput"
+        type="text"
+        maxlength="20"
+        placeholder="New username"
+      />
 
-  <label>Email</label>
-  <input
-    id="emailInput"
-    type="email"
-    placeholder="Enter email"
-  />
+      <label>Email</label>
+      <input
+        id="emailInput"
+        type="email"
+        placeholder="Enter email"
+      />
 
-  <label>Age</label>
-  <input
-    id="ageInput"
-    type="number"
-    min="1"
-    max="120"
-    placeholder="Age"
-  />
+      <label>Age</label>
+      <input
+        id="ageInput"
+        type="number"
+        min="1"
+        max="120"
+        placeholder="Age"
+      />
 
-  <label>Profile Photo URL</label>
-  <input
-    id="photoInput"
-    type="text"
-    placeholder="Paste image URL"
-  />
+      <label>Profile Photo URL</label>
+      <input
+        id="photoInput"
+        type="text"
+        placeholder="Paste image URL"
+      />
 
-  <img
-    id="livePreview"
-    class="editPreview"
-    src="./Images/defaultPFP.jpg"
-    alt="Preview"
-  />
+      <img
+        id="livePreview"
+        class="editPreview"
+        src="./Images/defaultPFP.jpg"
+        alt="Preview"
+      />
 
-  <button id="saveProfileBtn" class="btn-primary saveBtn">
-    Save Changes
-  </button>
+      <button id="saveProfileBtn" class="btn-primary saveBtn">
+        Save Changes
+      </button>
 
-</section>
+    </section>
 
     <!-- ACHIEVEMENTS -->
     <section class="profileSection">
@@ -152,5 +168,4 @@
   <script type="module" src="./profile.js"></script>
 
 </body>
-
 </html>
