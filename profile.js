@@ -24,7 +24,6 @@ import {
 const state = {
   user: null,
   profile: null,
-  rank: null
 };
 
 /* =========================
@@ -42,9 +41,6 @@ const lossesStat = document.getElementById("lossesStat");
 const gamesStat = document.getElementById("gamesStat");
 const rateStat = document.getElementById("rateStat");
 
-const rankDisplay = document.createElement("p");
-rankDisplay.id = "rankDisplay";
-
 const usernameInput = document.getElementById("usernameInput");
 const emailInput = document.getElementById("emailInput");
 const ageInput = document.getElementById("ageInput");
@@ -54,9 +50,6 @@ const livePreview = document.getElementById("livePreview");
 const saveProfileBtn = document.getElementById("saveProfileBtn");
 const badgeRow = document.getElementById("badgeRow");
 const backBtn = document.getElementById("backBtn");
-
-/* inject rank into hero */
-document.querySelector(".profileInfo").appendChild(rankDisplay);
 
 /* =========================
    SCORE SYSTEM
@@ -71,15 +64,6 @@ function calculateScore(wins, losses, games) {
     (winRate * 25)
   );
 }
-
-function getRankTier(score) {
-  if (score >= 300) return "Mythic";
-  if (score >= 200) return "Diamond";
-  if (score >= 120) return "Gold";
-  if (score >= 60) return "Silver";
-  return "Bronze";
-}
-
 /* =========================
    LEADERBOARD
 ========================= */
@@ -114,11 +98,6 @@ async function getLeaderboard() {
 
   return users;
 }
-
-function getMyRank(leaderboard, uid) {
-  return leaderboard.find(u => u.uid === uid) || null;
-}
-
 /* =========================
    AUTH
 ========================= */
@@ -183,11 +162,6 @@ async function renderProfile() {
   const games = p.gamesPlayed || 0;
 
   const score = calculateScore(wins, losses, games);
-  const tier = getRankTier(score);
-
-  /* leaderboard */
-  const leaderboard = await getLeaderboard();
-  const myRank = getMyRank(leaderboard, state.user.uid);
 
   /* IMAGES */
   const photo = p.photoURL || "./Images/defaultPFP.jpg";
@@ -197,17 +171,10 @@ async function renderProfile() {
   livePreview.src = photo;
 
   /* TEXT */
-  profileDisplayName.textContent = `${p.displayName || "Player"} • ${tier}`;
   profileEmail.textContent = p.email || state.user.email;
 
   profileAge.textContent =
     p.age ? `Age: ${p.age}` : "Age: Not set";
-
-  /* RANK UI */
-  if (myRank) {
-    rankDisplay.textContent =
-      `Global Rank: #${myRank.position} / ${leaderboard.length}`;
-  }
 
   /* STATS */
   winsStat.textContent = wins;
@@ -251,32 +218,6 @@ saveProfileBtn.addEventListener("click", async () => {
   }, { merge: true });
 
   alert("Updated 🔥");
-});
-
-/* =========================
-   BADGES
-========================= */
-
-function renderBadges(p) {
-
-  badgeRow.innerHTML = "";
-
-  const badges = [];
-
-  if (p.wins >= 1) badges.push("🏆 First Win");
-  if (p.wins >= 10) badges.push("🔥 10 Wins");
-  if (p.wins >= 25) badges.push("👑 Elite Player");
-  if (p.games >= 50) badges.push("🎮 Grinder");
-  if (p.score >= 200) badges.push("⚡ High Rank");
-
-  if (!badges.length) badges.push("🌱 Beginner");
-
-  badges.forEach(b => {
-    const el = document.createElement("div");
-    el.className = "badge";
-    el.textContent = b;
-    badgeRow.appendChild(el);
-  });
 });
 
 /* =========================
