@@ -2,11 +2,21 @@
 <html lang="en">
 
 <head>
+
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
   <title>Game Manager</title>
 
-  <link rel="stylesheet" href="style.css"/>
+  <link
+    rel="stylesheet"
+    href="style.css"
+  />
+
 </head>
 
 <body>
@@ -14,27 +24,34 @@
   <!-- =========================
        HEADER
   ========================== -->
+
   <header class="topbar">
 
     <h1 class="logoText">
       Game Manager
     </h1>
 
-    <!-- AUTH BUTTONS (LOGGED OUT STATE) -->
-    <div id="authButtons" class="authButtons">
+    <!-- LOGGED OUT -->
+    <div
+      id="authButtons"
+      class="authButtons"
+    >
 
-      <button id="googleLoginBtn" class="btn-primary" type="button">
-        Continue with Google
-      </button>
-
-      <button id="openAuthBtn" class="btn-secondary" type="button">
-        Login or Create Account
+      <button
+        id="openAuthBtn"
+        class="btn-primary"
+        type="button"
+      >
+        Sign In / Create Account
       </button>
 
     </div>
 
-    <!-- PROFILE AREA (LOGGED IN STATE) -->
-    <div id="profileArea" class="profileArea hidden">
+    <!-- LOGGED IN -->
+    <div
+      id="profileArea"
+      class="profileArea hidden"
+    >
 
       <div class="profile-wrapper">
 
@@ -54,8 +71,11 @@
 
         </button>
 
-        <!-- DROPDOWN MENU -->
-        <div id="dropdownMenu" class="menu hidden">
+        <!-- DROPDOWN -->
+        <div
+          id="dropdownMenu"
+          class="menu hidden"
+        >
 
           <div class="menu-user">
 
@@ -67,7 +87,10 @@
 
             <div class="menu-user-info">
 
-              <span id="menuName">Guest</span>
+              <span id="menuName">
+                Guest
+              </span>
+
               <small id="menuEmail"></small>
 
             </div>
@@ -111,87 +134,169 @@
   <!-- =========================
        MAIN
   ========================== -->
+
   <main class="homeMain">
 
     <section class="homeHero">
 
       <div class="heroGlow"></div>
 
-      <h2>Welcome ヾ(˶ᵔ ᗜ ᵔ˶)</h2>
+      <h2>
+        Welcome ヾ(˶ᵔ ᗜ ᵔ˶)
+      </h2>
 
       <p class="muted">
         Compete in multiplayer games and climb the leaderboard.
       </p>
 
-      <button id="playBtn" class="play-btn" type="button">
+      <button
+        id="playBtn"
+        class="play-btn"
+        type="button"
+      >
         Play
       </button>
 
-      <div id="quickStats" class="statsRow hidden">
+      <!-- QUICK STATS -->
+      <div
+        id="quickStats"
+        class="statsRow hidden"
+      >
 
         <div class="miniStat">
+
           <span>Wins</span>
-          <strong id="statWins">0</strong>
+
+          <strong id="statWins">
+            0
+          </strong>
+
         </div>
 
         <div class="miniStat">
+
           <span>Games</span>
-          <strong id="statGames">0</strong>
+
+          <strong id="statGames">
+            0
+          </strong>
+
         </div>
 
         <div class="miniStat">
+
           <span>Win Rate</span>
-          <strong id="statRate">0%</strong>
+
+          <strong id="statRate">
+            0%
+          </strong>
+
         </div>
 
       </div>
 
     </section>
+
   </main>
 
   <!-- =========================
        AUTH POPUP
   ========================== -->
-  <div id="authPopup" class="popup hidden">
+
+  <div
+    id="authPopup"
+    class="popup hidden"
+  >
 
     <div class="popup-content">
 
-      <h2 id="authTitle">Login</h2>
+      <!-- CLOSE BUTTON -->
+      <button
+        id="closePopupBtn"
+        class="closePopupBtn"
+        type="button"
+      >
+        ×
+      </button>
 
-      <!-- ONLY SHOW WHEN SIGN UP -->
+      <h2 id="authTitle">
+        Sign In / Create Account
+      </h2>
+
+      <p class="authSubtext">
+        Continue with email or Google
+      </p>
+
+      <!-- USERNAME -->
       <input
         id="authUsername"
         type="text"
         placeholder="Username"
-        class="hidden"
       />
 
+      <!--AGE -->
+      <input
+        id="authAge"
+        type="number"
+        placeholder="Age"
+      />
+
+      <!-- EMAIL -->
       <input
         id="authEmail"
         type="email"
         placeholder="Email"
+        autocomplete="email"
       />
 
-      <input
-        id="authAge"
-        type="number"
-        placeholder="Age (optional)"
-        class="hidden"
-      />
+      <!-- PASSWORD -->
+      <div class="passwordWrap">
 
-      <input
-        id="authPassword"
-        type="password"
-        placeholder="Password"
-      />
+        <input
+          id="authPassword"
+          type="password"
+          placeholder="Password"
+          autocomplete="current-password"
+        />
 
-      <button id="submitAuthBtn" type="button">
-        Login
+        <button
+          id="togglePasswordBtn"
+          class="togglePasswordBtn"
+          type="button"
+        >
+          👁
+        </button>
+
+      </div>
+
+      <!-- CONTINUE -->
+      <button
+        id="submitAuthBtn"
+        class="btn-primary authMainBtn"
+        type="button"
+      >
+        Continue
       </button>
 
-      <button id="switchAuthModeBtn" type="button">
-        Create account instead
+      <!-- DIVIDER -->
+      <div class="authDivider">
+        <span>OR</span>
+      </div>
+
+      <!-- GOOGLE -->
+      <button
+        id="googleLoginBtn"
+        class="btn-secondary"
+        type="button"
+      >
+        Continue with Google
       </button>
+
+      <!-- STATUS -->
+      <p
+        id="authStatus"
+        class="authStatus"
+      ></p>
 
     </div>
 
@@ -200,7 +305,11 @@
   <!-- =========================
        SCRIPT
   ========================== -->
-  <script type="module" src="home.js"></script>
+
+  <script
+    type="module"
+    src="home.js"
+  ></script>
 
 </body>
 
