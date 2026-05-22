@@ -3,7 +3,7 @@ import { auth, db } from "./firebase.js";
 import {
   onAuthStateChanged,
   updateProfile,
-  verifyBeforeUpdateEmail
+  updateEmail
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 import {
@@ -85,6 +85,7 @@ const toast =
 ========================= */
 
 function showToast(message) {
+
   clearTimeout(toastTimeout);
 
   toast.textContent = message;
@@ -100,12 +101,14 @@ function showToast(message) {
 ========================= */
 
 onAuthStateChanged(auth, async (user) => {
+
   if (!user) {
     window.location.replace("index.html");
     return;
   }
 
   state.user = user;
+
   listenToProfile();
 });
 
@@ -114,33 +117,53 @@ onAuthStateChanged(auth, async (user) => {
 ========================= */
 
 function listenToProfile() {
-  if (unsubscribeProfile) unsubscribeProfile();
 
-  const ref = doc(db, "users", state.user.uid);
+  if (unsubscribeProfile) {
+    unsubscribeProfile();
+  }
 
-  unsubscribeProfile = onSnapshot(ref, async (snap) => {
-    if (!snap.exists()) {
-      const starterData = {
-        displayName: state.user.displayName || "Player",
-        email: state.user.email || "",
-        photoURL: state.user.photoURL || "./Images/defaultPFP.jpg",
-        age: null,
+  const ref =
+    doc(db, "users", state.user.uid);
 
-        wins: 0,
-        losses: 0,
-        gamesPlayed: 0,
+  unsubscribeProfile =
+    onSnapshot(ref, async (snap) => {
 
-        createdAt: serverTimestamp(),
-        lastActive: serverTimestamp()
-      };
+      if (!snap.exists()) {
 
-      await setDoc(ref, starterData);
-      return;
-    }
+        const starterData = {
 
-    state.profile = snap.data();
-    renderProfile();
-  });
+          displayName:
+            state.user.displayName || "Player",
+
+          email:
+            state.user.email || "",
+
+          photoURL:
+            state.user.photoURL ||
+            "./Images/defaultPFP.jpg",
+
+          age: null,
+
+          wins: 0,
+          losses: 0,
+          gamesPlayed: 0,
+
+          createdAt:
+            serverTimestamp(),
+
+          lastActive:
+            serverTimestamp()
+        };
+
+        await setDoc(ref, starterData);
+
+        return;
+      }
+
+      state.profile = snap.data();
+
+      renderProfile();
+    });
 }
 
 /* =========================
@@ -148,38 +171,51 @@ function listenToProfile() {
 ========================= */
 
 function renderProfile() {
+
   const user = state.user;
   const data = state.profile;
 
   if (!user || !data) return;
 
-  const photo = data.photoURL || "./Images/defaultPFP.jpg";
+  const photo =
+    data.photoURL ||
+    "./Images/defaultPFP.jpg";
 
-  const wins = Number(data.wins) || 0;
-  const losses = Number(data.losses) || 0;
-  const games = Number(data.gamesPlayed) || 0;
+  const wins =
+    Number(data.wins) || 0;
 
-  const rate = games > 0
-    ? Math.round((wins / games) * 100)
-    : 0;
+  const losses =
+    Number(data.losses) || 0;
+
+  const games =
+    Number(data.gamesPlayed) || 0;
+
+  const rate =
+    games > 0
+      ? Math.round((wins / games) * 100)
+      : 0;
 
   /* IMAGES */
+
   headerProfileImage.src = photo;
   profilePreview.src = photo;
   livePreview.src = photo;
 
   /* TEXT */
+
   profileDisplayName.textContent =
     data.displayName || "Player";
 
   profileEmail.textContent =
     data.email || user.email;
 
-  profileAge.textContent = data.age
-    ? `Age: ${data.age}`
-    : "Age: Not set";
+  profileAge.textContent =
+    data.age
+      ? `Age: ${data.age}`
+      : "Age: Not set";
 
   /* INPUTS */
+
   usernameInput.value =
     data.displayName || "";
 
@@ -193,6 +229,7 @@ function renderProfile() {
     data.photoURL || "";
 
   /* STATS */
+
   winsStat.textContent = wins;
   lossesStat.textContent = losses;
   gamesStat.textContent = games;
@@ -200,13 +237,16 @@ function renderProfile() {
 }
 
 /* =========================
-   IMAGE PREVIEW
+   IMAGE LIVE PREVIEW
 ========================= */
 
 photoInput.addEventListener("input", () => {
-  const url = photoInput.value.trim();
+
+  const url =
+    photoInput.value.trim();
 
   if (!url) {
+
     livePreview.src =
       "./Images/defaultPFP.jpg";
 
@@ -214,10 +254,13 @@ photoInput.addEventListener("input", () => {
   }
 
   try {
+
     new URL(url);
+
     livePreview.src = url;
 
   } catch {
+
     livePreview.src =
       "./Images/defaultPFP.jpg";
   }
@@ -234,10 +277,10 @@ photoInput.addEventListener("input", () => {
 ].forEach((img) => {
 
   img.onerror = () => {
+
     img.src =
       "./Images/defaultPFP.jpg";
   };
-
 });
 
 /* =========================
@@ -249,7 +292,9 @@ saveProfileBtn.addEventListener("click", async () => {
   try {
 
     saveProfileBtn.disabled = true;
-    saveProfileBtn.textContent = "Saving...";
+
+    saveProfileBtn.textContent =
+      "Saving...";
 
     const newName =
       usernameInput.value.trim();
@@ -266,12 +311,14 @@ saveProfileBtn.addEventListener("click", async () => {
     /* VALIDATION */
 
     if (newName.length < 3) {
+
       throw new Error(
         "Username must be at least 3 characters"
       );
     }
 
     if (newName.length > 20) {
+
       throw new Error(
         "Username too long"
       );
@@ -281,7 +328,10 @@ saveProfileBtn.addEventListener("click", async () => {
       /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!emailRegex.test(newEmail)) {
-      throw new Error("Invalid email");
+
+      throw new Error(
+        "Invalid email"
+      );
     }
 
     let newAge = null;
@@ -291,12 +341,14 @@ saveProfileBtn.addEventListener("click", async () => {
       newAge = Number(ageRaw);
 
       if (isNaN(newAge)) {
+
         throw new Error(
           "Age must be a number"
         );
       }
 
       if (newAge < 1 || newAge > 120) {
+
         throw new Error(
           "Invalid age"
         );
@@ -313,6 +365,7 @@ saveProfileBtn.addEventListener("click", async () => {
       try {
 
         new URL(newPhoto);
+
         finalPhoto = newPhoto;
 
       } catch {
@@ -325,17 +378,15 @@ saveProfileBtn.addEventListener("click", async () => {
 
     /* EMAIL UPDATE */
 
-    if (newEmail !== state.user.email) {
+    if (
+      newEmail !== state.user.email
+    ) {
 
       try {
 
-        await verifyBeforeUpdateEmail(
+        await updateEmail(
           state.user,
           newEmail
-        );
-
-        showToast(
-          "Verification email sent. Check inbox."
         );
 
       } catch (err) {
@@ -348,41 +399,63 @@ saveProfileBtn.addEventListener("click", async () => {
         ) {
 
           throw new Error(
-            "Please log out and back in before changing email."
+            "Log out and back in before changing email"
+          );
+        }
+
+        if (
+          err.code ===
+          "auth/email-already-in-use"
+        ) {
+
+          throw new Error(
+            "Email already in use"
           );
         }
 
         throw new Error(
-          "Could not update email."
+          "Could not update email"
         );
       }
     }
 
-    /* AUTH PROFILE UPDATE */
+    /* AUTH PROFILE */
 
-    await updateProfile(state.user, {
-      displayName: newName,
-      photoURL: finalPhoto
-    });
+    await updateProfile(
+      state.user,
+      {
+        displayName: newName,
+        photoURL: finalPhoto
+      }
+    );
 
-    /* FIRESTORE UPDATE */
+    /* FIRESTORE */
 
     const updateData = {
+
       displayName: newName,
 
-      /* keep current email until verified */
-      email: state.user.email,
+      email: newEmail,
 
       age: newAge,
+
       photoURL: finalPhoto,
-      lastActive: serverTimestamp()
+
+      lastActive:
+        serverTimestamp()
     };
 
     await setDoc(
-      doc(db, "users", state.user.uid),
+      doc(
+        db,
+        "users",
+        state.user.uid
+      ),
       updateData,
       { merge: true }
     );
+
+    /* LOCAL STATE */
 
     state.profile = {
       ...state.profile,
@@ -392,7 +465,7 @@ saveProfileBtn.addEventListener("click", async () => {
     renderProfile();
 
     showToast(
-      "🔥 Profile updated successfully"
+      "🔥 Profile updated"
     );
 
   } catch (err) {
@@ -406,6 +479,7 @@ saveProfileBtn.addEventListener("click", async () => {
   } finally {
 
     saveProfileBtn.disabled = false;
+
     saveProfileBtn.textContent =
       "Save Changes";
   }
@@ -416,17 +490,21 @@ saveProfileBtn.addEventListener("click", async () => {
 ========================= */
 
 backBtn.addEventListener("click", () => {
-  window.location.href = "index.html";
+
+  window.location.href =
+    "index.html";
 });
 
 /* =========================
    CLEANUP
 ========================= */
 
-window.addEventListener("beforeunload", () => {
+window.addEventListener(
+  "beforeunload",
+  () => {
 
-  if (unsubscribeProfile) {
-    unsubscribeProfile();
+    if (unsubscribeProfile) {
+      unsubscribeProfile();
+    }
   }
-
-});
+);

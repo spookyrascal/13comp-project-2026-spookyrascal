@@ -15,9 +15,7 @@
   <div class="header-left">
     <h1>Guess The Number</h1>
   </div>
-  <main class="gtnPage"></main>
-  <div class="heroGlow"></div>
-  
+
   <div class="header-right">
     <img
       id="profileImage"
@@ -31,9 +29,7 @@
 
 <main>
 
-  <!-- =========================
-       LOBBY
-  ========================== -->
+  <!-- LOBBY -->
   <section id="lobbySection">
 
     <h2>Lobby</h2>
@@ -47,46 +43,30 @@
 
   </section>
 
-  <!-- =========================
-       GAME
-  ========================== -->
+  <!-- GAME -->
   <section id="gameSection" class="hidden">
 
     <h2>Game</h2>
 
-    <div class="gameInfo">
-      <p id="opponentInfo">Opponent: ...</p>
-      <p id="turnInfo">Turn: ...</p>
-    </div>
-
-    <!-- optional future feature hook -->
-    <div id="statusBanner" class="status-banner"></div>
+    <p id="opponentInfo">Opponent: ...</p>
+    <p id="turnInfo">Turn: ...</p>
 
     <div class="guessBox">
-      <input id="guessInput" type="number" min="1" max="100" placeholder="1–100" />
+      <input id="guessInput" type="number" min="1" max="100" />
       <button id="guessBtn">Guess</button>
     </div>
 
-    <p id="feedback" class="feedback"></p>
+    <p id="feedback"></p>
 
-    <!-- upgraded history container (better layout support) -->
-    <div id="guessHistory" class="history"></div>
+    <div id="guessHistory"></div>
 
   </section>
 
-  <!-- =========================
-       WIN SCREEN
-  ========================== -->
+  <!-- WIN -->
   <section id="winScreen" class="hidden">
 
-    <div class="winCard">
-      <h1 id="winText"></h1>
-
-      <!-- optional: future stats display hook -->
-      <p id="winStats"></p>
-
-      <button id="leaveBtn">Return to Lobby</button>
-    </div>
+    <h1 id="winText"></h1>
+    <button id="leaveBtn">Leave</button>
 
   </section>
 

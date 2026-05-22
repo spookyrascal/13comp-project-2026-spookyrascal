@@ -23,9 +23,7 @@ let user = null;
 let gameId = null;
 let unsub = null;
 let ended = false;
-
-// per-user last distance tracking (FIXED)
-let lastDistanceMap = {};
+let lastDistance = null;
 
 /* =========================
    DOM
@@ -69,31 +67,6 @@ initAuth((u) => {
   renderUserHeader(user);
   loadLobby();
 });
-
-/* =========================
-   HELPERS
-========================= */
-function formatGuess(guess, secretNumber, playerId) {
-  const distance = Math.abs(guess - secretNumber);
-
-  let msg = "";
-
-  if (distance === 0) msg = "Correct!";
-  else if (distance <= 3) msg = "Very hot";
-  else if (distance <= 10) msg = "Warm";
-  else msg = "Cold";
-
-  // per-player progression tracking FIXED
-  const last = lastDistanceMap[playerId];
-
-  if (last !== undefined && distance !== 0) {
-    msg += distance < last ? " (getting closer)" : " (getting colder)";
-  }
-
-  lastDistanceMap[playerId] = distance;
-
-  return { distance, msg };
-}
 
 /* =========================
    CREATE GAME
@@ -150,9 +123,11 @@ function loadLobby() {
       const card = document.createElement("div");
       card.className = "lobbyCard";
 
+      const opponentName = g.player1Name || "Unknown Player";
+
       card.innerHTML = `
         <h3>${g.lobbyName}</h3>
-        <p>Host: ${g.player1Name || "Unknown"}</p>
+        <p>Host: ${opponentName}</p>
         <button>Join</button>
       `;
 
@@ -179,7 +154,7 @@ function loadLobby() {
 function join(id) {
   gameId = id;
   ended = false;
-  lastDistanceMap = {};
+  lastDistance = null;
 
   lobbySection.classList.add("hidden");
   gameSection.classList.remove("hidden");
@@ -194,8 +169,8 @@ function join(id) {
 ========================= */
 function exitGame() {
   gameId = null;
+  lastDistance = null;
   ended = false;
-  lastDistanceMap = {};
 
   if (unsub) unsub();
 
@@ -214,7 +189,8 @@ guessBtn?.addEventListener("click", async () => {
   if (!gameId || ended) return;
 
   const guess = Number(guessInput.value);
-  if (!Number.isInteger(guess) || guess < 1 || guess > 100) {
+
+  if (!guess || guess < 1 || guess > 100) {
     feedback.textContent = "Enter a number 1–100";
     return;
   }
@@ -225,12 +201,6 @@ guessBtn?.addEventListener("click", async () => {
 
   if (!g) return;
 
-  // safety: must have both players
-  if (!g.player1Id || !g.player2Id) {
-    feedback.textContent = "Waiting for opponent...";
-    return;
-  }
-
   if (g.currentTurn !== user.uid) {
     feedback.textContent = "Not your turn";
     return;
@@ -239,24 +209,26 @@ guessBtn?.addEventListener("click", async () => {
   const isP1 = user.uid === g.player1Id;
   const opponentId = isP1 ? g.player2Id : g.player1Id;
 
-  const { distance, msg } = formatGuess(
-    guess,
-    g.secretNumber,
-    user.uid
-  );
+  const distance = Math.abs(guess - g.secretNumber);
 
+  let msg = "";
+
+  if (distance === 0) msg = "Correct!";
+  else if (distance <= 3) msg = "Very hot";
+  else if (distance <= 10) msg = "Warm";
+  else msg = "Cold";
+
+  if (lastDistance !== null) {
+    msg += distance < lastDistance ? " (getting closer)" : " (getting colder)";
+  }
+
+  lastDistance = distance;
   feedback.textContent = msg;
 
   const win = distance === 0;
 
-  const guessObj = {
-    value: guess,
-    hint: msg,
-    distance
-  };
-
   const updates = {
-    [isP1 ? "player1Guesses" : "player2Guesses"]: arrayUnion(guessObj),
+    [isP1 ? "player1Guesses" : "player2Guesses"]: arrayUnion(guess),
     currentTurn: isP1 ? g.player2Id : g.player1Id,
     lastActive: serverTimestamp(),
     status: win ? "finished" : "playing"
@@ -302,39 +274,21 @@ function listen(id) {
     opponent.textContent =
       opponentName
         ? `Opponent: ${opponentName}`
-        : "Opponent: Waiting...";
+        : "Opponent: Waiting for opponent...";
 
     turn.textContent =
       g.currentTurn === user.uid
         ? "Your turn"
         : "Opponent's turn";
 
-    const isP1 = user.uid === g.player1Id;
-    const own = isP1 ? g.player1Guesses || [] : g.player2Guesses || [];
-    const opp = isP1 ? g.player2Guesses || [] : g.player1Guesses || [];
+    const guesses =
+      user.uid === g.player1Id
+        ? g.player1Guesses
+        : g.player2Guesses;
 
-    const ownHistory = own.length
-      ? own.map((g, i) =>
-          `<div>#${i + 1} ${g.value} — <strong>${g.hint}</strong></div>`
-        ).join("")
-      : "<div>No guesses yet</div>";
-
-    const oppHistory = opp.length
-      ? opp.map((g, i) =>
-          `<div>#${i + 1} ${g.value}</div>`
-        ).join("")
-      : "<div>No opponent guesses yet</div>";
-
-    history.innerHTML = `
-      <div class="guessSection">
-        <strong>You</strong>
-        ${ownHistory}
-      </div>
-      <div class="guessSection">
-        <strong>Opponent</strong>
-        ${oppHistory}
-      </div>
-    `;
+    history.innerHTML = (guesses || [])
+      .map((g, i) => `<div>${i + 1}: ${g}</div>`)
+      .join("");
 
     if (g.status === "finished" && !ended) {
       ended = true;
@@ -343,7 +297,9 @@ function listen(id) {
       winScreen.classList.remove("hidden");
 
       winText.textContent =
-        g.winnerId === user.uid ? "You win" : "You lose";
+        g.winnerId === user.uid
+          ? "You win"
+          : "You lose";
 
       setTimeout(exitGame, 2500);
     }

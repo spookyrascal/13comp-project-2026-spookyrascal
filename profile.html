@@ -3,26 +3,43 @@
 
 <head>
 
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
 
   <title>My Profile</title>
 
-  <link rel="stylesheet" href="style.css"/>
+  <link
+    rel="stylesheet"
+    href="./style.css"
+  />
 
 </head>
 
 <body>
 
-  <!-- TOAST -->
+  <!-- =========================
+       TOAST
+  ========================== -->
+
   <div id="toast"></div>
 
-  <!-- HEADER -->
-  <header class="topbar">
+  <!-- =========================
+       HEADER
+  ========================== -->
 
-    <h1>My Profile</h1>
+  <header class="mainHeader">
 
-    <div class="profileMiniHeader">
+    <div class="header-left">
+
+      <h1>My Profile</h1>
+
+    </div>
+
+    <div class="userBox">
 
       <img
         id="headerProfileImage"
@@ -31,19 +48,38 @@
         alt="Profile Picture"
       />
 
-      <button id="backBtn" class="btn-secondary">
-        ← Back
-      </button>
+      <div class="userInfo">
+
+        <span id="headerUsername">
+          Loading...
+        </span>
+
+        <button
+          id="backBtn"
+          class="btn-secondary"
+        >
+          ← Back
+        </button>
+
+      </div>
 
     </div>
 
   </header>
 
-  <!-- MAIN -->
-  <main class="profilePage">
+  <!-- =========================
+       MAIN
+  ========================== -->
 
-    <!-- HERO -->
+  <main class="profilePage gtnPage">
+
+    <!-- =========================
+         PROFILE HERO
+    ========================== -->
+
     <section class="profileHero">
+
+      <div class="heroGlow"></div>
 
       <img
         id="profilePreview"
@@ -54,95 +90,201 @@
 
       <div class="profileInfo">
 
-        <h2 id="profileDisplayName">Loading...</h2>
+        <h2 id="profileDisplayName">
+          Loading...
+        </h2>
 
-        <p id="profileEmail">loading...</p>
+        <p id="profileEmail">
+          loading...
+        </p>
 
-        <p id="profileAge">Age: --</p>
+        <p id="profileAge">
+          Age: --
+        </p>
 
       </div>
 
     </section>
 
-    <!-- STATS -->
+    <!-- =========================
+         STATS
+    ========================== -->
+
     <section class="statsGrid">
 
       <div class="statCard stat-win">
+
         <h3>Wins</h3>
-        <div class="value" id="winsStat">0</div>
+
+        <div
+          class="value"
+          id="winsStat"
+        >
+          0
+        </div>
+
       </div>
 
       <div class="statCard stat-loss">
+
         <h3>Losses</h3>
-        <div class="value" id="lossesStat">0</div>
+
+        <div
+          class="value"
+          id="lossesStat"
+        >
+          0
+        </div>
+
       </div>
 
       <div class="statCard">
+
         <h3>Games Played</h3>
-        <div class="value" id="gamesStat">0</div>
+
+        <div
+          class="value"
+          id="gamesStat"
+        >
+          0
+        </div>
+
       </div>
 
       <div class="statCard">
+
         <h3>Win Rate</h3>
-        <div class="value" id="rateStat">0%</div>
+
+        <div
+          class="value"
+          id="rateStat"
+        >
+          0%
+        </div>
+
       </div>
 
     </section>
 
-    <!-- EDIT PROFILE -->
-<section class="profileSection">
+    <!-- =========================
+         EDIT PROFILE
+    ========================== -->
 
-  <h3>Edit Profile</h3>
+    <section class="profileSection">
 
-  <label>Username</label>
-  <input
-    id="usernameInput"
-    type="text"
-    maxlength="20"
-    placeholder="New username"
-  />
+      <h3>Edit Profile</h3>
 
-  <label>Email</label>
-  <input
-    id="emailInput"
-    type="email"
-    placeholder="Enter email"
-  />
+      <!-- USERNAME -->
 
-  <label>Age</label>
-  <input
-    id="ageInput"
-    type="number"
-    min="1"
-    max="120"
-    placeholder="Age"
-  />
+      <div class="inputGroup">
 
-  <label>Profile Photo URL</label>
-  <input
-    id="photoInput"
-    type="text"
-    placeholder="Paste image URL"
-  />
+        <label for="usernameInput">
+          Username
+        </label>
 
-  <img
-    id="livePreview"
-    class="editPreview"
-    src="./Images/defaultPFP.jpg"
-    alt="Preview"
-  />
+        <input
+          id="usernameInput"
+          type="text"
+          maxlength="20"
+          autocomplete="username"
+          placeholder="New username"
+        />
 
-  <button id="saveProfileBtn" class="btn-primary saveBtn">
-    Save Changes
-  </button>
+      </div>
 
-</section>
+      <!-- EMAIL -->
+
+      <div class="inputGroup">
+
+        <label for="emailInput">
+          Email
+        </label>
+
+        <input
+          id="emailInput"
+          type="email"
+          autocomplete="email"
+          placeholder="Enter email"
+        />
+
+      </div>
+
+      <!-- AGE -->
+
+      <div class="inputGroup">
+
+        <label for="ageInput">
+          Age
+        </label>
+
+        <input
+          id="ageInput"
+          type="number"
+          min="1"
+          max="120"
+          placeholder="Age"
+        />
+
+      </div>
+
+      <!-- PHOTO -->
+
+      <div class="inputGroup">
+
+        <label for="photoInput">
+          Profile Photo URL
+        </label>
+
+        <input
+          id="photoInput"
+          type="url"
+          placeholder="Paste image URL"
+        />
+
+      </div>
+
+      <!-- LIVE PREVIEW -->
+
+      <div class="previewWrap">
+
+        <p class="previewLabel">
+          Live Preview
+        </p>
+
+        <img
+          id="livePreview"
+          class="editPreview"
+          src="./Images/defaultPFP.jpg"
+          alt="Preview"
+        />
+
+      </div>
+
+      <!-- ACTIONS -->
+
+      <div class="profileActions">
+
+        <button
+          id="saveProfileBtn"
+          class="btn-primary saveBtn"
+        >
+          Save Changes
+        </button>
+
+      </div>
 
     </section>
 
   </main>
 
-  <script type="module" src="./profile.js"></script>
+  <!-- =========================
+       SCRIPT
+  ========================== -->
+
+  <script
+    type="module"
+    src="./profile.js"
+  ></script>
 
 </body>
 
