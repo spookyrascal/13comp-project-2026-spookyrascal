@@ -358,7 +358,10 @@ textarea:focus {
 .lobbyCard,
 .popup-content,
 .menu,
-.tableWrap {
+.tableWrap,
+.profileHero,
+.profileSection,
+.statCard {
   background: var(--surface);
 
   backdrop-filter: blur(var(--blur));
@@ -389,11 +392,6 @@ textarea:focus {
   box-shadow:
     var(--shadow-lg),
     0 0 30px rgba(180,107,255,0.18);
-}
-
-.gameCard h3,
-.lobbyCard h3 {
-  margin-bottom: 10px;
 }
 
 /* =========================
@@ -432,7 +430,9 @@ textarea:focus {
 
 .profile-img,
 #menuPfp,
-.lb-pfp {
+.lb-pfp,
+.heroAvatar,
+.editPreview {
   object-fit: cover;
   border-radius: 50%;
 }
@@ -442,18 +442,8 @@ textarea:focus {
   height: 100%;
 }
 
-#menuPfp {
-  width: 48px;
-  height: 48px;
-}
-
-.lb-pfp {
-  width: 34px;
-  height: 34px;
-}
-
 /* =========================
-   DROPDOWN MENU
+   MENU
 ========================= */
 
 .menu {
@@ -494,91 +484,272 @@ textarea:focus {
   margin: 14px 0;
 }
 
-.menuBtn {
-  width: 100%;
-  margin-top: 8px;
-}
-
-/* =========================
-   STATS
-========================= */
-
-.statsRow {
-  margin-top: 28px;
-
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 14px;
-}
-
-.miniStat {
-  min-width: 120px;
-
-  padding: 16px;
-
-  text-align: center;
-
-  background: rgba(255,255,255,0.03);
-
-  border: 1px solid var(--border);
-
-  border-radius: var(--r-md);
-}
-
-.miniStat span {
-  display: block;
-  color: var(--muted);
-  font-size: 13px;
-}
-
-.miniStat strong {
-  display: block;
-  margin-top: 6px;
-  font-size: 24px;
-}
-
 /* =========================
    LEADERBOARD
 ========================= */
+
+.leaderboardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  margin-bottom: 28px;
+}
+
+.leaderboardHeader h1 {
+  margin: 0;
+
+  font-size: clamp(2rem, 4vw, 3rem);
+
+  background: linear-gradient(
+    to right,
+    #ffffff,
+    #d8b4fe
+  );
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.profileMini {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 10px 14px;
+
+  border-radius: var(--r-lg);
+
+  background: var(--surface);
+
+  border: 1px solid var(--border);
+
+  backdrop-filter: blur(var(--blur));
+
+  box-shadow: var(--shadow-md);
+}
 
 .tableWrap {
   overflow-x: auto;
   padding: 0;
 }
 
-table {
+#leaderboardTable {
   width: 100%;
+  min-width: 760px;
+
   border-collapse: collapse;
 }
 
-th,
-td {
-  padding: 16px;
-  text-align: left;
-}
+#leaderboardTable th {
+  padding: 18px;
 
-th {
+  text-align: left;
+
   color: var(--muted);
+
   font-size: 12px;
+
   text-transform: uppercase;
-  letter-spacing: 1px;
 
   border-bottom: 1px solid var(--border);
 }
 
-td {
-  border-bottom: 1px solid rgba(255,255,255,0.04);
+#leaderboardTable td {
+  padding: 18px;
+
+  border-bottom:
+    1px solid rgba(255,255,255,0.04);
 }
 
-tr:hover td {
-  background: rgba(255,255,255,0.02);
+#leaderboardTable tbody tr:hover td {
+  background:
+    rgba(255,255,255,0.025);
 }
 
 .playerCell {
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.lb-pfp {
+  width: 42px;
+  height: 42px;
+}
+
+#leaderboardTable tbody tr:nth-child(1)
+td:first-child {
+  color: #ffd700;
+  font-weight: 800;
+}
+
+#leaderboardTable tbody tr:nth-child(2)
+td:first-child {
+  color: #c0c0c0;
+  font-weight: 800;
+}
+
+#leaderboardTable tbody tr:nth-child(3)
+td:first-child {
+  color: #cd7f32;
+  font-weight: 800;
+}
+
+/* =========================
+   PROFILE PAGE
+========================= */
+
+.profilePage {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.profileHero {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  gap: 24px;
+
+  padding: 28px;
+
+  overflow: hidden;
+}
+
+.heroAvatar {
+  width: 130px;
+  height: 130px;
+
+  border: 4px solid rgba(255,255,255,0.08);
+
+  box-shadow:
+    0 0 30px rgba(180,107,255,0.22),
+    var(--shadow-md);
+
+  flex-shrink: 0;
+}
+
+.profileInfo h2 {
+  margin-bottom: 8px;
+
+  font-size: clamp(2rem, 4vw, 3rem);
+
+  background: linear-gradient(
+    to right,
+    #ffffff,
+    #d8b4fe
+  );
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* =========================
+   STATS GRID
+========================= */
+
+.statsGrid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(auto-fit, minmax(220px, 1fr));
+
+  gap: 18px;
+}
+
+.statCard {
+  padding: 24px;
+
+  position: relative;
+
+  overflow: hidden;
+
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.statCard:hover {
+  transform: translateY(-5px);
+
+  border-color: rgba(180,107,255,0.35);
+
+  box-shadow:
+    var(--shadow-lg),
+    0 0 25px rgba(180,107,255,0.16);
+}
+
+.statCard .value {
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+/* =========================
+   PROFILE FORM
+========================= */
+
+.profileSection {
+  padding: 24px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.editPreview {
+  width: 100px;
+  height: 100px;
+
+  border: 3px solid rgba(255,255,255,0.08);
+
+  box-shadow:
+    0 0 20px rgba(180,107,255,0.2);
+}
+
+/* =========================
+   TOAST
+========================= */
+
+#toast {
+  position: fixed;
+
+  bottom: 24px;
+  right: 24px;
+
+  padding: 14px 18px;
+
+  border-radius: 14px;
+
+  background: rgba(20,16,38,0.95);
+
+  border: 1px solid rgba(180,107,255,0.2);
+
+  color: white;
+
+  box-shadow:
+    var(--shadow-lg),
+    0 0 24px rgba(180,107,255,0.2);
+
+  transform: translateY(20px);
+  opacity: 0;
+
+  pointer-events: none;
+
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
+
+  z-index: 999999;
+}
+
+#toast.show {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* =========================
@@ -596,6 +767,7 @@ tr:hover td {
   padding: 20px;
 
   background: rgba(0,0,0,0.7);
+
   backdrop-filter: blur(10px);
 
   z-index: 9999;
@@ -644,6 +816,7 @@ tr:hover td {
 ========================= */
 
 @keyframes grain {
+
   0% {
     transform: translate(0,0);
   }
@@ -666,7 +839,7 @@ tr:hover td {
 }
 
 /* =========================
-   RESPONSIVE
+   MOBILE
 ========================= */
 
 @media (max-width: 768px) {
@@ -693,327 +866,10 @@ tr:hover td {
     left: 0;
   }
 
-  .statsRow {
+  .leaderboardHeader {
     flex-direction: column;
-    width: 100%;
+    align-items: flex-start;
   }
-
-  .miniStat {
-    width: 100%;
-  }
-}
-
-/* =========================
-   PROFILE PAGE
-========================= */
-
-.profilePage {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-/* =========================
-   MINI HEADER
-========================= */
-
-.profileMiniHeader {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-/* =========================
-   HERO
-========================= */
-
-.profileHero {
-  position: relative;
-
-  display: flex;
-  align-items: center;
-  gap: 24px;
-
-  padding: 28px;
-
-  border-radius: var(--r-xl);
-
-  background: var(--surface);
-  backdrop-filter: blur(var(--blur));
-
-  border: 1px solid var(--border);
-
-  box-shadow: var(--shadow-lg);
-
-  overflow: hidden;
-}
-
-.profileHero::before {
-  content: "";
-
-  position: absolute;
-  inset: 0;
-
-  background:
-    radial-gradient(
-      circle at top right,
-      rgba(180,107,255,0.18),
-      transparent 40%
-    );
-
-  pointer-events: none;
-}
-
-.heroAvatar {
-  width: 130px;
-  height: 130px;
-
-  border-radius: 50%;
-
-  object-fit: cover;
-
-  border: 4px solid rgba(255,255,255,0.08);
-
-  box-shadow:
-    0 0 30px rgba(180,107,255,0.22),
-    var(--shadow-md);
-
-  flex-shrink: 0;
-}
-
-.profileInfo {
-  position: relative;
-  z-index: 1;
-}
-
-.profileInfo h2 {
-  margin-bottom: 8px;
-
-  font-size: clamp(2rem, 4vw, 3rem);
-
-  background: linear-gradient(
-    to right,
-    #ffffff,
-    #d8b4fe
-  );
-
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.profileInfo p {
-  margin: 6px 0;
-  color: var(--muted);
-}
-
-/* =========================
-   STATS GRID
-========================= */
-
-.statsGrid {
-  display: grid;
-
-  grid-template-columns:
-    repeat(auto-fit, minmax(220px, 1fr));
-
-  gap: 18px;
-}
-
-.statCard {
-  padding: 24px;
-
-  border-radius: var(--r-lg);
-
-  background: var(--surface);
-
-  border: 1px solid var(--border);
-
-  backdrop-filter: blur(var(--blur));
-
-  box-shadow: var(--shadow-md);
-
-  position: relative;
-
-  overflow: hidden;
-
-  transition:
-    transform 0.25s ease,
-    border-color 0.25s ease,
-    box-shadow 0.25s ease;
-}
-
-.statCard:hover {
-  transform: translateY(-5px);
-
-  border-color: rgba(180,107,255,0.35);
-
-  box-shadow:
-    var(--shadow-lg),
-    0 0 25px rgba(180,107,255,0.16);
-}
-
-.statCard::before {
-  content: "";
-
-  position: absolute;
-
-  top: -40px;
-  right: -40px;
-
-  width: 120px;
-  height: 120px;
-
-  border-radius: 50%;
-
-  background: rgba(180,107,255,0.08);
-}
-
-.statCard h3 {
-  margin-bottom: 12px;
-  color: var(--muted);
-}
-
-.statCard .value {
-  font-size: 2rem;
-  font-weight: 800;
-}
-
-.stat-win .value {
-  color: #6dffb3;
-}
-
-.stat-loss .value {
-  color: #ff8ea1;
-}
-
-/* =========================
-   PROFILE SECTION
-========================= */
-
-.profileSection {
-  padding: 24px;
-
-  border-radius: var(--r-lg);
-
-  background: var(--surface);
-
-  border: 1px solid var(--border);
-
-  backdrop-filter: blur(var(--blur));
-
-  box-shadow: var(--shadow-md);
-
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.profileSection h3 {
-  margin-bottom: 4px;
-}
-
-.profileSection label {
-  font-size: 14px;
-  font-weight: 600;
-
-  color: var(--muted);
-}
-
-/* =========================
-   EDIT PREVIEW
-========================= */
-
-.editPreview {
-  width: 100px;
-  height: 100px;
-
-  border-radius: 50%;
-
-  object-fit: cover;
-
-  margin-top: 8px;
-
-  border: 3px solid rgba(255,255,255,0.08);
-
-  box-shadow:
-    0 0 20px rgba(180,107,255,0.2);
-}
-
-.saveBtn {
-  margin-top: 12px;
-}
-
-/* =========================
-   BADGES
-========================= */
-
-.badgeRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.badge {
-  padding: 10px 14px;
-
-  border-radius: 999px;
-
-  background: rgba(180,107,255,0.12);
-
-  border: 1px solid rgba(180,107,255,0.2);
-
-  color: #e9d5ff;
-
-  font-size: 13px;
-  font-weight: 700;
-}
-
-/* =========================
-   TOAST
-========================= */
-
-#toast {
-  position: fixed;
-
-  bottom: 24px;
-  right: 24px;
-
-  padding: 14px 18px;
-
-  border-radius: 14px;
-
-  background: rgba(20,16,38,0.95);
-
-  border: 1px solid rgba(180,107,255,0.2);
-
-  color: white;
-
-  box-shadow:
-    var(--shadow-lg),
-    0 0 24px rgba(180,107,255,0.2);
-
-  transform: translateY(20px);
-  opacity: 0;
-
-  pointer-events: none;
-
-  transition:
-    opacity 0.25s ease,
-    transform 0.25s ease;
-
-  z-index: 999999;
-}
-
-#toast.show {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* =========================
-   MOBILE
-========================= */
-
-@media (max-width: 768px) {
 
   .profileHero {
     flex-direction: column;
@@ -1025,16 +881,485 @@ tr:hover td {
     height: 110px;
   }
 
-  .profileMiniHeader {
-    width: 100%;
-    justify-content: space-between;
-  }
-
   .statsGrid {
     grid-template-columns: 1fr;
   }
 
-  .statCard {
-    text-align: center;
+  #leaderboardTable {
+    min-width: 700px;
+  }
+}
+
+/* =========================
+   GLOBAL HEADER FIX
+========================= */
+
+header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
+  width: 100%;
+  min-height: 72px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 14px 24px;
+
+  background: rgba(10, 8, 20, 0.78);
+
+  backdrop-filter: blur(20px);
+
+  border-bottom: 1px solid var(--border);
+
+  box-shadow: var(--shadow-sm);
+}
+
+.header-left h1,
+.topbar h1 {
+  margin: 0;
+
+  font-size: clamp(1.5rem, 3vw, 2rem);
+
+  font-weight: 800;
+
+  background: linear-gradient(to right, #ffffff, #c084fc);
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.header-right,
+.profile-wrapper {
+  width: 46px;
+  height: 46px;
+}
+
+.profile-img {
+  width: 46px;
+  height: 46px;
+
+  border-radius: 50%;
+
+  border: 2px solid rgba(255,255,255,0.08);
+
+  box-shadow:
+    0 0 18px rgba(180,107,255,0.2);
+
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.profile-img:hover {
+  transform: scale(1.06);
+
+  border-color: rgba(180,107,255,0.5);
+
+  box-shadow:
+    0 0 24px rgba(180,107,255,0.35);
+}
+
+/* =========================
+   GAME HUB PAGE
+========================= */
+
+main h2 {
+  margin-bottom: 28px;
+
+  font-size: clamp(2rem, 5vw, 3rem);
+
+  background: linear-gradient(to right, #ffffff, #d8b4fe);
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gameContainer {
+  margin-top: 30px;
+}
+
+.gameCard {
+  position: relative;
+
+  overflow: hidden;
+
+  text-decoration: none;
+
+  min-height: 360px;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: 0;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.03),
+      rgba(255,255,255,0.01)
+    ),
+    var(--surface);
+
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.gameCard img {
+  width: 100%;
+  height: 210px;
+
+  object-fit: cover;
+
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+
+  transition:
+    transform 0.45s ease,
+    filter 0.45s ease;
+}
+
+.gameCard h3 {
+  margin: 22px 22px 10px;
+
+  color: white;
+
+  font-size: 1.35rem;
+}
+
+.gameCard p {
+  margin: 0 22px 24px;
+
+  color: var(--muted);
+
+  font-size: 0.96rem;
+}
+
+.gameCard::before {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  background:
+    linear-gradient(
+      to top,
+      rgba(180,107,255,0.12),
+      transparent 40%
+    );
+
+  opacity: 0;
+
+  transition: opacity 0.3s ease;
+}
+
+.gameCard:hover::before {
+  opacity: 1;
+}
+
+.gameCard:hover img {
+  transform: scale(1.06);
+
+  filter: brightness(1.05);
+}
+
+.gameCard:hover {
+  transform: translateY(-8px);
+
+  border-color: rgba(180,107,255,0.35);
+
+  box-shadow:
+    var(--shadow-lg),
+    0 0 40px rgba(180,107,255,0.16);
+}
+
+.leaderboardCard {
+  border:
+    1px solid rgba(255,215,0,0.18);
+}
+
+.leaderboardCard:hover {
+  box-shadow:
+    0 0 45px rgba(255,215,0,0.12),
+    var(--shadow-lg);
+}
+
+/* =========================
+   GUESS THE NUMBER PAGE
+========================= */
+
+#lobbySection,
+#gameSection,
+#winScreen {
+  margin-top: 30px;
+}
+
+#createGameBtn,
+#guessBtn,
+#leaveBtn {
+  min-width: 140px;
+}
+
+/* LOBBY */
+
+.createBox {
+  display: flex;
+  gap: 14px;
+
+  margin-bottom: 28px;
+}
+
+#createGameBtn {
+  background:
+    linear-gradient(
+      135deg,
+      var(--primary),
+      var(--primary-strong)
+    );
+
+  border: none;
+}
+
+#lobbyList {
+  margin-top: 20px;
+}
+
+.lobbyCard {
+  padding: 22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 18px;
+}
+
+.lobbyCard h3 {
+  margin-bottom: 8px;
+}
+
+/* GAME SECTION */
+
+#gameSection {
+  max-width: 760px;
+}
+
+.gameInfo {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+
+  margin-bottom: 24px;
+
+  padding: 18px 22px;
+
+  border-radius: var(--r-lg);
+
+  background: var(--surface);
+
+  border: 1px solid var(--border);
+
+  backdrop-filter: blur(var(--blur));
+
+  box-shadow: var(--shadow-md);
+}
+
+.gameInfo p {
+  margin: 0;
+
+  color: white;
+
+  font-weight: 600;
+}
+
+.status-banner {
+  margin-bottom: 20px;
+
+  padding: 14px 18px;
+
+  border-radius: var(--r-md);
+
+  background:
+    rgba(180,107,255,0.08);
+
+  border:
+    1px solid rgba(180,107,255,0.18);
+
+  color: #dcc7ff;
+
+  font-weight: 600;
+}
+
+.guessBox {
+  display: flex;
+  gap: 14px;
+
+  margin-bottom: 22px;
+}
+
+#guessInput {
+  font-size: 1rem;
+}
+
+#guessBtn {
+  background:
+    linear-gradient(
+      135deg,
+      #7c3aed,
+      #9333ea
+    );
+
+  border: none;
+}
+
+.feedback {
+  min-height: 28px;
+
+  margin-bottom: 22px;
+
+  font-size: 1.1rem;
+  font-weight: 700;
+
+  color: #d8b4fe;
+}
+
+/* HISTORY */
+
+.history {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.history-item {
+  padding: 14px 18px;
+
+  border-radius: 14px;
+
+  background:
+    rgba(255,255,255,0.03);
+
+  border:
+    1px solid rgba(255,255,255,0.06);
+
+  color: white;
+
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.history-item:hover {
+  transform: translateX(4px);
+
+  border-color:
+    rgba(180,107,255,0.24);
+}
+
+/* =========================
+   WIN SCREEN
+========================= */
+
+#winScreen {
+  min-height: 70vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.winCard {
+  width: min(520px, 100%);
+
+  padding: 48px 36px;
+
+  text-align: center;
+
+  border-radius: var(--r-xl);
+
+  background: var(--surface);
+
+  border: 1px solid rgba(180,107,255,0.16);
+
+  backdrop-filter: blur(var(--blur));
+
+  box-shadow:
+    var(--shadow-lg),
+    0 0 50px rgba(180,107,255,0.14);
+}
+
+.winCard h1 {
+  margin-bottom: 18px;
+
+  font-size: clamp(2.4rem, 6vw, 4rem);
+
+  background:
+    linear-gradient(
+      to right,
+      #ffffff,
+      #d8b4fe
+    );
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+#winStats {
+  margin-bottom: 28px;
+}
+
+#leaveBtn {
+  padding: 14px 24px;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--primary),
+      var(--primary-strong)
+    );
+
+  border: none;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 768px) {
+
+  header {
+    padding: 14px 18px;
+  }
+
+  .createBox,
+  .guessBox {
+    flex-direction: column;
+  }
+
+  #createGameBtn,
+  #guessBtn,
+  #leaveBtn {
+    width: 100%;
+  }
+
+  .gameInfo {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .gameCard {
+    min-height: auto;
+  }
+
+  .gameCard img {
+    height: 190px;
+  }
+
+  .winCard {
+    padding: 38px 24px;
   }
 }
