@@ -2,21 +2,11 @@
 <html lang="en">
 
 <head>
-
   <meta charset="UTF-8" />
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  />
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>My Profile</title>
 
-  <link
-    rel="stylesheet"
-    href="./style.css"
-  />
-
+  <link rel="stylesheet" href="./style.css" />
 </head>
 
 <body>
@@ -24,19 +14,15 @@
   <!-- =========================
        TOAST
   ========================== -->
-
   <div id="toast"></div>
 
   <!-- =========================
        HEADER
   ========================== -->
-
   <header class="mainHeader">
 
     <div class="header-left">
-
       <h1>My Profile</h1>
-
     </div>
 
     <div class="userBox">
@@ -50,13 +36,13 @@
 
       <div class="userInfo">
 
-        <span id="headerUsername">
-          Loading...
-        </span>
+        <!-- FIX: now actually used -->
+        <span id="headerUsername">Player</span>
 
         <button
           id="backBtn"
           class="btn-secondary"
+          type="button"
         >
           ← Back
         </button>
@@ -70,13 +56,11 @@
   <!-- =========================
        MAIN
   ========================== -->
-
   <main class="profilePage gtnPage">
 
     <!-- =========================
          PROFILE HERO
     ========================== -->
-
     <section class="profileHero">
 
       <div class="heroGlow"></div>
@@ -90,17 +74,11 @@
 
       <div class="profileInfo">
 
-        <h2 id="profileDisplayName">
-          Loading...
-        </h2>
+        <h2 id="profileDisplayName">Loading...</h2>
 
-        <p id="profileEmail">
-          loading...
-        </p>
+        <p id="profileEmail">loading...</p>
 
-        <p id="profileAge">
-          Age: --
-        </p>
+        <p id="profileAge">Age: --</p>
 
       </div>
 
@@ -109,59 +87,26 @@
     <!-- =========================
          STATS
     ========================== -->
-
     <section class="statsGrid">
 
       <div class="statCard stat-win">
-
         <h3>Wins</h3>
-
-        <div
-          class="value"
-          id="winsStat"
-        >
-          0
-        </div>
-
+        <div class="value" id="winsStat">0</div>
       </div>
 
       <div class="statCard stat-loss">
-
         <h3>Losses</h3>
-
-        <div
-          class="value"
-          id="lossesStat"
-        >
-          0
-        </div>
-
+        <div class="value" id="lossesStat">0</div>
       </div>
 
       <div class="statCard">
-
         <h3>Games Played</h3>
-
-        <div
-          class="value"
-          id="gamesStat"
-        >
-          0
-        </div>
-
+        <div class="value" id="gamesStat">0</div>
       </div>
 
       <div class="statCard">
-
         <h3>Win Rate</h3>
-
-        <div
-          class="value"
-          id="rateStat"
-        >
-          0%
-        </div>
-
+        <div class="value" id="rateStat">0%</div>
       </div>
 
     </section>
@@ -174,104 +119,83 @@
 
       <h3>Edit Profile</h3>
 
-      <!-- USERNAME -->
+      <!-- WRAPPED FOR BETTER UX -->
+      <form id="profileForm">
 
-      <div class="inputGroup">
+        <!-- USERNAME -->
+        <div class="inputGroup">
+          <label for="usernameInput">Username</label>
+          <input
+            id="usernameInput"
+            type="text"
+            maxlength="20"
+            minlength="3"
+            autocomplete="username"
+            placeholder="New username"
+            required
+          />
+        </div>
 
-        <label for="usernameInput">
-          Username
-        </label>
+        <!-- EMAIL -->
+        <div class="inputGroup">
+          <label for="emailInput">Email</label>
+          <input
+            id="emailInput"
+            type="email"
+            autocomplete="email"
+            placeholder="Enter email"
+            required
+          />
+        </div>
 
-        <input
-          id="usernameInput"
-          type="text"
-          maxlength="20"
-          autocomplete="username"
-          placeholder="New username"
-        />
+        <!-- AGE -->
+        <div class="inputGroup">
+          <label for="ageInput">Age</label>
+          <input
+            id="ageInput"
+            type="number"
+            min="1"
+            max="120"
+            placeholder="Age"
+          />
+        </div>
 
-      </div>
+        <!-- PHOTO -->
+        <div class="inputGroup">
+          <label for="photoInput">Profile Photo URL</label>
+          <input
+            id="photoInput"
+            type="url"
+            placeholder="Paste image URL"
+          />
+        </div>
 
-      <!-- EMAIL -->
+        <!-- LIVE PREVIEW -->
+        <div class="previewWrap">
+          <p class="previewLabel">Live Preview</p>
 
-      <div class="inputGroup">
+          <img
+            id="livePreview"
+            class="editPreview"
+            src="./Images/defaultPFP.jpg"
+            alt="Preview"
+          />
+        </div>
 
-        <label for="emailInput">
-          Email
-        </label>
+        <!-- ACTIONS -->
+        <div class="profileActions">
 
-        <input
-          id="emailInput"
-          type="email"
-          autocomplete="email"
-          placeholder="Enter email"
-        />
+          <button
+            id="saveProfileBtn"
+            class="btn-primary saveBtn"
+            type="submit"
+          >
+            Save Changes
+          </button>
 
-      </div>
+        </div>
 
-      <!-- AGE -->
-
-      <div class="inputGroup">
-
-        <label for="ageInput">
-          Age
-        </label>
-
-        <input
-          id="ageInput"
-          type="number"
-          min="1"
-          max="120"
-          placeholder="Age"
-        />
-
-      </div>
-
-      <!-- PHOTO -->
-
-      <div class="inputGroup">
-
-        <label for="photoInput">
-          Profile Photo URL
-        </label>
-
-        <input
-          id="photoInput"
-          type="url"
-          placeholder="Paste image URL"
-        />
-
-      </div>
-
-      <!-- LIVE PREVIEW -->
-
-      <div class="previewWrap">
-
-        <p class="previewLabel">
-          Live Preview
-        </p>
-
-        <img
-          id="livePreview"
-          class="editPreview"
-          src="./Images/defaultPFP.jpg"
-          alt="Preview"
-        />
-
-      </div>
-
-      <!-- ACTIONS -->
-
-      <div class="profileActions">
-
-        <button
-          id="saveProfileBtn"
-          class="btn-primary saveBtn"
-        >
-          Save Changes
-        </button>
-
-      </div>
+      </form>
 
     </section>
 
@@ -280,11 +204,7 @@
   <!-- =========================
        SCRIPT
   ========================== -->
-
-  <script
-    type="module"
-    src="./profile.js"
-  ></script>
+  <script type="module" src="./profile.js"></script>
 
 </body>
 

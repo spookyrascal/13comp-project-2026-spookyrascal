@@ -1,145 +1,168 @@
-# Development Log
 
 ## V01 — 28 February – 3 March
 
-* Repository cloned and local development environment established.
-* Initial project file structure implemented.
-* Basic HTML structure for the main page completed.
+* Cloned the repo and got everything set up locally.
+* Put together the basic project file structure.
+* Built the main page HTML so there was actually something showing.
 
 ---
 
 ## V02 — 4 March
 
-* JavaScript and CSS successfully integrated.
-* Firestore database connection established.
-* Initial implementation of sign-in and sign-up functionality commenced.
-* **Next step:** complete authentication workflow and ensure reliability.
+* Hooked up JavaScript and CSS so the site wasn’t just plain HTML anymore.
+* Connected Firestore database.
+* Started working on sign-in / sign-up system.
+
+* **Next step:** finish auth so it actually works properly and doesn’t glitch out.
 
 ---
 
 ## V03 — 11 March
 
-* Imported Meteor Rush assets including HTML, JavaScript, CSS, and media files.
-* Existing codebase refactored and cleaned for consistency.
-* Initial structure for “Guess The Number” (GTN) game created.
-* **Next step:** develop core Game Hub architecture.
+* Added Meteor Rush assets (HTML, JS, CSS, and media files).
+* Cleaned up and refactored old code so it wasn’t a total mess.
+* Started the basic structure for the “Guess The Number” game.
+
+* **Next step:** build out the Game Hub properly.
 
 ---
 
 ## V04 — 12–13 March
 
-* CSS styling completed and refined.
-* Game card interface implemented within the Game Hub.
-* Meteor Rush successfully integrated into the hub system.
-* Overall UI improved for consistency and presentation.
-* **Next step:** implement leaderboard system and backend integration.
+* Finished and polished CSS styling.
+* Built the Game Hub card layout.
+* Integrated Meteor Rush into the hub system.
+* Made the UI look way more consistent overall.
+
+* **Next step:** leaderboard system + backend work.
 
 ---
 
 ## V05 — 17 March
 
-* Initial leaderboard system developed (HTML and JavaScript).
-* Navigation button added to `games.html`.
-* **Next step:** establish functional routing to leaderboard page and begin GTN development.
+* Started leaderboard system (HTML + JS).
+* Added navigation button to `games.html`.
+
+* **Next step:** actually connect leaderboard page properly + start GTN.
 
 ---
 
 ## V06 — 24 March
 
-* Leaderboard page successfully linked and accessible.
-* Backend structure refactored with dedicated `firebase.js` file.
-* Sign-up popup functionality implemented and tested.
-* Initial authentication testing conducted.
-* GTN development postponed.
-* **Next step:** establish foundational GTN structure.
+* Leaderboard page finally linked and working.
+* Split Firebase stuff into its own `firebase.js` file.
+* Made and tested sign-up popup.
+* Did some early auth testing.
+* GTN got pushed back for now.
+
+* **Next step:** set up proper GTN base.
 
 ---
 
 ## V07 — 26 March
 
-* No development progress on GTN due to prioritisation constraints.
-* Leaderboard UI improved and visually refined.
-* **Next step:** commence GTN implementation.
+* No GTN progress (priorities shifted around).
+* Improved leaderboard UI a bit so it looks cleaner.
+
+* **Next step:** start GTN again.
 
 ---
 
 ## V08 — 31 March
 
-* GTN foundational logic development initiated.
-* Gameplay mechanics researched and planned.
-* Firestore integration established for GTN.
-* **Next step:** expand game logic and conduct multi-user testing.
+* Started GTN core logic.
+* Planned out how gameplay should actually work.
+* Connected Firestore to GTN.
+
+* **Next step:** expand logic + test multiplayer.
 
 ---
 
 ## V09 — 23 April
 
-* GTN multiplayer functionality successfully implemented.
-* Basic two-player gameplay system operational.
+* Got GTN multiplayer working 🎉
+* Basic two-player system is live and playable.
 
 ---
 
 ## V10 — 24 April
 
-* Development paused temporarily.
-* Project files cleaned and reorganised.
-* Firestore configuration updated.
-* Documentation updated to reflect changes.
+* Took a short break / paused development.
+* Cleaned up project files.
+* Updated Firebase config.
+* Refreshed documentation.
 
 ---
 
 ## V11 — 28 April
 
-* Updates applied to leaderboard and GTN systems.
-* Issue identified: user profile data not persisting across pages.
-* Authentication and data flow debugging initiated.
+* Updated leaderboard + GTN systems.
+* Found issue where user profile data wasn’t sticking across pages.
+* Started debugging auth + data flow.
 
 ---
 
 ## V12 — 29 April
 
-* Focus placed on documentation and code commenting improvements.
-* Standardised code structure and headers.
-* **Next step:** resolve profile persistence across pages and correct leaderboard identity mapping.
-* CSS structure identified for refactoring.
+* Focused more on docs + commenting code properly.
+* Cleaned up structure so everything is more consistent.
+
+* **Next step:** fix profile persistence + leaderboard identity issues.
+* Noticed CSS needs a proper fix at some point.
 
 ---
 
 ## V13 — 30 April
 
-* Continued debugging of authentication and leaderboard systems.
-* Focus remained on stabilising sign-in functionality.
-* Emphasis placed on cross-page data consistency.
+* More debugging on auth + leaderboard.
+* Tried to stabilise sign-in system.
+* Focused on making data actually carry across pages properly.
 
 ---
 
 ## V14 — 2 May
 
-* Authentication system successfully stabilised.
-* Leaderboard functionality restored.
-* **Next step:** improve CSS structure and complete documentation refinement.
+* Auth finally stable again.
+* Leaderboard working properly again.
+
+* **Next step:** clean up CSS + finish documentation.
 
 ---
 
 ## V15 — 5 May
 
-* Regression issues identified in login system stability.
-* GTN functionality intermittently unstable.
-* Debugging and system recovery initiated.
-* **Next step:** restore full system stability.
+* Login system started acting up again (classic).
+* GTN also got a bit unstable.
+* Started debugging everything again.
+
+* **Next step:** fully stabilise system.
 
 ---
 
 ## V16 — 7 May
 
-* Persistent issues identified within leaderboard implementation.
-* Continued debugging of authentication and data synchronisation systems.
-* **Next step:** prioritise leaderboard stabilisation.
+* More leaderboard issues showed up.
+* Kept debugging auth + data syncing.
+
+* **Next step:** fix leaderboard properly this time.
 
 ---
 
 ## V17 — 12 May
 
-* No progress recorded on leaderboard system.
-* Focus shifted toward CSS refinement and user interface improvements.
-* **Next step:** resume leaderboard development or continue UI refinement based on priority.
+* No big progress on leaderboard.
+* Focus moved to CSS + UI improvements instead.
+
+* **Next step:** either continue UI polish or get back to leaderboard depending on priority.
+
+---
+
+## V18 — 24 May 
+
+* Fixed leaderboard pfp sizing so everything lines up properly now.
+* Cleaned up CSS across the whole Game Hub so it’s less chaotic.
+* Fixed Firebase session/auth issues so login doesn’t randomly break on refresh anymore.
+* General bug fixing + code cleanup across a few files.
+* UI got some extra polish so everything feels smoother to use.
+
+* **Next step:** keep stabilising backend stuff (Firestore + auth) and improve GTN + leaderboard so it actually runs clean without random bugs.
