@@ -166,3 +166,10 @@
 * UI got some extra polish so everything feels smoother to use.
 
 * **Next step:** keep stabilising backend stuff (Firestore + auth) and improve GTN + leaderboard so it actually runs clean without random bugs.
+
+
+## V18 - 26 May 
+
+* CSS
+* Leaderboard 
+* 

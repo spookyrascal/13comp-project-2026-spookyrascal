@@ -1,19 +1,24 @@
-/* =========================
-   GAME UI SYSTEM 
-========================= */
+/* =========================================================
+   GAME UI SYSTEM
+========================================================= */
 
-/* ---------- VARIABLES ---------- */
+/* =========================================================
+   ROOT VARIABLES
+========================================================= */
+
 :root {
+  color-scheme: dark;
+
+  /* Backgrounds */
   --bg-0: #040b07;
   --bg-1: #07150e;
   --bg-2: #0b2417;
 
+  /* Surfaces */
   --surface: rgba(10, 35, 22, 0.72);
   --surface-2: rgba(6, 20, 12, 0.92);
 
-  --border: rgba(0, 255, 140, 0.10);
-  --border-strong: rgba(0, 255, 140, 0.22);
-
+  /* Colors */
   --text: #eafff2;
   --muted: #86c9a3;
 
@@ -22,24 +27,35 @@
 
   --danger: #ff4d6d;
 
+  /* Borders */
+  --border: rgba(0, 255, 140, 0.10);
+  --border-strong: rgba(0, 255, 140, 0.22);
+
+  /* Effects */
   --glow: rgba(0, 255, 136, 0.35);
 
   --shadow-sm: 0 8px 20px rgba(0,0,0,0.45);
-  --shadow-md: 0 18px 45px rgba(0,0,0,0.6);
+  --shadow-md: 0 18px 45px rgba(0,0,0,0.60);
 
+  /* Radius */
   --r-sm: 10px;
   --r-md: 16px;
   --r-lg: 22px;
   --r-xl: 28px;
 
+  /* Layout */
   --max-width: 1200px;
 
-  color-scheme: dark;
+  /* Z Index */
+  --z-header: 100;
+  --z-menu: 200;
+  --z-popup: 500;
+  --z-toast: 600;
 }
 
-/* =========================
-   RESET + BASE
-========================= */
+/* =========================================================
+   RESET
+========================================================= */
 
 *,
 *::before,
@@ -47,7 +63,8 @@
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   height: 100%;
 }
 
@@ -67,106 +84,196 @@ body {
   background-attachment: fixed;
 }
 
-/* =========================
-   TYPOGRAPHY
-========================= */
+/* =========================================================
+   GLOBAL ELEMENTS
+========================================================= */
 
-h1,h2,h3,h4,h5,h6 {
+img {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* =========================================================
+   TYPOGRAPHY
+========================================================= */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   margin: 0;
-  text-transform: uppercase;
   letter-spacing: -0.02em;
 }
 
 p {
-  color: var(--muted);
+  margin: 0;
   line-height: 1.6;
+  color: var(--muted);
 }
 
-/* =========================
+/* =========================================================
+   UTILITIES
+========================================================= */
+
+.hidden {
+  display: none !important;
+}
+
+/* =========================================================
+   SCROLLBAR
+========================================================= */
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0,255,140,0.20);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0,255,140,0.40);
+}
+
+/* =========================================================
    LAYOUT
-========================= */
+========================================================= */
 
 main {
   width: 100%;
   max-width: var(--max-width);
+
   margin: 0 auto;
   padding: 32px 18px 80px;
 }
 
-/* =========================
-   HEADER SYSTEM
-========================= */
+/* =========================================================
+   HEADER
+========================================================= */
 
 header,
+.topbar,
 .mainHeader,
-.leaderboardHeader,
-.topbar {
+.leaderboardHeader {
   position: sticky;
   top: 0;
-  z-index: 1000;
+
+  z-index: var(--z-header);
 
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
 
-  padding: 14px 20px;
   min-height: 72px;
+  padding: 14px 20px;
 
   background: rgba(8, 18, 12, 0.75);
-  backdrop-filter: blur(26px);
 
   border-bottom: 1px solid var(--border);
+
+  backdrop-filter: blur(12px);
   box-shadow: var(--shadow-sm);
+
+  isolation: isolate;
 }
 
-/* subtle glow line */
 header::after,
-.mainHeader::after,
 .topbar::after,
+.mainHeader::after,
 .leaderboardHeader::after {
   content: "";
+
   position: absolute;
-  bottom: 0;
   left: 0;
+  bottom: 0;
+
   width: 100%;
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--primary), transparent);
+
   opacity: 0.35;
+
+  pointer-events: none;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--primary),
+    transparent
+  );
 }
 
-/* =========================
+/* =========================================================
+   LOGO
+========================================================= */
+
+.logoText {
+  font-size: 1.8rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+
+  background: linear-gradient(
+    135deg,
+    #ffffff 0%,
+    var(--primary) 45%,
+    #72ffd0 100%
+  );
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  text-shadow: 0 0 25px rgba(0,255,140,0.18);
+}
+
+/* =========================================================
    BUTTONS
-========================= */
+========================================================= */
 
 button {
   position: relative;
-  overflow: hidden;
 
   padding: 12px 18px;
-  border-radius: 14px;
 
   border: 1px solid var(--border);
+  border-radius: 14px;
+
   background: linear-gradient(145deg, #0d2a1a, #07160f);
 
   color: var(--text);
   font-weight: 700;
 
   cursor: pointer;
+
   transition: 0.2s ease;
-  box-shadow: var(--shadow-sm);
 }
 
 button:hover {
-  transform: translateY(-2px);
+  translate: 0 -2px;
   box-shadow: 0 0 20px var(--glow);
 }
 
 button:active {
-  transform: scale(0.97);
+  translate: 0 1px;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary), var(--primary-strong));
+  background: linear-gradient(
+    135deg,
+    var(--primary),
+    var(--primary-strong)
+  );
+
   color: #001b0e;
   font-weight: 900;
 }
@@ -180,23 +287,28 @@ button:active {
   color: #ff8ea1;
 }
 
-/* =========================
-   INPUTS 
-========================= */
+/* =========================================================
+   INPUTS
+========================================================= */
 
 input,
 textarea {
   width: 100%;
   padding: 14px 16px;
 
-  border-radius: var(--r-md);
   border: 1px solid var(--border);
+  border-radius: var(--r-md);
 
   background: rgba(255,255,255,0.03);
+
   color: var(--text);
 
   outline: none;
-  transition: 0.2s ease;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 input::placeholder,
@@ -207,24 +319,38 @@ textarea::placeholder {
 input:focus,
 textarea:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(0,255,140,0.15);
+
   background: rgba(255,255,255,0.05);
+
+  box-shadow: 0 0 0 3px rgba(0,255,140,0.15);
 }
 
-/* =========================
-   PROFILE IMAGES 
-========================= */
+/* =========================================================
+   PROFILE IMAGES
+========================================================= */
 
-.profile-img {
+.profile-img,
+#leaderboardTable img,
+.profileMini img,
+.userBox img,
+.profile-wrapper .profile-img {
   width: 42px;
   height: 42px;
+
   border-radius: 50%;
+
   object-fit: cover;
   object-position: center;
 
-  box-shadow: 0 0 0 2px rgba(0,255,140,0.08);
-  transition: 0.2s ease;
   flex-shrink: 0;
+}
+
+.profile-img {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+
+  box-shadow: 0 0 0 2px rgba(0,255,140,0.08);
 }
 
 .profile-img:hover {
@@ -232,20 +358,96 @@ textarea:focus {
   box-shadow: 0 0 18px rgba(0,255,140,0.25);
 }
 
-/* force consistency everywhere */
-#leaderboardTable img,
-.profileMini img,
-.userBox img,
-.profile-wrapper img {
-  width: 42px !important;
-  height: 42px !important;
-  object-fit: cover;
-  border-radius: 50%;
+/* =========================================================
+   AUTH AREA
+========================================================= */
+
+.authButtons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-/* =========================
+/* =========================================================
+   PROFILE MENU
+========================================================= */
+
+.profileArea,
+.profile-wrapper {
+  position: relative;
+}
+
+.profileBtn {
+  padding: 0;
+
+  border: none;
+  background: transparent;
+
+  box-shadow: none;
+}
+
+.profileBtn:hover {
+  transform: scale(1.04);
+  box-shadow: none;
+}
+
+.menu {
+  position: absolute;
+  top: 62px;
+  right: 0;
+
+  z-index: var(--z-menu);
+
+  width: 270px;
+  padding: 16px;
+
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-xl);
+
+  background: rgba(8,18,12,0.96);
+
+  backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-md);
+}
+
+.menu-user {
+  margin-bottom: 12px;
+}
+
+#menuName {
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+#menuEmail {
+  font-size: 0.78rem;
+  opacity: 0.7;
+  word-break: break-word;
+}
+
+.menu hr {
+  margin: 14px 0;
+  border: 1px solid var(--border);
+}
+
+.menu button {
+  width: 100%;
+  margin-top: 10px;
+
+  text-align: left;
+
+  border: 1px solid transparent;
+
+  background: rgba(255,255,255,0.03);
+}
+
+.menu button:hover {
+  border-color: var(--border-strong);
+}
+
+/* =========================================================
    USER BOX
-========================= */
+========================================================= */
 
 .userBox {
   display: flex;
@@ -253,10 +455,11 @@ textarea:focus {
   gap: 12px;
 
   padding: 8px 12px;
+
+  border: 1px solid var(--border);
   border-radius: var(--r-lg);
 
   background: rgba(255,255,255,0.03);
-  border: 1px solid var(--border);
 }
 
 .userInfo {
@@ -265,9 +468,160 @@ textarea:focus {
   gap: 6px;
 }
 
-/* =========================
-   GAME CARDS 
-========================= */
+/* =========================================================
+   HOME PAGE
+========================================================= */
+
+.homeMain {
+  width: 100%;
+  max-width: 1400px;
+
+  min-height: calc(100dvh - 72px);
+
+  margin: 0 auto;
+  padding: 60px 20px 100px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.homeHero {
+  position: relative;
+  overflow: hidden;
+
+  width: 100%;
+  max-width: 850px;
+
+  padding: 60px 35px;
+
+  border: 1px solid var(--border);
+  border-radius: 36px;
+
+  text-align: center;
+
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,0.04),
+    rgba(255,255,255,0.015)
+  );
+
+  box-shadow: var(--shadow-md);
+}
+
+.homeHero::before {
+  content: "";
+
+  position: absolute;
+  inset: -100px;
+
+  pointer-events: none;
+
+  background: radial-gradient(
+    circle,
+    rgba(0,255,140,0.12),
+    transparent 55%
+  );
+}
+
+.homeHero h2 {
+  margin-bottom: 16px;
+
+  font-size: clamp(2.8rem, 7vw, 5rem);
+  font-weight: 900;
+  line-height: 1;
+
+  background: linear-gradient(
+    135deg,
+    #ffffff,
+    #7dffd0,
+    var(--primary)
+  );
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.homeHero p {
+  max-width: 620px;
+
+  margin: 0 auto 34px;
+
+  font-size: 1.15rem;
+}
+
+.homeHero button {
+  min-width: 220px;
+  min-height: 58px;
+
+  border-radius: 18px;
+
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+/* =========================================================
+   STATS
+========================================================= */
+
+.statsRow,
+.statsGrid {
+  display: grid;
+  gap: 16px;
+}
+
+.statsRow {
+  margin-top: 42px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.statsGrid {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.statsRow div,
+.statCard {
+  padding: 22px 18px;
+
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+
+  background: rgba(255,255,255,0.03);
+
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.statsRow div:hover,
+.statCard:hover {
+  transform: translateY(-4px);
+
+  border-color: var(--border-strong);
+
+  box-shadow: 0 0 24px rgba(0,255,140,0.12);
+}
+
+.statsRow strong,
+.statCard .value {
+  display: block;
+
+  margin-top: 8px;
+
+  font-size: 1.5rem;
+  font-weight: 900;
+
+  color: var(--primary);
+}
+
+.stat-loss .value {
+  color: var(--danger);
+}
+
+/* =========================================================
+   GAME CARDS
+========================================================= */
 
 .gameContainer {
   display: grid;
@@ -276,34 +630,22 @@ textarea:focus {
 }
 
 .gameCard {
-  border-radius: var(--r-lg);
   overflow: hidden;
-
-  background: rgba(255,255,255,0.03);
-  border: 1px solid var(--border);
-
-  text-decoration: none;
-  color: var(--text);
 
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+
   text-align: center;
 
-  transition: 0.25s ease;
-}
+  background: rgba(255,255,255,0.03);
 
-.gameCard img {
-  width: 100%;
-  height: 160px;
-  object-fit: cover;
-  object-position: center;
-  display: block;
-}
-
-.gameCard h3,
-.gameCard p {
-  margin: 10px 12px;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
 }
 
 .gameCard:hover {
@@ -311,9 +653,21 @@ textarea:focus {
   box-shadow: 0 0 25px var(--glow);
 }
 
-/* =========================
+.gameCard img {
+  width: 100%;
+  height: 160px;
+
+  object-fit: cover;
+}
+
+.gameCard h3,
+.gameCard p {
+  margin: 10px 12px;
+}
+
+/* =========================================================
    PROFILE PAGE
-========================= */
+========================================================= */
 
 .profilePage {
   display: flex;
@@ -321,60 +675,40 @@ textarea:focus {
   gap: 28px;
 }
 
+.profileHero,
+.profileSection {
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+}
+
 .profileHero {
   display: flex;
   gap: 20px;
+
   padding: 28px;
 
-  border-radius: var(--r-xl);
   background: rgba(10,35,22,0.75);
-  border: 1px solid var(--border);
+}
+
+.profileSection {
+  padding: 22px;
+  background: rgba(10,35,22,0.55);
+}
+
+.heroAvatar,
+.editPreview {
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .heroAvatar {
   width: 110px;
   height: 110px;
-  border-radius: 50%;
-  object-fit: cover;
 }
 
-/* =========================
-   STATS
-========================= */
-
-.statsGrid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
-}
-
-.statCard {
-  text-align: center;
-  padding: 18px;
-
-  border-radius: var(--r-lg);
-  background: rgba(255,255,255,0.03);
-  border: 1px solid var(--border);
-}
-
-.statCard .value {
-  font-size: 1.6rem;
-  font-weight: 800;
-}
-
-.stat-win .value { color: var(--primary); }
-.stat-loss .value { color: var(--danger); }
-
-/* =========================
-   PROFILE FORM
-========================= */
-
-.profileSection {
-  padding: 22px;
-  border-radius: var(--r-xl);
-
-  background: rgba(10,35,22,0.55);
-  border: 1px solid var(--border);
+.editPreview {
+  width: 90px;
+  height: 90px;
 }
 
 .inputGroup {
@@ -390,22 +724,16 @@ textarea:focus {
   gap: 8px;
 
   padding: 16px;
+
+  border: 1px solid var(--border);
   border-radius: var(--r-lg);
 
   background: rgba(255,255,255,0.02);
-  border: 1px solid var(--border);
 }
 
-.editPreview {
-  width: 90px;
-  height: 90px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-/* =========================
-   LEADERBOARD FIX (PFP ALIGNMENT)
-========================= */
+/* =========================================================
+   LEADERBOARD
+========================================================= */
 
 #leaderboardTable td {
   vertical-align: middle;
@@ -417,52 +745,48 @@ textarea:focus {
   gap: 10px;
 }
 
-/* =========================
-   UTIL
-========================= */
-
-.hidden { display: none !important; }
-
-/* =========================
-   POPUP 
-========================= */
+/* =========================================================
+   POPUP
+========================================================= */
 
 .popup {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.65);
+
+  z-index: var(--z-popup);
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  z-index: 9999;
-  backdrop-filter: blur(10px);
+  background: rgba(0,0,0,0.65);
+
+  backdrop-filter: blur(8px);
 }
 
 .popup-content {
+  position: relative;
+
   width: min(420px, 92vw);
+  padding: 22px;
+
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
 
   background: rgba(10,35,22,0.92);
-  border: 1px solid var(--border);
-
-  border-radius: var(--r-xl);
-  padding: 22px;
 
   box-shadow: var(--shadow-md);
 
   animation: popIn 0.2s ease;
 }
 
-@keyframes popIn {
-  from {
-    transform: scale(0.9);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
+.popup-content h2 {
+  margin-bottom: 12px;
+
+  text-align: center;
+
+  font-size: 2rem;
+  font-weight: 900;
 }
 
 .closeBtn {
@@ -470,32 +794,327 @@ textarea:focus {
   top: 12px;
   right: 12px;
 
-  background: transparent;
+  padding: 0;
+
   border: none;
+  background: transparent;
+  box-shadow: none;
 
   font-size: 22px;
   color: var(--text);
-
-  cursor: pointer;
 }
 
-/* TABS */
+.closeBtn:hover {
+  color: var(--primary);
+
+  transform: rotate(90deg);
+  box-shadow: none;
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* =========================================================
+   TABS
+========================================================= */
+
 .tabs {
   display: flex;
   gap: 10px;
+
   margin: 16px 0;
 }
 
 .tabs button {
   flex: 1;
   padding: 10px;
+
   border-radius: var(--r-md);
 }
 
-/* AUTH FORMS */
+.tabs button.active {
+  border-color: transparent;
+
+  background: linear-gradient(
+    135deg,
+    var(--primary),
+    var(--primary-strong)
+  );
+
+  color: #001b0e;
+  font-weight: 900;
+}
+
+/* =========================================================
+   AUTH FORMS
+========================================================= */
+
 #loginForm,
 #signupForm {
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+#loginBtn,
+#signupBtn,
+#googleLoginBtn,
+#googleSignupBtn {
+  width: 100%;
+}
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+.toast {
+  position: fixed;
+
+  left: 50%;
+  bottom: 30px;
+
+  z-index: var(--z-toast);
+
+  padding: 14px 22px;
+
+  border: 1px solid var(--border-strong);
+  border-radius: 16px;
+
+  background: rgba(8,18,12,0.95);
+
+  color: var(--text);
+
+  transform: translateX(-50%) translateY(20px);
+
+  opacity: 0;
+  pointer-events: none;
+
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
+
+  box-shadow: var(--shadow-md);
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 768px) {
+
+  header,
+  .topbar,
+  .mainHeader,
+  .leaderboardHeader {
+    padding: 12px 14px;
+  }
+
+  .logoText {
+    font-size: 1.2rem;
+  }
+
+  .homeHero {
+    padding: 45px 22px;
+  }
+
+  .homeHero h2 {
+    font-size: 3rem;
+  }
+
+  .homeHero p {
+    font-size: 1rem;
+  }
+
+  .menu {
+    width: 240px;
+  }
+
+  .profileHero {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+}
+
+/* =========================================================
+   LEADERBOARD FIXES 
+========================================================= */
+
+.tableWrap {
+  margin-top: 24px;
+  overflow-x: auto;
+  border-radius: var(--r-xl);
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.02);
+  box-shadow: var(--shadow-sm);
+}
+
+/* TABLE */
+#leaderboardTable {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+}
+
+#leaderboardTable thead {
+  background: rgba(0, 255, 136, 0.06);
+}
+
+#leaderboardTable th {
+  text-align: left;
+  padding: 14px 16px;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+}
+
+#leaderboardTable td {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  color: var(--text);
+}
+
+#leaderboardTable tbody tr {
+  transition: 0.2s ease;
+}
+
+#leaderboardTable tbody tr:hover {
+  background: rgba(0,255,136,0.04);
+}
+
+/* PLAYER CELL ALIGNMENT */
+#leaderboardTable td:nth-child(2) {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* PROFILE MINI (MISSING LAYOUT) */
+.profileMini {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 6px 10px;
+  border-radius: var(--r-lg);
+
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+}
+
+/* BACK BUTTON */
+.backBtn {
+  margin-top: 20px;
+  padding: 12px 18px;
+
+  border-radius: var(--r-lg);
+
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+
+  color: var(--text);
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.backBtn:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-strong);
+  box-shadow: 0 0 20px var(--glow);
+}
+
+/* =========================
+   TURN CHANGE ANIMATION
+========================= */
+
+.turnFlash {
+  animation: turnPulse 0.6s ease;
+}
+
+@keyframes turnPulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(0,255,140,0);
+  }
+  50% {
+    transform: scale(1.01);
+    box-shadow: 0 0 40px rgba(0,255,140,0.25);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* highlight turn text */
+.turnHighlight {
+  color: var(--primary);
+  text-shadow: 0 0 12px rgba(0,255,140,0.6);
+}
+
+/* =========================
+   GUESS FEEDBACK ANIMATION
+========================= */
+
+.guessFlash {
+  animation: guessPop 0.4s ease;
+}
+
+@keyframes guessPop {
+  0% {
+    transform: scale(0.98);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.02);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* =========================
+   HOT / COLD BORDER EFFECTS
+========================= */
+
+.guessHot {
+  border: 1px solid rgba(0, 255, 136, 0.7) !important;
+  box-shadow: 0 0 18px rgba(0, 255, 136, 0.25);
+}
+
+.guessWarm {
+  border: 1px solid rgba(255, 200, 0, 0.6) !important;
+  box-shadow: 0 0 18px rgba(255, 200, 0, 0.15);
+}
+
+.guessCold {
+  border: 1px solid rgba(0, 170, 255, 0.4) !important;
+  box-shadow: 0 0 18px rgba(0, 170, 255, 0.12);
+}
+
+/* make guesses feel like cards */
+.guessSection div {
+  padding: 6px 10px;
+  margin: 4px 0;
+  border-radius: 10px;
+  transition: 0.2s ease;
 }
