@@ -168,8 +168,10 @@
 * **Next step:** keep stabilising backend stuff (Firestore + auth) and improve GTN + leaderboard so it actually runs clean without random bugs.
 
 
-## V18 - 26 May 
 
-* CSS
-* Leaderboard 
-* 
+
+Isnt turned based need to fix that 
+make it so you cant do anything until other player is in 
+win screen
+only one person can win
+enter button to enter guess
