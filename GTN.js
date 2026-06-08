@@ -63,7 +63,7 @@ onAuthStateChanged(auth, (u) => {
 });
 
 /* =========================
-   SAFE HELPERS
+   HELPERS
 ========================= */
 function safeArray(v) {
   return Array.isArray(v) ? v.filter(Boolean) : [];
@@ -78,9 +78,6 @@ function getDistanceClass(d) {
   return "guessCold";
 }
 
-/* =========================
-   FORMAT GUESS
-========================= */
 function formatGuess(guess, secret, last) {
   const distance = Math.abs(guess - secret);
 
@@ -99,6 +96,16 @@ function formatGuess(guess, secret, last) {
 
   return { distance, msg };
 }
+
+/* =========================
+   ENTER KEY SUPPORT
+========================= */
+guessInput?.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    guessBtn.click();
+  }
+});
 
 /* =========================
    CREATE GAME
@@ -219,8 +226,16 @@ guessBtn?.addEventListener("click", async () => {
   const snap = await getDoc(ref);
   const g = snap.data();
 
-  if (!g?.player2Id) {
+  if (!g) return;
+  if (g.status === "finished") return;
+
+  if (!g.player2Id) {
     feedback.textContent = "Waiting for opponent...";
+    return;
+  }
+
+  if (g.currentTurn !== user.uid) {
+    feedback.textContent = "Not your turn!";
     return;
   }
 
@@ -241,6 +256,7 @@ guessBtn?.addEventListener("click", async () => {
       hint: msg,
       distance
     }),
+
     currentTurn: isP1 ? g.player2Id : g.player1Id,
     lastActive: serverTimestamp(),
     status: "playing"
@@ -249,26 +265,30 @@ guessBtn?.addEventListener("click", async () => {
   if (isP1) updates.player1LastDistance = distance;
   else updates.player2LastDistance = distance;
 
-  /* WIN CONDITION */
-  if (distance === 0 && !ended) {
-    ended = true;
-
+  if (distance === 0) {
     updates.status = "finished";
     updates.winnerId = user.uid;
+    updates.currentTurn = "";
 
-    // leaderboard update (WINNER)
-    await updateDoc(doc(db, "users", user.uid), {
-      wins: increment(1),
-      gamesPlayed: increment(1),
-      lastActive: serverTimestamp()
-    });
+    const loserId = isP1 ? g.player2Id : g.player1Id;
 
-    // leaderboard update (LOSER)
-    await updateDoc(doc(db, "users", isP1 ? g.player2Id : g.player1Id), {
-      losses: increment(1),
-      gamesPlayed: increment(1),
-      lastActive: serverTimestamp()
-    });
+    try {
+      await updateDoc(doc(db, "users", user.uid), {
+        wins: increment(1),
+        gamesPlayed: increment(1),
+        lastActive: serverTimestamp()
+      });
+
+      if (loserId) {
+        await updateDoc(doc(db, "users", loserId), {
+          losses: increment(1),
+          gamesPlayed: increment(1),
+          lastActive: serverTimestamp()
+        });
+      }
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   await updateDoc(ref, updates);
@@ -291,7 +311,11 @@ function listen(id) {
       isP1 ? g.player2Name || "Waiting..." : g.player1Name || "Waiting...";
 
     const myTurn = g.currentTurn === user.uid;
+
     turn.textContent = myTurn ? "Your turn" : "Opponent's turn";
+
+    guessInput.disabled = !myTurn || g.status === "finished";
+    guessBtn.disabled = !myTurn || g.status === "finished";
 
     const own = safeArray(isP1 ? g.player1Guesses : g.player2Guesses);
     const opp = safeArray(isP1 ? g.player2Guesses : g.player1Guesses);
@@ -314,8 +338,11 @@ function listen(id) {
       </div>
     `;
 
-    if (g.status === "finished" && !ended) {
+    if (g.status === "finished") {
       ended = true;
+
+      guessInput.disabled = true;
+      guessBtn.disabled = true;
 
       gameSection.classList.add("hidden");
       winScreen.classList.remove("hidden");
