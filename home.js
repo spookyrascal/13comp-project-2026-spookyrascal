@@ -21,84 +21,156 @@ document.addEventListener("DOMContentLoaded", () => {
   const provider = new GoogleAuthProvider();
   const $ = (id) => document.getElementById(id);
 
-  const el = {
-    profileImage: $("profileImage"),
-    authPopup: $("authPopup"),
-    authButtons: $("authButtons"),
-    profileArea: $("profileArea"),
-    quickStats: $("quickStats"),
-    loginBtn: $("loginBtn"),
-    signupBtn: $("signupBtn"),
-    googleLoginBtn: $("googleLoginBtn"),
-    googleSignupBtn: $("googleSignupBtn"),
-    logoutBtn: $("logoutBtn"),
-    loginEmail: $("loginEmail"),
-    loginPassword: $("loginPassword"),
-    signupEmail: $("signupEmail"),
-    signupPassword: $("signupPassword"),
-    signupUsername: $("signupUsername"),
-    signupAge: $("signupAge"),
-    toast: $("toast")
-  };
+  // =========================
+  // ELEMENTS
+  // =========================
+  const el = {
+    authPopup: $("authPopup"),
+    authButtons: $("authButtons"),
+    profileArea: $("profileArea"),
 
-  let authReady = false;
-  let currentUser = null;
+    openAuthBtn: $("openAuthBtn"),
+    closePopupBtn: $("closePopupBtn"),
 
-  const DEFAULT_PFP = "./Images/defaultPFP.jpg";
+    loginEmail: $("loginEmail"),
+    loginPassword: $("loginPassword"),
+    loginBtn: $("loginBtn"),
 
-  function setProfileImage(url) {
-    if (!el.profileImage) return;
-    el.profileImage.src = url || DEFAULT_PFP;
-  }
+    signupEmail: $("signupEmail"),
+    signupPassword: $("signupPassword"),
+    signupUsername: $("signupUsername"),
+    signupAge: $("signupAge"),
+    signupBtn: $("signupBtn"),
 
-  function toast(msg) {
-    if (!el.toast) return;
-    el.toast.textContent = msg;
-    el.toast.classList.add("show");
-    setTimeout(() => el.toast.classList.remove("show"), 2500);
-  }
+    googleLoginBtn: $("googleLoginBtn"),
+    googleSignupBtn: $("googleSignupBtn"),
 
-  async function ensureUserProfile(user) {
-    const ref = doc(db, "users", user.uid);
-    const snap = await getDoc(ref);
+    logoutBtn: $("logoutBtn"),
 
-    if (!snap.exists()) {
-      await setDoc(ref, {
-        uid: user.uid,
-        email: user.email || "",
-        displayName: user.displayName || "Player",
-        photoURL: user.photoURL || DEFAULT_PFP,
-        wins: 0,
-        losses: 0,
-        gamesPlayed: 0,
-        createdAt: serverTimestamp(),
-        lastActive: serverTimestamp()
-      });
-    } else {
-      await updateDoc(ref, {
-        lastActive: serverTimestamp()
-      });
-    }
-  }
+    profileBtn: $("profileBtn"),
+    dropdownMenu: $("dropdownMenu"),
 
-  // =========================
-  // GOOGLE AUTH FIXED
-  // =========================
-  async function googleAuth() {
-    try {
-      const result = await signInWithPopup(auth, provider);
-      await ensureUserProfile(result.user);
+    menuName: $("menuName"),
+    menuEmail: $("menuEmail"),
+    profileImage: $("profileImage"),
+    menuPfp: $("menuPfp"),
 
-      toast("Logged in with Google");
-      el.authPopup?.classList.add("hidden");
+    quickStats: $("quickStats"),
+    statWins: $("statWins"),
+    statGames: $("statGames"),
+    statRate: $("statRate"),
 
-    } catch (err) {
-      toast(err.message);
-    }
-  }
+    loginForm: $("loginForm"),
+    signupForm: $("signupForm"),
 
-  el.googleLoginBtn?.addEventListener("click", googleAuth);
-  el.googleSignupBtn?.addEventListener("click", googleAuth);
+    loginTab: $("loginTab"),
+    signupTab: $("signupTab"),
+
+    toast: $("toast")
+  };
+
+  let authReady = false;
+  let currentUser = null;
+
+  // =========================
+  // GUARD FUNCTION (NEW 🔒)
+  // =========================
+  function requireAuth() {
+    if (!authReady || !currentUser) {
+      toast("Please log in first 🔒", "error");
+      return false;
+    }
+    return true;
+  }
+
+  // =========================
+  // TOAST
+  // =========================
+  function toast(msg, type = "info") {
+    if (!el.toast) return;
+
+    el.toast.textContent = msg;
+    el.toast.className = `toast show ${type}`;
+
+    setTimeout(() => {
+      el.toast.className = "toast";
+    }, 2500);
+  }
+
+  // =========================
+  // TAB SYSTEM
+  // =========================
+  function setTab(tab) {
+    if (!el.loginForm || !el.signupForm) return;
+
+    if (tab === "login") {
+      el.loginForm.classList.remove("hidden");
+      el.signupForm.classList.add("hidden");
+    }
+
+    if (tab === "signup") {
+      el.signupForm.classList.remove("hidden");
+      el.loginForm.classList.add("hidden");
+    }
+  }
+
+  el.loginTab?.addEventListener("click", () => setTab("login"));
+  el.signupTab?.addEventListener("click", () => setTab("signup"));
+
+  setTab("login");
+
+  // =========================
+  // UI STATES
+  // =========================
+  function showLoggedOut() {
+    el.authButtons?.classList.remove("hidden");
+    el.profileArea?.classList.add("hidden");
+    el.quickStats?.classList.add("hidden");
+
+    currentUser = null;
+  }
+
+  function showLoggedIn(user, data) {
+    el.authButtons?.classList.add("hidden");
+    el.profileArea?.classList.remove("hidden");
+    el.quickStats?.classList.remove("hidden");
+
+    currentUser = user;
+
+    const photo =
+      data?.photoURL ||
+      user.photoURL ||
+      "./Images/defaultPFP.jpg";
+
+    if (el.profileImage) el.profileImage.src = photo;
+    if (el.menuPfp) el.menuPfp.src = photo;
+
+    if (el.menuName)
+      el.menuName.textContent =
+        data?.displayName || user.displayName || "Player";
+
+    if (el.menuEmail)
+      el.menuEmail.textContent = user.email;
+
+    const wins = data?.wins ?? 0;
+    const games = data?.gamesPlayed ?? 0;
+    const rate = games ? Math.round((wins / games) * 100) : 0;
+
+    if (el.statWins) el.statWins.textContent = wins;
+    if (el.statGames) el.statGames.textContent = games;
+    if (el.statRate) el.statRate.textContent = rate + "%";
+  }
+
+  // =========================
+  // POPUP
+  // =========================
+  el.openAuthBtn?.addEventListener("click", () => {
+    el.authPopup?.classList.remove("hidden");
+  });
+
+  el.closePopupBtn?.addEventListener("click", () => {
+    el.authPopup?.classList.add("hidden");
+  });
 
   // =========================
   // EMAIL LOGIN
@@ -111,14 +183,13 @@ document.addEventListener("DOMContentLoaded", () => {
         el.loginPassword.value
       );
 
-      await ensureUserProfile(cred.user);
-      toast("Logged in");
-      el.authPopup?.classList.add("hidden");
+      toast("Logged in 🔥", "success");
+      el.authPopup?.classList.add("hidden");
 
-    } catch (err) {
-      toast(err.message);
-    }
-  });
+    } catch (err) {
+      toast(err.message, "error");
+    }
+  });
 
   // =========================
   // SIGNUP
@@ -137,42 +208,61 @@ document.addEventListener("DOMContentLoaded", () => {
 
       await ensureUserProfile(cred.user);
 
-      await setDoc(doc(db, "users", cred.user.uid), {
-        displayName: el.signupUsername.value || "Player",
-        age: Number(el.signupAge.value) || 0
-      }, { merge: true });
+      await setDoc(doc(db, "users", cred.user.uid), {
+        uid: cred.user.uid,
+        email: cred.user.email,
+        displayName: el.signupUsername.value || "Player",
+        age: Number(el.signupAge.value) || 0,
+        wins: 0,
+        gamesPlayed: 0,
+        createdAt: serverTimestamp()
+      });
 
-      toast("Account created ");
-      el.authPopup?.classList.add("hidden");
+      toast("Account created 🎉", "success");
+      el.authPopup?.classList.add("hidden");
 
-    } catch (err) {
-      toast(err.message);
-    }
-  });
+    } catch (err) {
+      toast(err.message, "error");
+    }
+  });
+
+  // =========================
+  // GOOGLE AUTH
+  // =========================
+  async function googleAuth() {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      toast("Google login 👋", "success");
+      el.authPopup?.classList.add("hidden");
+
+    } catch (err) {
+      toast(err.message, "error");
+    }
+  }
+
+  el.googleLoginBtn?.addEventListener("click", googleAuth);
+  el.googleSignupBtn?.addEventListener("click", googleAuth);
 
   // =========================
   // LOGOUT
   // =========================
   el.logoutBtn?.addEventListener("click", () => signOut(auth));
 
-  // =========================
-  // AUTH STATE
-  // =========================
-  onAuthStateChanged(auth, async (user) => {
-    authReady = true;
+  // =========================
+  // AUTH STATE 
+  // =========================
+  onAuthStateChanged(auth, async (user) => {
+    authReady = true;
 
-    if (!user) {
-      currentUser = null;
-      setProfileImage(DEFAULT_PFP);
-      return;
-    }
+    if (!user) {
+      showLoggedOut();
+      return;
+    }
 
-    currentUser = user;
+    const snap = await getDoc(doc(db, "users", user.uid));
+    const data = snap.exists() ? snap.data() : null;
 
-    await ensureUserProfile(user);
+    showLoggedIn(user, data);
+  });
 
-    setProfileImage(
-      user.photoURL || DEFAULT_PFP
-    );
-  });
 });
