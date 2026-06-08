@@ -70,13 +70,25 @@ document.addEventListener("DOMContentLoaded", () => {
     toast: $("toast")
   };
 
+  let authReady = false;
+  let currentUser = null;
+
   // =========================
-  // TOAST SYSTEM
+  // GUARD FUNCTION (NEW 🔒)
+  // =========================
+  function requireAuth() {
+    if (!authReady || !currentUser) {
+      toast("Please log in first 🔒", "error");
+      return false;
+    }
+    return true;
+  }
+
+  // =========================
+  // TOAST
   // =========================
   function toast(msg, type = "info") {
     if (!el.toast) return;
-
-    console.log("TOAST:", msg);
 
     el.toast.textContent = msg;
     el.toast.className = `toast show ${type}`;
@@ -87,7 +99,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // =========================
-  // TAB SYSTEM (FIXED)
+  // TAB SYSTEM
   // =========================
   function setTab(tab) {
     if (!el.loginForm || !el.signupForm) return;
@@ -95,28 +107,17 @@ document.addEventListener("DOMContentLoaded", () => {
     if (tab === "login") {
       el.loginForm.classList.remove("hidden");
       el.signupForm.classList.add("hidden");
-
-      el.loginTab?.classList.add("active");
-      el.signupTab?.classList.remove("active");
-
-      console.log("🔵 LOGIN TAB");
     }
 
     if (tab === "signup") {
       el.signupForm.classList.remove("hidden");
       el.loginForm.classList.add("hidden");
-
-      el.signupTab?.classList.add("active");
-      el.loginTab?.classList.remove("active");
-
-      console.log("🟣 SIGNUP TAB");
     }
   }
 
   el.loginTab?.addEventListener("click", () => setTab("login"));
   el.signupTab?.addEventListener("click", () => setTab("signup"));
 
-  // default tab
   setTab("login");
 
   // =========================
@@ -126,12 +127,16 @@ document.addEventListener("DOMContentLoaded", () => {
     el.authButtons?.classList.remove("hidden");
     el.profileArea?.classList.add("hidden");
     el.quickStats?.classList.add("hidden");
+
+    currentUser = null;
   }
 
   function showLoggedIn(user, data) {
     el.authButtons?.classList.add("hidden");
     el.profileArea?.classList.remove("hidden");
     el.quickStats?.classList.remove("hidden");
+
+    currentUser = user;
 
     const photo =
       data?.photoURL ||
@@ -186,13 +191,10 @@ document.addEventListener("DOMContentLoaded", () => {
         el.loginPassword.value
       );
 
-      console.log("✅ LOGIN:", cred.user.email);
       toast("Logged in 🔥", "success");
-
       el.authPopup?.classList.add("hidden");
 
     } catch (err) {
-      console.error("LOGIN ERROR:", err);
       toast(err.message, "error");
     }
   });
@@ -222,13 +224,10 @@ document.addEventListener("DOMContentLoaded", () => {
         createdAt: serverTimestamp()
       });
 
-      console.log("✅ SIGNUP:", cred.user.email);
       toast("Account created 🎉", "success");
-
       el.authPopup?.classList.add("hidden");
 
     } catch (err) {
-      console.error("SIGNUP ERROR:", err);
       toast(err.message, "error");
     }
   });
@@ -239,14 +238,10 @@ document.addEventListener("DOMContentLoaded", () => {
   async function googleAuth() {
     try {
       const result = await signInWithPopup(auth, provider);
-
-      console.log("✅ GOOGLE:", result.user.email);
       toast("Google login 👋", "success");
-
       el.authPopup?.classList.add("hidden");
 
     } catch (err) {
-      console.error("GOOGLE ERROR:", err);
       toast(err.message, "error");
     }
   }
@@ -263,12 +258,15 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // =========================
-  // AUTH STATE
+  // AUTH STATE 
   // =========================
   onAuthStateChanged(auth, async (user) => {
-    console.log("AUTH:", user?.email || "logged out");
+    authReady = true;
 
-    if (!user) return showLoggedOut();
+    if (!user) {
+      showLoggedOut();
+      return;
+    }
 
     const snap = await getDoc(doc(db, "users", user.uid));
     const data = snap.exists() ? snap.data() : null;
