@@ -1,268 +1,340 @@
 import { auth, db } from "./firebase.js";
+
 import {
- GoogleAuthProvider,
- signInWithPopup,
- createUserWithEmailAndPassword,
- signInWithEmailAndPassword,
- onAuthStateChanged,
-  signOut,
-  updateProfile
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+  onAuthStateChanged,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  updateProfile
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 import {
-  doc,
-  setDoc,
-  getDoc,
-  serverTimestamp,
-  updateDoc
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-document.addEventListener("DOMContentLoaded", () => {
-  const provider = new GoogleAuthProvider();
-  const $ = (id) => document.getElementById(id);
+/* =========================
+   AUTH PROVIDER
+========================= */
 
-  // =========================
-  // ELEMENTS
-  // =========================
-  const el = {
-    authPopup: $("authPopup"),
-    authButtons: $("authButtons"),
-    profileArea: $("profileArea"),
+const provider = new GoogleAuthProvider();
 
-    openAuthBtn: $("openAuthBtn"),
-    closePopupBtn: $("closePopupBtn"),
+/* =========================
+   DOM
+========================= */
 
-    loginEmail: $("loginEmail"),
-    loginPassword: $("loginPassword"),
-    loginBtn: $("loginBtn"),
+const authPopup = document.getElementById("authPopup");
+const openAuthBtn = document.getElementById("openAuthBtn");
+const googleLoginBtn = document.getElementById("googleLoginBtn");
 
-    signupEmail: $("signupEmail"),
-    signupPassword: $("signupPassword"),
-    signupUsername: $("signupUsername"),
-    signupAge: $("signupAge"),
-    signupBtn: $("signupBtn"),
+const authTitle = document.getElementById("authTitle");
+const authUsername = document.getElementById("authUsername");
+const authAge = document.getElementById("authAge");
 
-    googleLoginBtn: $("googleLoginBtn"),
-    googleSignupBtn: $("googleSignupBtn"),
+const authEmail = document.getElementById("authEmail");
+const authPassword = document.getElementById("authPassword");
 
-    logoutBtn: $("logoutBtn"),
+const submitAuthBtn = document.getElementById("submitAuthBtn");
+const switchAuthModeBtn = document.getElementById("switchAuthModeBtn");
 
-    profileBtn: $("profileBtn"),
-    dropdownMenu: $("dropdownMenu"),
+const authButtons = document.getElementById("authButtons");
+const profileArea = document.getElementById("profileArea");
 
-    menuName: $("menuName"),
-    menuEmail: $("menuEmail"),
-    profileImage: $("profileImage"),
-    menuPfp: $("menuPfp"),
+const profileImage = document.getElementById("profileImage");
 
-    quickStats: $("quickStats"),
-    statWins: $("statWins"),
-    statGames: $("statGames"),
-    statRate: $("statRate"),
+const menuPfp = document.getElementById("menuPfp");
+const menuName = document.getElementById("menuName");
+const menuEmail = document.getElementById("menuEmail");
 
-    loginForm: $("loginForm"),
-    signupForm: $("signupForm"),
+const dropdownMenu = document.getElementById("dropdownMenu");
 
-    loginTab: $("loginTab"),
-    signupTab: $("signupTab"),
+const profileBtn = document.getElementById("profileBtn");
+const profilePageBtn = document.getElementById("profilePageBtn");
+const logoutBtn = document.getElementById("logoutBtn");
 
-    toast: $("toast")
-  };
+const playBtn = document.getElementById("playBtn");
 
-  let authReady = false;
-  let currentUser = null;
+const quickStats = document.getElementById("quickStats");
+const statWins = document.getElementById("statWins");
+const statGames = document.getElementById("statGames");
+const statRate = document.getElementById("statRate");
 
-  // =========================
-  // GUARD FUNCTION (NEW 🔒)
-  // =========================
-  function requireAuth() {
-    if (!authReady || !currentUser) {
-      toast("Please log in first 🔒", "error");
-      return false;
+/* =========================
+   STATE
+========================= */
+
+let isLogin = true;
+
+/* =========================
+   OPEN POPUP 
+========================= */
+
+openAuthBtn?.addEventListener("click", () => {
+  if (!authPopup) return;
+
+  authPopup.classList.remove("hidden");
+  updateMode();
+});
+
+/* =========================
+   CLOSE POPUP
+========================= */
+
+authPopup?.addEventListener("click", (e) => {
+  if (e.target === authPopup) {
+    authPopup.classList.add("hidden");
+  }
+});
+
+/* =========================
+   SWITCH LOGIN / SIGNUP
+========================= */
+
+switchAuthModeBtn?.addEventListener("click", () => {
+  isLogin = !isLogin;
+  updateMode();
+});
+
+/* =========================
+   UPDATE UI MODE
+========================= */
+
+function updateMode() {
+  if (isLogin) {
+    authTitle.textContent = "Login";
+
+    authUsername.classList.add("hidden");
+    authAge.classList.add("hidden");
+
+    submitAuthBtn.textContent = "Login";
+    switchAuthModeBtn.textContent = "Need an account?";
+  } else {
+    authTitle.textContent = "Create Account";
+
+    authUsername.classList.remove("hidden");
+    authAge.classList.remove("hidden");
+
+    submitAuthBtn.textContent = "Sign Up";
+    switchAuthModeBtn.textContent = "Already have an account?";
+  }
+}
+
+updateMode();
+
+/* =========================
+   GOOGLE LOGIN
+========================= */
+
+googleLoginBtn?.addEventListener("click", async () => {
+  try {
+    const result = await signInWithPopup(auth, provider);
+    await syncUser(result.user);
+
+    authPopup?.classList.add("hidden");
+
+  } catch (err) {
+    console.error(err);
+    alert(err.message);
+  }
+});
+
+/* =========================
+   EMAIL LOGIN / SIGNUP
+========================= */
+
+submitAuthBtn?.addEventListener("click", async () => {
+
+  const email = authEmail.value.trim();
+  const password = authPassword.value;
+
+  const username = authUsername.value.trim();
+  const age = Number(authAge.value);
+
+  if (!email || !password) {
+    alert("Fill in all required fields");
+    return;
+  }
+
+  try {
+
+    /* LOGIN */
+    if (isLogin) {
+
+      const cred = await signInWithEmailAndPassword(auth, email, password);
+      await syncUser(cred.user);
     }
-    return true;
-  }
 
-  // =========================
-  // TOAST
-  // =========================
-  function toast(msg, type = "info") {
-    if (!el.toast) return;
+    /* SIGN UP */
+    else {
 
-    el.toast.textContent = msg;
-    el.toast.className = `toast show ${type}`;
+      if (!username) {
+        alert("Enter username");
+        return;
+      }
 
-    setTimeout(() => {
-      el.toast.className = "toast";
-    }, 2500);
-  }
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      const user = cred.user;
 
-  // =========================
-  // TAB SYSTEM
-  // =========================
-  function setTab(tab) {
-    if (!el.loginForm || !el.signupForm) return;
-
-    if (tab === "login") {
-      el.loginForm.classList.remove("hidden");
-      el.signupForm.classList.add("hidden");
-    }
-
-    if (tab === "signup") {
-      el.signupForm.classList.remove("hidden");
-      el.loginForm.classList.add("hidden");
-    }
-  }
-
-  el.loginTab?.addEventListener("click", () => setTab("login"));
-  el.signupTab?.addEventListener("click", () => setTab("signup"));
-
-  setTab("login");
-
-  // =========================
-  // UI STATES
-  // =========================
-  function showLoggedOut() {
-    el.authButtons?.classList.remove("hidden");
-    el.profileArea?.classList.add("hidden");
-    el.quickStats?.classList.add("hidden");
-
-    currentUser = null;
-  }
-
-  function showLoggedIn(user, data) {
-    el.authButtons?.classList.add("hidden");
-    el.profileArea?.classList.remove("hidden");
-    el.quickStats?.classList.remove("hidden");
-
-    currentUser = user;
-
-    const photo =
-      data?.photoURL ||
-      user.photoURL ||
-      "./Images/defaultPFP.jpg";
-
-    if (el.profileImage) el.profileImage.src = photo;
-    if (el.menuPfp) el.menuPfp.src = photo;
-
-    if (el.menuName)
-      el.menuName.textContent =
-        data?.displayName || user.displayName || "Player";
-
-    if (el.menuEmail)
-      el.menuEmail.textContent = user.email;
-
-    const wins = data?.wins ?? 0;
-    const games = data?.gamesPlayed ?? 0;
-    const rate = games ? Math.round((wins / games) * 100) : 0;
-
-    if (el.statWins) el.statWins.textContent = wins;
-    if (el.statGames) el.statGames.textContent = games;
-    if (el.statRate) el.statRate.textContent = rate + "%";
-  }
-
-  // =========================
-  // POPUP
-  // =========================
-  el.openAuthBtn?.addEventListener("click", () => {
-    el.authPopup?.classList.remove("hidden");
-  });
-
-  el.closePopupBtn?.addEventListener("click", () => {
-    el.authPopup?.classList.add("hidden");
-  });
-
-  // =========================
-  // EMAIL LOGIN
-  // =========================
-  el.loginBtn?.addEventListener("click", async () => {
-    try {
-      const cred = await signInWithEmailAndPassword(
-        auth,
-        el.loginEmail.value,
-        el.loginPassword.value
-      );
-
-      toast("Logged in 🔥", "success");
-      el.authPopup?.classList.add("hidden");
-
-    } catch (err) {
-      toast(err.message, "error");
-    }
-  });
-
-  // =========================
-  // SIGNUP
-  // =========================
-  el.signupBtn?.addEventListener("click", async () => {
-    try {
-      const cred = await createUserWithEmailAndPassword(
-        auth,
-        el.signupEmail.value,
-        el.signupPassword.value
-      );
-
-      await updateProfile(cred.user, {
-        displayName: el.signupUsername.value || "Player"
-      });
-
-      await ensureUserProfile(cred.user);
-
-      await setDoc(doc(db, "users", cred.user.uid), {
-        uid: cred.user.uid,
-        email: cred.user.email,
-        displayName: el.signupUsername.value || "Player",
-        age: Number(el.signupAge.value) || 0,
-        wins: 0,
-        gamesPlayed: 0,
-        createdAt: serverTimestamp()
+      await updateProfile(user, {
+        displayName: username
       });
 
-      toast("Account created 🎉", "success");
-      el.authPopup?.classList.add("hidden");
-
-    } catch (err) {
-      toast(err.message, "error");
+      await setDoc(doc(db, "users", user.uid), {
+        uid: user.uid,
+        displayName: username,
+        email,
+        age: age || 0,
+        photoURL: "./Images/defaultPFP.jpg",
+        wins: 0,
+        losses: 0,
+        gamesPlayed: 0,
+        createdAt: serverTimestamp(),
+        lastActive: serverTimestamp()
+      });
     }
-  });
 
-  // =========================
-  // GOOGLE AUTH
-  // =========================
-  async function googleAuth() {
-    try {
-      const result = await signInWithPopup(auth, provider);
-      toast("Google login 👋", "success");
-      el.authPopup?.classList.add("hidden");
+    /* RESET */
+    authEmail.value = "";
+    authPassword.value = "";
+    authUsername.value = "";
+    authAge.value = "";
 
-    } catch (err) {
-      toast(err.message, "error");
-    }
+    authPopup.classList.add("hidden");
+
+  } catch (err) {
+    console.error(err);
+    alert(err.message);
+  }
+});
+
+/* =========================
+   SYNC USER
+========================= */
+
+async function syncUser(user) {
+  const ref = doc(db, "users", user.uid);
+  const snap = await getDoc(ref);
+
+  if (!snap.exists()) {
+    await setDoc(ref, {
+      uid: user.uid,
+      displayName: user.displayName || "Player",
+      email: user.email || "",
+      photoURL: user.photoURL || "./Images/defaultPFP.jpg",
+      wins: 0,
+      losses: 0,
+      gamesPlayed: 0,
+      age: 0,
+      createdAt: serverTimestamp(),
+      lastActive: serverTimestamp()
+    });
+
+    return;
   }
 
-  el.googleLoginBtn?.addEventListener("click", googleAuth);
-  el.googleSignupBtn?.addEventListener("click", googleAuth);
+  const data = snap.data();
 
-  // =========================
-  // LOGOUT
-  // =========================
-  el.logoutBtn?.addEventListener("click", () => signOut(auth));
-
-  // =========================
-  // AUTH STATE 
-  // =========================
-  onAuthStateChanged(auth, async (user) => {
-    authReady = true;
-
-    if (!user) {
-      showLoggedOut();
-      return;
-    }
-
-    const snap = await getDoc(doc(db, "users", user.uid));
-    const data = snap.exists() ? snap.data() : null;
-
-    showLoggedIn(user, data);
+  await updateDoc(ref, {
+    wins: data.wins ?? 0,
+    losses: data.losses ?? 0,
+    gamesPlayed: data.gamesPlayed ?? 0,
+    lastActive: serverTimestamp()
   });
+}
 
+/* =========================
+   AUTH STATE LISTENER
+========================= */
+
+onAuthStateChanged(auth, async (user) => {
+
+  if (!user) {
+
+    authButtons?.classList.remove("hidden");
+    profileArea?.classList.add("hidden");
+    quickStats?.classList.add("hidden");
+
+    profileImage.src = "./Images/defaultPFP.jpg";
+    menuPfp.src = "./Images/defaultPFP.jpg";
+    menuName.textContent = "Guest";
+    menuEmail.textContent = "";
+
+    return;
+  }
+
+  authButtons?.classList.add("hidden");
+  profileArea?.classList.remove("hidden");
+
+  await syncUser(user);
+
+  const ref = doc(db, "users", user.uid);
+  const snap = await getDoc(ref);
+  const data = snap.data();
+
+  const pfp = data?.photoURL || "./Images/defaultPFP.jpg";
+
+  profileImage.src = pfp;
+  menuPfp.src = pfp;
+
+  menuName.textContent = data?.displayName || "Player";
+  menuEmail.textContent = data?.email || "";
+
+  const wins = data?.wins || 0;
+  const games = data?.gamesPlayed || 0;
+
+  const rate = games > 0 ? Math.round((wins / games) * 100) : 0;
+
+  statWins.textContent = wins;
+  statGames.textContent = games;
+  statRate.textContent = `${rate}%`;
+
+  quickStats?.classList.remove("hidden");
+});
+
+/* =========================
+   DROPDOWN MENU
+========================= */
+
+profileBtn?.addEventListener("click", (e) => {
+  e.stopPropagation();
+  dropdownMenu?.classList.toggle("hidden");
+});
+
+document.addEventListener("click", () => {
+  dropdownMenu?.classList.add("hidden");
+});
+
+/* =========================
+   NAV
+========================= */
+
+profilePageBtn?.addEventListener("click", () => {
+  window.location.href = "profile.html";
+});
+
+playBtn?.addEventListener("click", () => {
+  if (!auth.currentUser) {
+    alert("Sign in first");
+    return;
+  }
+
+  window.location.href = "games.html";
+});
+
+/* =========================
+   LOGOUT
+========================= */
+
+logoutBtn?.addEventListener("click", async () => {
+  try {
+    await signOut(auth);
+  } catch (err) {
+    console.error(err);
+    alert(err.message);
+  }
 });

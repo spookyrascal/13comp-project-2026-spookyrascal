@@ -1,5 +1,3 @@
-// firebase.js (ONLY FIREBASE)
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
@@ -27,12 +25,9 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
-/* =========================
-   KEEP USER LOGGED IN
-========================= */
-setPersistence(auth, browserLocalPersistence)
-  .catch((err) => {
-    console.error("Auth persistence error:", err);
-  });
-
-  
+try {
+  await setPersistence(auth, browserLocalPersistence);
+  console.log("Firebase persistence enabled");
+} catch (err) {
+  console.error("Auth persistence error:", err);
+}

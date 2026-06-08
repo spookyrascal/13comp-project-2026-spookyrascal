@@ -1,69 +1,107 @@
 import { auth, db } from "./firebase.js";
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const tbody = document.querySelector("#leaderboardTable tbody");
+import {
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+import {
+  collection,
+  onSnapshot
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* =========================
+   DOM
+========================= */
+const tbody = document.querySelector("#LeaderboardTable tbody");
 const profileImage = document.getElementById("profileImage");
 const profileName = document.getElementById("profileName");
 
-const DEFAULT_PFP = "./Images/defaultPFP.jpg";
-
+/* =========================
+   PROFILE HEADER
+========================= */
 onAuthStateChanged(auth, (user) => {
   if (!user) return;
 
-  profileImage.src = user.photoURL || DEFAULT_PFP;
+  profileImage.src = user.photoURL || "./Images/defaultPFP.jpg";
   profileName.textContent = user.displayName || "Player";
 });
 
-function num(v) {
-  return Number(v) || 0;
+/* =========================
+   HELPERS
+========================= */
+function safeNum(v) {
+  return typeof v === "number" ? v : Number(v || 0);
 }
 
 function winRate(wins, games) {
   return games ? ((wins / games) * 100).toFixed(1) : "0.0";
 }
 
+/* =========================
+   LIVE USERS LEADERBOARD
+========================= */
 onSnapshot(collection(db, "users"), (snap) => {
+
   const players = [];
 
-  snap.forEach((docSnap) => {
-    const u = docSnap.data() || {};
+  snap.forEach(doc => {
+
+    const u = doc.data();
+
+    const wins = safeNum(u.wins);
+    const games = safeNum(u.gamesPlayed);
+    const best = safeNum(u.bestScore);
 
     players.push({
       name: u.displayName || "Player",
-      photo: u.photoURL || DEFAULT_PFP,
-      wins: num(u.wins),
-      games: num(u.gamesPlayed),
-      best: num(u.bestScore),
-      rate: winRate(u.wins, u.gamesPlayed)
+      photo: u.photoURL || "./Images/defaultPFP.jpg",
+      wins,
+      games,
+      best,
+      rate: winRate(wins, games)
     });
   });
 
-  players.sort((a, b) =>
-    b.wins - a.wins ||
-    b.rate - a.rate ||
-    b.best - a.best
-  );
+  // SORT BY WINS (simple + reliable)
+  players.sort((a, b) => b.wins - a.wins);
 
   render(players);
 });
 
+/* =========================
+   RENDER TABLE
+========================= */
 function render(players) {
-  if (!tbody) return;
 
-  tbody.innerHTML = players.length
-    ? players.map((p, i) => `
+  if (!players.length) {
+    tbody.innerHTML = `
       <tr>
-        <td>#${i + 1}</td>
-        <td>
-          <img src="${p.photo}" class="lb-pfp" />
-          ${p.name}
-        </td>
-        <td>${p.wins}</td>
-        <td>${p.games}</td>
-        <td>${p.rate}%</td>
-        <td>${p.best}</td>
+        <td colspan="6">No players yet 😭</td>
       </tr>
-    `).join("")
-    : `<tr><td colspan="6">No players yet</td></tr>`;
+    `;
+    return;
+  }
+
+  tbody.innerHTML = "";
+
+  players.forEach((p, i) => {
+
+    const row = document.createElement("tr");
+
+    row.innerHTML = `
+      <td><strong>#${i + 1}</strong></td>
+
+      <td class="playerCell">
+        <img class="lb-pfp" src="${p.photo}" />
+        <span>${p.name}</span>
+      </td>
+
+      <td>${p.wins}</td>
+      <td>${p.games}</td>
+      <td>${p.rate}%</td>
+      <td>${p.best}</td>
+    `;
+
+    tbody.appendChild(row);
+  });
 }
