@@ -33,3 +33,5 @@ onAuthStateChanged(auth, (user) => {
 
   setProfileImage(user.photoURL);
 });
+
+if (!auth.currentUser) return;
