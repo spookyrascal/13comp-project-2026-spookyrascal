@@ -17,39 +17,47 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+import { initProfileNav } from "./authState.js";
+
+initProfileNav();
+
 /* =========================
    AUTH INIT
 ========================= */
-
 initAuth((user) => {
   renderUserHeader(user);
 
-  if (!user) {
-    window.location.href = "index.html";
-  }
+  if (!user) window.location.href = "index.html";
 });
 
 /* =========================
    STATE
 ========================= */
-
 let currentUser = null;
 let currentGameId = null;
 
 /* =========================
    DOM
 ========================= */
+const el = {
+  createGameBtn: document.getElementById("createGameBtn"),
+  lobbyNameInput: document.getElementById("lobbyNameInput"),
 
-const createGameBtn = document.getElementById("createGameBtn");
-const lobbyNameInput = document.getElementById("lobbyNameInput");
+  guessInput: document.getElementById("guessInput"),
+  guessBtn: document.getElementById("guessBtn"),
 
-const guessInput = document.getElementById("guessInput");
-const guessBtn = document.getElementById("guessBtn");
+  lobbyList: document.getElementById("lobbyList"),
+
+  lobbySection: document.getElementById("lobbySection"),
+  gameSection: document.getElementById("gameSection"),
+
+  opponentInfo: document.getElementById("opponentInfo"),
+  turnInfo: document.getElementById("turnInfo")
+};
 
 /* =========================
-   AUTH
+   AUTH STATE
 ========================= */
-
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
     window.location.href = "index.html";
@@ -72,11 +80,10 @@ onAuthStateChanged(auth, async (user) => {
 /* =========================
    CREATE GAME
 ========================= */
-
-createGameBtn?.addEventListener("click", async () => {
+el.createGameBtn?.addEventListener("click", async () => {
   if (!currentUser) return;
 
-  const lobbyName = lobbyNameInput?.value?.trim() || "Lobby";
+  const lobbyName = el.lobbyNameInput?.value?.trim() || "Lobby";
 
   const ref = await addDoc(collection(db, "games"), {
     lobbyName,
@@ -89,8 +96,8 @@ createGameBtn?.addEventListener("click", async () => {
 
     status: "waiting",
     currentTurn: null,
-
     turnNumber: 0,
+
     secretNumber: Math.floor(Math.random() * 100) + 1,
 
     player1Guesses: [],
@@ -100,7 +107,6 @@ createGameBtn?.addEventListener("click", async () => {
     player2Attempts: 0,
 
     winnerId: "",
-
     createdAt: serverTimestamp()
   });
 
@@ -110,15 +116,16 @@ createGameBtn?.addEventListener("click", async () => {
 /* =========================
    LOBBY
 ========================= */
-
 function loadLobby() {
-  const lobbyList = document.getElementById("lobbyList");
-  if (!lobbyList) return;
+  if (!el.lobbyList) return;
 
-  const q = query(collection(db, "games"), where("status", "==", "waiting"));
+  const q = query(
+    collection(db, "games"),
+    where("status", "==", "waiting")
+  );
 
   onSnapshot(q, (snapshot) => {
-    lobbyList.innerHTML = "";
+    el.lobbyList.innerHTML = "";
 
     snapshot.forEach((docSnap) => {
       const game = docSnap.data();
@@ -147,7 +154,7 @@ function loadLobby() {
         joinGame(docSnap.id);
       });
 
-      lobbyList.appendChild(card);
+      el.lobbyList.appendChild(card);
     });
   });
 }
@@ -155,33 +162,30 @@ function loadLobby() {
 /* =========================
    JOIN GAME
 ========================= */
-
 function joinGame(id) {
   currentGameId = id;
 
-  document.getElementById("lobbySection")?.classList.add("hidden");
-  document.getElementById("gameSection")?.classList.remove("hidden");
+  el.lobbySection?.classList.add("hidden");
+  el.gameSection?.classList.remove("hidden");
 
   listenToGame(id);
 }
 
 /* =========================
-   TURN CHECK
+   GAME RULES
 ========================= */
-
 function canPlay(game) {
   return (
     game.status === "playing" &&
-    game.currentTurn === currentUser.uid &&
     game.player1Id &&
-    game.player2Id
+    game.player2Id &&
+    game.currentTurn === currentUser.uid
   );
 }
 
 /* =========================
    GAME LISTENER
 ========================= */
-
 function listenToGame(id) {
   const ref = doc(db, "games", id);
 
@@ -194,38 +198,33 @@ function listenToGame(id) {
         ? game.player2Name
         : game.player1Name;
 
-    const opponentInfo = document.getElementById("opponentInfo");
-    const turnInfo = document.getElementById("turnInfo");
-
-    if (opponentInfo) {
-      opponentInfo.textContent =
-        "Opponent: " + (opponent || "Waiting for opponent...");
+    if (el.opponentInfo) {
+      el.opponentInfo.textContent =
+        `Opponent: ${opponent || "Waiting for opponent..."}`;
     }
 
-    if (turnInfo) {
+    if (el.turnInfo) {
       if (game.status === "waiting") {
-        turnInfo.textContent = "Waiting for opponent...";
+        el.turnInfo.textContent = "Waiting for opponent...";
       } else if (game.status === "finished") {
-        turnInfo.textContent = "Game Finished";
+        el.turnInfo.textContent = "Game Finished";
       } else {
-        turnInfo.textContent = canPlay(game)
+        el.turnInfo.textContent = canPlay(game)
           ? "🔥 Your Turn"
           : "⏳ Opponent Turn";
       }
     }
 
-    /* HARD UI LOCK */
     const playable = canPlay(game);
-    if (guessInput) guessInput.disabled = !playable;
-    if (guessBtn) guessBtn.disabled = !playable;
+    if (el.guessInput) el.guessInput.disabled = !playable;
+    if (el.guessBtn) el.guessBtn.disabled = !playable;
   });
 }
 
 /* =========================
-   TURN SYSTEM (GUESS)
+   GUESS SYSTEM
 ========================= */
-
-guessBtn?.addEventListener("click", async () => {
+el.guessBtn?.addEventListener("click", async () => {
   if (!currentGameId || !currentUser) return;
 
   const ref = doc(db, "games", currentGameId);
@@ -234,7 +233,7 @@ guessBtn?.addEventListener("click", async () => {
 
   if (!game || !canPlay(game)) return;
 
-  const guess = Number(guessInput.value);
+  const guess = Number(el.guessInput.value);
   if (isNaN(guess)) return;
 
   const isP1 = currentUser.uid === game.player1Id;
@@ -242,7 +241,10 @@ guessBtn?.addEventListener("click", async () => {
   const guessField = isP1 ? "player1Guesses" : "player2Guesses";
   const attemptField = isP1 ? "player1Attempts" : "player2Attempts";
 
-  const updatedGuesses = [...(game[guessField] || []), guess];
+  const updatedGuesses = [
+    ...(game[guessField] || []),
+    guess
+  ];
 
   const nextTurn =
     currentUser.uid === game.player1Id
@@ -252,20 +254,17 @@ guessBtn?.addEventListener("click", async () => {
   await updateDoc(ref, {
     [guessField]: updatedGuesses,
     [attemptField]: (game[attemptField] || 0) + 1,
-
     currentTurn: nextTurn,
     turnNumber: (game.turnNumber || 0) + 1,
-
     lastActive: serverTimestamp()
   });
 
-  guessInput.value = "";
+  el.guessInput.value = "";
 });
 
 /* =========================
    CLEANUP
 ========================= */
-
 window.addEventListener("beforeunload", () => {
-  // optional cleanup later
+  // reserved for later cleanup
 });
