@@ -1,5 +1,4 @@
 import { auth, db } from "./firebase.js";
-
 import {
   GoogleAuthProvider,
   signInWithPopup,
@@ -16,15 +15,25 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+<<<<<<< HEAD
 /* =========================
    GOOGLE PROVIDER
 ========================= */
+=======
+import { initProfileNav } from "./authState.js";
+>>>>>>> d86f5834d556dab96f4eb8492f3891e4b8a8158c
 
+initProfileNav();
+
+/* =========================
+   AUTH
+========================= */
 const provider = new GoogleAuthProvider();
 
 /* =========================
    DOM
 ========================= */
+<<<<<<< HEAD
 
 const authPopup = document.getElementById("authPopup");
 const openAuthBtn = document.getElementById("openAuthBtn");
@@ -57,49 +66,93 @@ const quickStats = document.getElementById("quickStats");
 const statWins = document.getElementById("statWins");
 const statGames = document.getElementById("statGames");
 const statRate = document.getElementById("statRate");
+=======
+const el = {
+  googleLoginBtn: document.getElementById("googleLoginBtn"),
+  authPopup: document.getElementById("authPopup"),
+  authUsername: document.getElementById("authUsername"),
+  authAge: document.getElementById("authAge"),
+  submitAuthBtn: document.getElementById("submitAuthBtn"),
+  switchAuthModeBtn: document.getElementById("switchAuthModeBtn"),
+  loadingScreen: document.getElementById("loadingScreen"),
+  logoutBtn: document.getElementById("logoutBtn")
+};
+>>>>>>> d86f5834d556dab96f4eb8492f3891e4b8a8158c
 
 /* =========================
    STATE
 ========================= */
+<<<<<<< HEAD
 
 let currentUserData = null;
 
 /* =========================
    OPEN POPUP
-========================= */
+=======
+let currentUser = null;
+let isNewUserFlow = false;
 
+/* =========================
+   LOADING
+>>>>>>> d86f5834d556dab96f4eb8492f3891e4b8a8158c
+========================= */
+const showLoading = () =>
+  el.loadingScreen?.classList.remove("hidden");
+
+<<<<<<< HEAD
 openAuthBtn?.addEventListener("click", () => {
   authPopup?.classList.remove("hidden");
 });
 
 /* =========================
    GOOGLE LOGIN ONLY
-========================= */
+=======
+const hideLoading = () =>
+  el.loadingScreen?.classList.add("hidden");
 
-googleLoginBtn?.addEventListener("click", async () => {
+/* =========================
+   GOOGLE LOGIN
+>>>>>>> d86f5834d556dab96f4eb8492f3891e4b8a8158c
+========================= */
+el.googleLoginBtn?.addEventListener("click", async () => {
   try {
+    showLoading();
+
     const result = await signInWithPopup(auth, provider);
+<<<<<<< HEAD
     const user = result.user;
 
     await ensureUserExists(user);
+=======
+    currentUser = result.user;
+>>>>>>> d86f5834d556dab96f4eb8492f3891e4b8a8158c
 
-    authPopup?.classList.add("hidden");
+    await handleUser(result.user);
 
   } catch (err) {
     console.error(err);
     alert(err.message);
+  } finally {
+    hideLoading();
   }
 });
 
 /* =========================
+<<<<<<< HEAD
    CREATE / FETCH USER SHELL
 ========================= */
 
 async function ensureUserExists(user) {
+=======
+   USER HANDLING
+========================= */
+async function handleUser(user) {
+>>>>>>> d86f5834d556dab96f4eb8492f3891e4b8a8158c
   const ref = doc(db, "users", user.uid);
   const snap = await getDoc(ref);
 
   if (!snap.exists()) {
+<<<<<<< HEAD
     await setDoc(ref, {
       uid: user.uid,
       email: user.email || "",
@@ -121,13 +174,103 @@ async function ensureUserExists(user) {
       lastActive: serverTimestamp()
     });
   }
+=======
+    await createNewUser(user, ref);
+    openProfileSetup();
+    return;
+  }
+
+  const data = snap.data();
+
+  if (!data.profileComplete) {
+    openProfileSetup();
+    return;
+  }
+
+  window.location.href = "games.html";
 }
 
 /* =========================
-   AUTH STATE LISTENER
+   CREATE USER
 ========================= */
+async function createNewUser(user, ref) {
+  await setDoc(ref, {
+    uid: user.uid,
+    displayName: user.displayName || "",
+    email: user.email || "",
+    photoURL: user.photoURL || "./Images/defaultPFP.jpg",
+    age: null,
+    profileComplete: false,
+    wins: 0,
+    losses: 0,
+    gamesPlayed: 0,
+    createdAt: serverTimestamp(),
+    lastActive: serverTimestamp()
+  });
+>>>>>>> d86f5834d556dab96f4eb8492f3891e4b8a8158c
+}
 
+/* =========================
+   PROFILE SETUP UI
+========================= */
+function openProfileSetup() {
+  isNewUserFlow = true;
+
+  el.authPopup.classList.remove("hidden");
+  el.authUsername.classList.remove("hidden");
+  el.authAge.classList.remove("hidden");
+
+  el.submitAuthBtn.textContent = "Finish Setup";
+  el.switchAuthModeBtn.classList.add("hidden");
+}
+
+/* =========================
+   SAVE PROFILE
+========================= */
+el.submitAuthBtn?.addEventListener("click", async () => {
+  if (!isNewUserFlow || !currentUser) return;
+
+  const username = el.authUsername.value.trim();
+  const age = Number(el.authAge.value);
+
+  if (!username) {
+    alert("Pick a username");
+    return;
+  }
+
+  try {
+    showLoading();
+
+    const ref = doc(db, "users", currentUser.uid);
+
+    await updateDoc(ref, {
+      displayName: username,
+      age: age || 0,
+      profileComplete: true
+    });
+
+    await updateProfile(currentUser, {
+      displayName: username
+    });
+
+    isNewUserFlow = false;
+    el.authPopup.classList.add("hidden");
+
+    window.location.href = "games.html";
+
+  } catch (err) {
+    console.error(err);
+    alert(err.message);
+  } finally {
+    hideLoading();
+  }
+});
+
+/* =========================
+   AUTO LOGIN CHECK
+========================= */
 onAuthStateChanged(auth, async (user) => {
+<<<<<<< HEAD
   if (!user) {
     showLoggedOut();
     return;
@@ -273,17 +416,24 @@ playBtn?.addEventListener("click", () => {
   }
 
   window.location.href = "games.html";
+=======
+  if (!user) return;
+
+  try {
+    showLoading();
+    currentUser = user;
+    await handleUser(user);
+  } catch (err) {
+    console.error(err);
+  } finally {
+    hideLoading();
+  }
+>>>>>>> d86f5834d556dab96f4eb8492f3891e4b8a8158c
 });
 
 /* =========================
    LOGOUT
 ========================= */
-
-logoutBtn?.addEventListener("click", async () => {
-  try {
-    await signOut(auth);
-  } catch (err) {
-    console.error(err);
-    alert(err.message);
-  }
+el.logoutBtn?.addEventListener("click", async () => {
+  await signOut(auth);
 });

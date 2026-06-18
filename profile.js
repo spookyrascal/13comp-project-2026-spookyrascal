@@ -1,9 +1,5 @@
 import { auth, db } from "./firebase.js";
-
-import {
-  onAuthStateChanged,
-  updateProfile
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 import {
   doc,
@@ -12,10 +8,13 @@ import {
   onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+import { initProfileNav } from "./authState.js";
+
+initProfileNav();
+
 /* =========================
    STATE
 ========================= */
-
 const state = {
   user: null,
   profile: null,
@@ -25,7 +24,6 @@ const state = {
 /* =========================
    DOM
 ========================= */
-
 const $ = (id) => document.getElementById(id);
 
 const el = {
@@ -57,7 +55,6 @@ const el = {
 /* =========================
    TOAST
 ========================= */
-
 let toastTimer;
 
 function toast(msg) {
@@ -74,7 +71,6 @@ function toast(msg) {
 /* =========================
    AUTH
 ========================= */
-
 onAuthStateChanged(auth, (user) => {
   if (!user) {
     window.location.replace("index.html");
@@ -86,9 +82,8 @@ onAuthStateChanged(auth, (user) => {
 });
 
 /* =========================
-   FIRESTORE SYNC (SOURCE OF TRUTH)
+   FIRESTORE SYNC
 ========================= */
-
 function listenProfile(uid) {
   if (state.unsub) state.unsub();
 
@@ -107,7 +102,6 @@ function listenProfile(uid) {
         createdAt: serverTimestamp(),
         lastActive: serverTimestamp()
       });
-
       return;
     }
 
@@ -120,8 +114,7 @@ function listenProfile(uid) {
       age: data.age ?? null,
       wins: data.wins || 0,
       losses: data.losses || 0,
-      gamesPlayed: data.gamesPlayed || 0,
-      lastActive: data.lastActive || null
+      gamesPlayed: data.gamesPlayed || 0
     };
 
     render();
@@ -131,17 +124,15 @@ function listenProfile(uid) {
 /* =========================
    RENDER
 ========================= */
-
 function render() {
   const p = state.profile;
   if (!p) return;
 
-  const wins = Number(p.wins) || 0;
-  const losses = Number(p.losses) || 0;
-  const games = Number(p.gamesPlayed) || 0;
+  const wins = Number(p.wins);
+  const losses = Number(p.losses);
+  const games = Number(p.gamesPlayed);
 
   const rate = games ? Math.round((wins / games) * 100) : 0;
-
   const photo = p.photoURL || "./Images/defaultPFP.jpg";
 
   [el.headerImg, el.preview, el.live].forEach(img => {
@@ -166,7 +157,6 @@ function render() {
 /* =========================
    IMAGE PREVIEW
 ========================= */
-
 el.inputs.photo.addEventListener("input", () => {
   const url = el.inputs.photo.value.trim();
 
@@ -184,9 +174,8 @@ el.inputs.photo.addEventListener("input", () => {
 });
 
 /* =========================
-   SAVE PROFILE (CLEAN SYNC)
+   SAVE PROFILE
 ========================= */
-
 el.saveBtn.addEventListener("click", async () => {
   try {
     el.saveBtn.disabled = true;
@@ -197,17 +186,13 @@ el.saveBtn.addEventListener("click", async () => {
     const ageRaw = el.inputs.age.value.trim();
     const photo = el.inputs.photo.value.trim();
 
-    /* VALIDATION */
-    if (name.length < 3) {
-      throw new Error("Username too short");
-    }
+    if (name.length < 3) throw new Error("Username too short");
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       throw new Error("Invalid email");
     }
 
     let age = null;
-
     if (ageRaw !== "") {
       age = Number(ageRaw);
       if (isNaN(age) || age < 1 || age > 120) {
@@ -216,7 +201,6 @@ el.saveBtn.addEventListener("click", async () => {
     }
 
     let finalPhoto = "./Images/defaultPFP.jpg";
-
     if (photo) {
       try {
         new URL(photo);
@@ -226,26 +210,20 @@ el.saveBtn.addEventListener("click", async () => {
       }
     }
 
-    /* OPTIONAL: update auth display name only */
     await updateProfile(state.user, {
       displayName: name,
       photoURL: finalPhoto
     });
 
-    /* FIRESTORE IS MASTER */
     const ref = doc(db, "users", state.user.uid);
 
-    await setDoc(
-      ref,
-      {
-        displayName: name,
-        email: email,
-        age,
-        photoURL: finalPhoto,
-        lastActive: serverTimestamp()
-      },
-      { merge: true }
-    );
+    await setDoc(ref, {
+      displayName: name,
+      email,
+      age,
+      photoURL: finalPhoto,
+      lastActive: serverTimestamp()
+    }, { merge: true });
 
     toast("🔥 Profile updated");
 
@@ -262,7 +240,6 @@ el.saveBtn.addEventListener("click", async () => {
 /* =========================
    BACK BUTTON
 ========================= */
-
 el.backBtn.addEventListener("click", () => {
   window.location.href = "index.html";
 });
@@ -270,7 +247,6 @@ el.backBtn.addEventListener("click", () => {
 /* =========================
    CLEANUP
 ========================= */
-
 window.addEventListener("beforeunload", () => {
   if (state.unsub) state.unsub();
 });

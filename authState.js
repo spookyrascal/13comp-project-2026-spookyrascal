@@ -23,3 +23,8 @@ export function initAuth(callback) {
     }
   });
 }
+
+export function initProfileNav() { document.getElementById("profileBtn")?.addEventListener("click", () =>
+ { window.location.href = "profile.html"; });
+}
+

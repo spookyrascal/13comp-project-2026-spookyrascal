@@ -1,177 +1,166 @@
+# 📌 Project Development Timeline
 
-## V01 — 28 February – 3 March
-
-* Cloned the repo and got everything set up locally.
-* Put together the basic project file structure.
-* Built the main page HTML so there was actually something showing.
+A breakdown of the development progress across versions, from initial setup to multiplayer gameplay systems.
 
 ---
 
-## V02 — 4 March
+##  V01 — 28 Feb – 3 Mar | Project Setup
 
-* Hooked up JavaScript and CSS so the site wasn’t just plain HTML anymore.
-* Connected Firestore database.
-* Started working on sign-in / sign-up system.
-
-* **Next step:** finish auth so it actually works properly and doesn’t glitch out.
+* Cloned repository and set up local development environment.
+* Created initial file structure.
+* Built base HTML layout for main page.
 
 ---
 
-## V03 — 11 March
+##  V02 — 4 Mar | Core Systems Begin
 
-* Added Meteor Rush assets (HTML, JS, CSS, and media files).
-* Cleaned up and refactored old code so it wasn’t a total mess.
-* Started the basic structure for the “Guess The Number” game.
-
-* **Next step:** build out the Game Hub properly.
+* Connected JavaScript and CSS to project.
+* Integrated Firestore database.
+* Started authentication system (sign-in / sign-up).
 
 ---
 
-## V04 — 12–13 March
+##  V03 — 11 Mar | Game Foundations
 
-* Finished and polished CSS styling.
-* Built the Game Hub card layout.
-* Integrated Meteor Rush into the hub system.
-* Made the UI look way more consistent overall.
-
-* **Next step:** leaderboard system + backend work.
+* Added Meteor Rush assets (HTML, JS, CSS, media).
+* Refactored and cleaned early codebase.
+* Began initial structure for “Guess The Number” (GTN).
 
 ---
 
-## V05 — 17 March
+##  V04 — 12–13 Mar | UI & Game Hub
 
-* Started leaderboard system (HTML + JS).
-* Added navigation button to `games.html`.
-
-* **Next step:** actually connect leaderboard page properly + start GTN.
-
----
-
-## V06 — 24 March
-
-* Leaderboard page finally linked and working.
-* Split Firebase stuff into its own `firebase.js` file.
-* Made and tested sign-up popup.
-* Did some early auth testing.
-* GTN got pushed back for now.
-
-* **Next step:** set up proper GTN base.
+* Completed core UI styling improvements.
+* Built Game Hub card layout.
+* Integrated Meteor Rush into hub system.
+* Improved overall UI consistency.
 
 ---
 
-## V07 — 26 March
+##  V05 — 17 Mar | Leaderboard Start
 
-* No GTN progress (priorities shifted around).
-* Improved leaderboard UI a bit so it looks cleaner.
-
-* **Next step:** start GTN again.
+* Began leaderboard system (HTML + JS).
+* Added navigation to leaderboard page from `games.html`.
 
 ---
 
-## V08 — 31 March
+##  V06 — 24 Mar | Backend Structuring
 
-* Started GTN core logic.
-* Planned out how gameplay should actually work.
-* Connected Firestore to GTN.
-
-* **Next step:** expand logic + test multiplayer.
-
----
-
-## V09 — 23 April
-
-* Got GTN multiplayer working 🎉
-* Basic two-player system is live and playable.
+* Leaderboard page fully linked and functional.
+* Refactored Firebase into separate module (`firebase.js`).
+* Built and tested sign-up popup system.
+* Early authentication testing completed.
+* GTN development temporarily paused.
 
 ---
 
-## V10 — 24 April
+##  V07 — 26 Mar | UI Refinement
 
-* Took a short break / paused development.
-* Cleaned up project files.
-* Updated Firebase config.
+* No major GTN progress due to shifting priorities.
+* Improved leaderboard UI design and readability.
+
+---
+
+##  V08 — 31 Mar | GTN Core Logic
+
+* Started core Guess The Number logic.
+* Designed gameplay flow.
+* Connected Firestore to GTN system.
+
+---
+
+##  V09 — 23 Apr | Multiplayer Release
+
+* Implemented multiplayer GTN system.
+* Basic two-player gameplay fully functional.
+
+---
+
+##  V10 — 24 Apr | Maintenance
+
+* Took short development break.
+* Cleaned and reorganised project files.
+* Updated Firebase configuration.
 * Refreshed documentation.
 
 ---
 
-## V11 — 28 April
+##  V11 — 28 Apr | Bug Discovery Phase
 
-* Updated leaderboard + GTN systems.
-* Found issue where user profile data wasn’t sticking across pages.
-* Started debugging auth + data flow.
-
----
-
-## V12 — 29 April
-
-* Focused more on docs + commenting code properly.
-* Cleaned up structure so everything is more consistent.
-
-* **Next step:** fix profile persistence + leaderboard identity issues.
-* Noticed CSS needs a proper fix at some point.
+* Updated leaderboard and GTN systems.
+* Identified issue with profile data persistence across pages.
+* Began debugging authentication + data flow.
 
 ---
 
-## V13 — 30 April
+##  V12 — 29 Apr | Documentation & Structure
 
-* More debugging on auth + leaderboard.
-* Tried to stabilise sign-in system.
-* Focused on making data actually carry across pages properly.
+* Improved code comments and documentation.
+* Cleaned overall project structure.
 
----
-
-## V14 — 2 May
-
-* Auth finally stable again.
-* Leaderboard working properly again.
-
-* **Next step:** clean up CSS + finish documentation.
+**Next:** Fix profile persistence + leaderboard identity issues.
 
 ---
 
-## V15 — 5 May
+##  V13 — 30 Apr | Auth Debugging
 
-* Login system started acting up again (classic).
-* GTN also got a bit unstable.
-* Started debugging everything again.
-
-* **Next step:** fully stabilise system.
+* Continued debugging authentication system.
+* Worked on stabilising cross-page data flow.
 
 ---
 
-## V16 — 7 May
+##  V14 — 2 May | Stability Update
 
-* More leaderboard issues showed up.
-* Kept debugging auth + data syncing.
-
-* **Next step:** fix leaderboard properly this time.
+* Authentication system stabilised.
+* Leaderboard functioning correctly again.
 
 ---
 
-## V17 — 12 May
+##  V15 — 5 May | Regression Issues
 
-* No big progress on leaderboard.
-* Focus moved to CSS + UI improvements instead.
-
-* **Next step:** either continue UI polish or get back to leaderboard depending on priority.
+* Login system became unstable again.
+* GTN gameplay issues reappeared.
+* Began full system debugging.
 
 ---
 
-## V18 — 24 May 
+##  V16 — 7 May | Deep Debugging
 
-* Fixed leaderboard pfp sizing so everything lines up properly now.
-* Cleaned up CSS across the whole Game Hub so it’s less chaotic.
-* Fixed Firebase session/auth issues so login doesn’t randomly break on refresh anymore.
-* General bug fixing + code cleanup across a few files.
-* UI got some extra polish so everything feels smoother to use.
+* Additional leaderboard issues discovered.
+* Continued fixing authentication + Firestore sync.
 
-* **Next step:** keep stabilising backend stuff (Firestore + auth) and improve GTN + leaderboard so it actually runs clean without random bugs.
+---
 
+##  V17 — 12 May | UI Focus Shift
 
+* Minimal feature progress.
+* Focus moved to UI and CSS improvements.
 
-V19
-Isnt turned based need to fix that 
-make it so you cant do anything until other player is in 
-win screen
-only one person can win
-enter button to enter guess
+---
+
+##  V18 — 24 May | Major Cleanup & Fixes
+
+* Fixed leaderboard profile picture sizing.
+* Cleaned Game Hub CSS.
+* Resolved Firebase session/auth persistence issues.
+* General bug fixes and UI polish.
+
+---
+
+##  V19 — 9 Jun | GTN System Issues
+
+* Turn system not functioning correctly.
+* Players could interact before opponent joined.
+* Missing proper win condition system.
+* Needed input improvements (Enter key support).
+* Turn locking system required fixes.
+
+---
+
+## V20 — June 10th | Update
+
+* Fixed Google authentication system.
+* Improved CSS and overall UI styling.
+
+**Next:** Fully stabilise turn system (hard lock before opponent joins). Finish win/loss flow end-to-end. Polish UI feedback for gameplay actions. Improve leaderboard + game result integration.
+

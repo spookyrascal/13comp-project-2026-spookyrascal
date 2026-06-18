@@ -1,24 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Game Manager</title>
-
-  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="style.css" />
 </head>
+
 
 <body>
 
-  <!-- =========================
-       HEADER
-  ========================== -->
-  <header class="topbar">
 
-    <h1 class="logoText">Game Manager</h1>
+<!-- =========================
+     LOADING SCREEN
+========================== -->
+<div id="loadingScreen" class="hidden">
+  <div class="spinner"></div>
+  <p>Loading...</p>
+</div>
 
-    <!-- AUTH BUTTONS (LOGGED OUT) -->
+
+<!-- =========================
+     HEADER
+========================== -->
+<header class="topbar">
+
+    <h1 class="logoText">
+      Game Manager
+    </h1>
+
+    <!-- AUTH BUTTONS (LOGGED OUT STATE) -->
     <div id="authButtons" class="authButtons">
 
       <button id="googleLoginBtn" class="btn-primary" type="button">
@@ -26,17 +37,22 @@
       </button>
 
       <button id="openAuthBtn" class="btn-secondary" type="button">
-        Finish Profile
+        Login or Create Account
       </button>
 
     </div>
 
-    <!-- PROFILE AREA (LOGGED IN) -->
+    <!-- PROFILE AREA (LOGGED IN STATE) -->
     <div id="profileArea" class="profileArea hidden">
 
       <div class="profile-wrapper">
 
-        <button id="profileBtn" class="profileBtn" type="button">
+        <button
+          id="profileBtn"
+          class="profileBtn"
+          title="Open profile menu"
+          type="button"
+        >
 
           <img
             id="profileImage"
@@ -47,124 +63,169 @@
 
         </button>
 
-        <!-- DROPDOWN MENU -->
-        <div id="dropdownMenu" class="menu hidden">
+
+      <div id="dropdownMenu" class="menu hidden">
+
 
           <div class="menu-user">
 
-            <img id="menuPfp" src="./Images/defaultPFP.jpg" alt="Profile picture" />
+            <img
+              id="menuPfp"
+              src="./Images/defaultPFP.jpg"
+              alt="Profile picture"
+            />
 
             <div class="menu-user-info">
+
               <span id="menuName">Guest</span>
               <small id="menuEmail"></small>
+
             </div>
 
           </div>
+        </div>
 
-          <div class="menuDivider"></div>
 
-          <button id="profilePageBtn" class="menuBtn" type="button">
+        <div class="menuDivider"></div>
+
+          <button
+            id="profilePageBtn"
+            class="menuBtn"
+            type="button"
+          >
             Profile
           </button>
 
-          <button onclick="window.location.href='leaderboard.html'"
-                  class="menuBtn"
-                  type="button">
+          <button
+            onclick="window.location.href='leaderboard.html'"
+            class="menuBtn"
+            type="button"
+          >
             Leaderboard
           </button>
 
-          <button id="logoutBtn" class="menuBtn dangerBtn" type="button">
+          <button
+            id="logoutBtn"
+            class="menuBtn dangerBtn"
+            type="button"
+          >
             Logout
           </button>
 
-        </div>
 
       </div>
+    </div>
+  </div>
 
+
+</header>
+
+
+<!-- =========================
+     MAIN
+========================== -->
+<main class="homeMain">
+
+
+  <section class="homeHero">
+
+
+    <div class="heroGlow"></div>
+
+
+    <h2>Welcome ヾ(˶ᵔ ᗜ ᵔ˶)</h2>
+
+
+    <p class="muted">
+      Compete in multiplayer games and climb the leaderboard.
+    </p>
+
+
+    <button id="playBtn" class="play-btn" type="button">
+      Play
+    </button>
+
+
+    <div id="quickStats" class="statsRow hidden">
+      <div class="miniStat">
+        <span>Wins</span>
+        <strong id="statWins">0</strong>
+      </div>
+
+
+      <div class="miniStat">
+        <span>Games</span>
+        <strong id="statGames">0</strong>
+      </div>
+
+
+      <div class="miniStat">
+        <span>Win Rate</span>
+        <strong id="statRate">0%</strong>
+      </div>
     </div>
 
-  </header>
+
+  </section>
+
+
+</main>
+
 
   <!-- =========================
-       MAIN
-  ========================== -->
-  <main class="homeMain">
-
-    <section class="homeHero">
-
-      <div class="heroGlow"></div>
-
-      <h2>Welcome ヾ(˶ᵔ ᗜ ᵔ˶)</h2>
-
-      <p class="muted">
-        Compete in multiplayer games and climb the leaderboard.
-      </p>
-
-      <button id="playBtn" class="play-btn" type="button">
-        Play
-      </button>
-
-      <div id="quickStats" class="statsRow hidden">
-
-        <div class="miniStat">
-          <span>Wins</span>
-          <strong id="statWins">0</strong>
-        </div>
-
-        <div class="miniStat">
-          <span>Games</span>
-          <strong id="statGames">0</strong>
-        </div>
-
-        <div class="miniStat">
-          <span>Win Rate</span>
-          <strong id="statRate">0%</strong>
-        </div>
-
-      </div>
-
-    </section>
-  </main>
-
-  <!-- =========================
-       PROFILE SETUP POPUP
-       (ONLY USED AFTER GOOGLE LOGIN)
+       AUTH POPUP
   ========================== -->
   <div id="authPopup" class="popup hidden">
 
-    <div class="popup-content">
+  <div class="popup-content">
 
-      <h2 id="authTitle">Finish your profile</h2>
+      <h2 id="authTitle">Login</h2>
 
-      <p class="muted">
-        Choose your username and age to complete setup.
-      </p>
-
+      <!-- ONLY SHOW WHEN SIGN UP -->
       <input
         id="authUsername"
         type="text"
         placeholder="Username"
+        class="hidden"
+      />
+
+      <input
+        id="authEmail"
+        type="email"
+        placeholder="Email"
       />
 
       <input
         id="authAge"
         type="number"
         placeholder="Age (optional)"
+        class="hidden"
+      />
+
+      <input
+        id="authPassword"
+        type="password"
+        placeholder="Password"
       />
 
       <button id="submitAuthBtn" type="button">
-        Complete Profile
+        Login
       </button>
 
-    </div>
+      <button id="switchAuthModeBtn" type="button">
+        Create account instead
+      </button>
+
 
   </div>
 
-  <!-- =========================
-       SCRIPT
-  ========================== -->
-  <script type="module" src="home.js"></script>
+
+</div>
+
+
+<script type="module" src="home.js"></script>
+
 
 </body>
-
 </html>
+
