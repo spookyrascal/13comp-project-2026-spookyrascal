@@ -18,14 +18,17 @@ import {
 /* =========================
    STATE
 ========================= */
+
 let user = null;
 let gameId = null;
 let unsub = null;
 let ended = false;
+let processingWin = false;
 
 /* =========================
    DOM
 ========================= */
+
 const lobbySection = document.getElementById("lobbySection");
 const gameSection = document.getElementById("gameSection");
 const winScreen = document.getElementById("winScreen");
@@ -50,6 +53,7 @@ const DEFAULT_PFP = "./Images/defaultPFP.jpg";
 /* =========================
    AUTH
 ========================= */
+
 onAuthStateChanged(auth, (u) => {
   if (!u) return (location.href = "index.html");
 
@@ -65,22 +69,12 @@ onAuthStateChanged(auth, (u) => {
 /* =========================
    HELPERS
 ========================= */
+
 function safeArray(v) {
-  return Array.isArray(v) ? v.filter(Boolean) : [];
+  return Array.isArray(v) ? v : [];
 }
 
-function getDistanceClass(d) {
-  const dist = Number(d ?? 999);
-
-  if (dist === 0) return "guessHot";
-  if (dist <= 3) return "guessHot";
-  if (dist <= 10) return "guessWarm";
-  return "guessCold";
-}
-
-function formatGuess(guess, secret, last) {
-  const distance = Math.abs(guess - secret);
-
+function getHint(distance, last) {
   let msg =
     distance === 0
       ? "Correct!"
@@ -94,22 +88,21 @@ function formatGuess(guess, secret, last) {
     msg += distance < last ? " (closer)" : " (colder)";
   }
 
-  return { distance, msg };
+  return msg;
 }
 
 /* =========================
-   ENTER KEY SUPPORT
+   ENTER KEY
 ========================= */
+
 guessInput?.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") {
-    e.preventDefault();
-    guessBtn.click();
-  }
+  if (e.key === "Enter") guessBtn.click();
 });
 
 /* =========================
    CREATE GAME
 ========================= */
+
 createBtn?.addEventListener("click", async () => {
   const name = lobbyInput.value.trim() || "Lobby";
 
@@ -145,18 +138,15 @@ createBtn?.addEventListener("click", async () => {
 /* =========================
    LOBBY
 ========================= */
+
 function loadLobby() {
-  const q = query(
-    collection(db, "games"),
-    where("status", "==", "waiting")
-  );
+  const q = query(collection(db, "games"), where("status", "==", "waiting"));
 
   onSnapshot(q, (snap) => {
     lobbyList.innerHTML = "";
 
     snap.forEach((docSnap) => {
       const g = docSnap.data();
-
       if (!g.player1Id || g.player1Id === user.uid) return;
 
       const card = document.createElement("div");
@@ -187,9 +177,11 @@ function loadLobby() {
 /* =========================
    JOIN / EXIT
 ========================= */
+
 function join(id) {
   gameId = id;
   ended = false;
+  processingWin = false;
 
   lobbySection.classList.add("hidden");
   gameSection.classList.remove("hidden");
@@ -199,23 +191,10 @@ function join(id) {
   listen(id);
 }
 
-function exitGame() {
-  gameId = null;
-  ended = false;
-
-  if (unsub) unsub();
-
-  gameSection.classList.add("hidden");
-  winScreen.classList.add("hidden");
-  lobbySection.classList.remove("hidden");
-
-  feedback.textContent = "";
-  history.innerHTML = "";
-}
-
 /* =========================
    GUESS SYSTEM
 ========================= */
+
 guessBtn?.addEventListener("click", async () => {
   if (!gameId || ended) return;
 
@@ -224,15 +203,12 @@ guessBtn?.addEventListener("click", async () => {
 
   const ref = doc(db, "games", gameId);
   const snap = await getDoc(ref);
+
+  if (!snap.exists()) return;
+
   const g = snap.data();
-
-  if (!g) return;
-  if (g.status === "finished") return;
-
-  if (!g.player2Id) {
-    feedback.textContent = "Waiting for opponent...";
-    return;
-  }
+  if (g.status !== "playing") return;
+  if (!g.player2Id) return;
 
   if (g.currentTurn !== user.uid) {
     feedback.textContent = "Not your turn!";
@@ -240,32 +216,29 @@ guessBtn?.addEventListener("click", async () => {
   }
 
   const isP1 = g.player1Id === user.uid;
-  const secret = Number(g.secretNumber || 0);
+  const secret = g.secretNumber;
 
   const last = isP1 ? g.player1LastDistance : g.player2LastDistance;
 
-  const { distance, msg } = formatGuess(guess, secret, last);
+  const distance = Math.abs(guess - secret);
+  const hint = getHint(distance, last);
 
-  feedback.textContent = msg;
+  feedback.textContent = hint;
 
   const field = isP1 ? "player1Guesses" : "player2Guesses";
 
   const updates = {
-    [field]: arrayUnion({
-      value: guess,
-      hint: msg,
-      distance
-    }),
-
+    [field]: arrayUnion({ value: guess, hint, distance }),
     currentTurn: isP1 ? g.player2Id : g.player1Id,
-    lastActive: serverTimestamp(),
-    status: "playing"
+    lastActive: serverTimestamp()
   };
 
   if (isP1) updates.player1LastDistance = distance;
   else updates.player2LastDistance = distance;
 
-  if (distance === 0) {
+  /* WIN CONDITION (SAFE GUARDED) */
+  if (distance === 0 && !processingWin) {
+    processingWin = true;
     updates.status = "finished";
     updates.winnerId = user.uid;
     updates.currentTurn = "";
@@ -293,11 +266,13 @@ guessBtn?.addEventListener("click", async () => {
 
   await updateDoc(ref, updates);
   guessInput.value = "";
+  feedback.scrollIntoView({ behavior: "smooth", block: "center" });
 });
 
 /* =========================
    REALTIME LISTENER
 ========================= */
+
 function listen(id) {
   const ref = doc(db, "games", id);
 
@@ -312,10 +287,17 @@ function listen(id) {
 
     const myTurn = g.currentTurn === user.uid;
 
-    turn.textContent = myTurn ? "Your turn" : "Opponent's turn";
+    turn.textContent =
+      g.status === "waiting"
+        ? "Waiting for opponent..."
+        : g.status === "finished"
+        ? "Game finished"
+        : myTurn
+        ? "🔥 Your turn"
+        : "⏳ Opponent turn";
 
-    guessInput.disabled = !myTurn || g.status === "finished";
-    guessBtn.disabled = !myTurn || g.status === "finished";
+    guessInput.disabled = !myTurn || g.status !== "playing";
+    guessBtn.disabled = !myTurn || g.status !== "playing";
 
     const own = safeArray(isP1 ? g.player1Guesses : g.player2Guesses);
     const opp = safeArray(isP1 ? g.player2Guesses : g.player1Guesses);
@@ -323,26 +305,30 @@ function listen(id) {
     history.innerHTML = `
       <div class="guessSection">
         <strong>You</strong>
-        ${own.map((x, i) => `
-          <div class="${getDistanceClass(x.distance)} guessFlash">
-            #${i + 1} ${x.value} — <b>${x.hint}</b>
-          </div>
-        `).join("")}
+        ${own
+          .map(
+            (x, i) => `
+          <div>#${i + 1} ${x.value} — <b>${x.hint}</b></div>
+        `
+          )
+          .join("")}
       </div>
 
       <div class="guessSection">
         <strong>Opponent</strong>
-        ${opp.map((x, i) => `
+        ${opp
+          .map(
+            (x, i) => `
           <div>#${i + 1} ${x.value || ""}</div>
-        `).join("")}
+        `
+          )
+          .join("")}
       </div>
     `;
 
-    if (g.status === "finished") {
+    /* WIN SCREEN (SAFE + SINGLE TRIGGER) */
+    if (g.status === "finished" && !ended) {
       ended = true;
-
-      guessInput.disabled = true;
-      guessBtn.disabled = true;
 
       gameSection.classList.add("hidden");
       winScreen.classList.remove("hidden");

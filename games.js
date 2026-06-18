@@ -3,22 +3,29 @@ import { getUserProfile } from "./user.js";
 import { initAuth } from "./authState.js";
 import { renderUserHeader } from "./ui.js";
 
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
 import {
   collection,
   addDoc,
-  doc,
   updateDoc,
   getDoc,
+  doc,
   onSnapshot,
   query,
   where,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
 /* =========================
-   AUTH INIT
+   STATE
+========================= */
+
+let currentUser = null;
+let currentGameId = null;
+
+/* =========================
+   INIT AUTH UI
 ========================= */
 
 initAuth((user) => {
@@ -28,13 +35,6 @@ initAuth((user) => {
     window.location.href = "index.html";
   }
 });
-
-/* =========================
-   STATE
-========================= */
-
-let currentUser = null;
-let currentGameId = null;
 
 /* =========================
    DOM
@@ -47,7 +47,7 @@ const guessInput = document.getElementById("guessInput");
 const guessBtn = document.getElementById("guessBtn");
 
 /* =========================
-   AUTH
+   AUTH STATE
 ========================= */
 
 onAuthStateChanged(auth, async (user) => {
@@ -57,7 +57,14 @@ onAuthStateChanged(auth, async (user) => {
   }
 
   try {
-    currentUser = await getUserProfile(user);
+    const profile = await getUserProfile(user);
+
+    currentUser = {
+      uid: user.uid,
+      name: profile.displayName || user.displayName || "Player",
+      photo: profile.photoURL || user.photoURL || "./Images/defaultPFP.jpg"
+    };
+
   } catch {
     currentUser = {
       uid: user.uid,
@@ -99,7 +106,7 @@ createGameBtn?.addEventListener("click", async () => {
     player1Attempts: 0,
     player2Attempts: 0,
 
-    winnerId: "",
+    winnerId: null,
 
     createdAt: serverTimestamp()
   });
@@ -108,7 +115,7 @@ createGameBtn?.addEventListener("click", async () => {
 });
 
 /* =========================
-   LOBBY
+   LOBBY SYSTEM
 ========================= */
 
 function loadLobby() {
@@ -171,10 +178,10 @@ function joinGame(id) {
 
 function canPlay(game) {
   return (
-    game.status === "playing" &&
-    game.currentTurn === currentUser.uid &&
-    game.player1Id &&
-    game.player2Id
+    game?.status === "playing" &&
+    game?.currentTurn === currentUser?.uid &&
+    game?.player1Id &&
+    game?.player2Id
   );
 }
 
@@ -198,8 +205,7 @@ function listenToGame(id) {
     const turnInfo = document.getElementById("turnInfo");
 
     if (opponentInfo) {
-      opponentInfo.textContent =
-        "Opponent: " + (opponent || "Waiting for opponent...");
+      opponentInfo.textContent = `Opponent: ${opponent || "Waiting..."}`;
     }
 
     if (turnInfo) {
@@ -214,15 +220,15 @@ function listenToGame(id) {
       }
     }
 
-    /* HARD UI LOCK */
     const playable = canPlay(game);
+
     if (guessInput) guessInput.disabled = !playable;
     if (guessBtn) guessBtn.disabled = !playable;
   });
 }
 
 /* =========================
-   TURN SYSTEM (GUESS)
+   GUESS SYSTEM
 ========================= */
 
 guessBtn?.addEventListener("click", async () => {
@@ -230,12 +236,14 @@ guessBtn?.addEventListener("click", async () => {
 
   const ref = doc(db, "games", currentGameId);
   const snap = await getDoc(ref);
-  const game = snap.data();
 
-  if (!game || !canPlay(game)) return;
+  if (!snap.exists()) return;
+
+  const game = snap.data();
+  if (!canPlay(game)) return;
 
   const guess = Number(guessInput.value);
-  if (isNaN(guess)) return;
+  if (!guess) return;
 
   const isP1 = currentUser.uid === game.player1Id;
 
@@ -260,12 +268,4 @@ guessBtn?.addEventListener("click", async () => {
   });
 
   guessInput.value = "";
-});
-
-/* =========================
-   CLEANUP
-========================= */
-
-window.addEventListener("beforeunload", () => {
-  // optional cleanup later
 });

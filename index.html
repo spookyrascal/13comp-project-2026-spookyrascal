@@ -16,11 +16,9 @@
   ========================== -->
   <header class="topbar">
 
-    <h1 class="logoText">
-      Game Manager
-    </h1>
+    <h1 class="logoText">Game Manager</h1>
 
-    <!-- AUTH BUTTONS (LOGGED OUT STATE) -->
+    <!-- AUTH BUTTONS (LOGGED OUT) -->
     <div id="authButtons" class="authButtons">
 
       <button id="googleLoginBtn" class="btn-primary" type="button">
@@ -28,22 +26,17 @@
       </button>
 
       <button id="openAuthBtn" class="btn-secondary" type="button">
-        Login or Create Account
+        Finish Profile
       </button>
 
     </div>
 
-    <!-- PROFILE AREA (LOGGED IN STATE) -->
+    <!-- PROFILE AREA (LOGGED IN) -->
     <div id="profileArea" class="profileArea hidden">
 
       <div class="profile-wrapper">
 
-        <button
-          id="profileBtn"
-          class="profileBtn"
-          title="Open profile menu"
-          type="button"
-        >
+        <button id="profileBtn" class="profileBtn" type="button">
 
           <img
             id="profileImage"
@@ -59,44 +52,28 @@
 
           <div class="menu-user">
 
-            <img
-              id="menuPfp"
-              src="./Images/defaultPFP.jpg"
-              alt="Profile picture"
-            />
+            <img id="menuPfp" src="./Images/defaultPFP.jpg" alt="Profile picture" />
 
             <div class="menu-user-info">
-
               <span id="menuName">Guest</span>
               <small id="menuEmail"></small>
-
             </div>
 
           </div>
 
           <div class="menuDivider"></div>
 
-          <button
-            id="profilePageBtn"
-            class="menuBtn"
-            type="button"
-          >
+          <button id="profilePageBtn" class="menuBtn" type="button">
             Profile
           </button>
 
-          <button
-            onclick="window.location.href='leaderboard.html'"
-            class="menuBtn"
-            type="button"
-          >
+          <button onclick="window.location.href='leaderboard.html'"
+                  class="menuBtn"
+                  type="button">
             Leaderboard
           </button>
 
-          <button
-            id="logoutBtn"
-            class="menuBtn dangerBtn"
-            type="button"
-          >
+          <button id="logoutBtn" class="menuBtn dangerBtn" type="button">
             Logout
           </button>
 
@@ -150,47 +127,33 @@
   </main>
 
   <!-- =========================
-       AUTH POPUP
+       PROFILE SETUP POPUP
+       (ONLY USED AFTER GOOGLE LOGIN)
   ========================== -->
   <div id="authPopup" class="popup hidden">
 
     <div class="popup-content">
 
-      <h2 id="authTitle">Login</h2>
+      <h2 id="authTitle">Finish your profile</h2>
 
-      <!-- ONLY SHOW WHEN SIGN UP -->
+      <p class="muted">
+        Choose your username and age to complete setup.
+      </p>
+
       <input
         id="authUsername"
         type="text"
         placeholder="Username"
-        class="hidden"
-      />
-
-      <input
-        id="authEmail"
-        type="email"
-        placeholder="Email"
       />
 
       <input
         id="authAge"
         type="number"
         placeholder="Age (optional)"
-        class="hidden"
-      />
-
-      <input
-        id="authPassword"
-        type="password"
-        placeholder="Password"
       />
 
       <button id="submitAuthBtn" type="button">
-        Login
-      </button>
-
-      <button id="switchAuthModeBtn" type="button">
-        Create account instead
+        Complete Profile
       </button>
 
     </div>

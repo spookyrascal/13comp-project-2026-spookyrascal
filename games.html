@@ -12,8 +12,6 @@
 <header class="topbar">
 
   <h1>Game Hub</h1>
-  <main class="hubPage"></main>
-  <div class="heroGlow"></div>
 
   <div class="profile-wrapper">
     <img
@@ -30,25 +28,46 @@
 
   <h2>Choose a Game</h2>
 
+  <!-- LOBBY SECTION -->
+  <section id="lobbySection" class="gameContainer">
+
+    <div class="lobbyCreate">
+      <input id="lobbyNameInput" placeholder="Lobby name..." />
+      <button id="createGameBtn">Create Game</button>
+    </div>
+
+    <div id="lobbyList"></div>
+
+  </section>
+
+  <!-- GAME SECTION -->
+  <section id="gameSection" class="hidden">
+
+    <div id="opponentInfo">Opponent: ...</div>
+    <div id="turnInfo">Loading...</div>
+
+    <input id="guessInput" type="number" placeholder="Your guess" />
+    <button id="guessBtn">Guess</button>
+
+  </section>
+
+  <!-- STATIC GAME CARDS -->
   <section class="gameContainer">
 
-    <!-- Meteor Rush -->
     <a href="meteorRush.html" class="gameCard">
-      <img src="./Images/meteorRush.jpg" alt="Meteor Rush game thumbnail">
+      <img src="./Images/meteorRush.jpg">
       <h3>Meteor Rush</h3>
       <p>Dodge meteors and survive</p>
     </a>
 
-    <!-- Guess The Number -->
     <a href="GTN.html" class="gameCard">
-      <img src="./Images/gtn.jpg" alt="Guess The Number game thumbnail">
+      <img src="./Images/gtn.jpg">
       <h3>Guess The Number</h3>
       <p>Multiplayer guessing battle</p>
     </a>
 
-    <!-- Leaderboard -->
     <a href="leaderBoard.html" class="gameCard leaderboardCard">
-      <img src="./Images/trophy.png" alt="Leaderboard trophy icon">
+      <img src="./Images/trophy.png">
       <h3>Leaderboard</h3>
       <p>Top players ranked</p>
     </a>
