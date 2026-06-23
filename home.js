@@ -15,58 +15,19 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-<<<<<<< HEAD
-/* =========================
-   GOOGLE PROVIDER
-========================= */
-=======
 import { initProfileNav } from "./authState.js";
->>>>>>> d86f5834d556dab96f4eb8492f3891e4b8a8158c
-
 initProfileNav();
 
 /* =========================
-   AUTH
+   STATE
 ========================= */
 const provider = new GoogleAuthProvider();
+let currentUser = null;
+let isNewUserFlow = false;
 
 /* =========================
    DOM
 ========================= */
-<<<<<<< HEAD
-
-const authPopup = document.getElementById("authPopup");
-const openAuthBtn = document.getElementById("openAuthBtn");
-const googleLoginBtn = document.getElementById("googleLoginBtn");
-
-const authTitle = document.getElementById("authTitle");
-const authUsername = document.getElementById("authUsername");
-const authAge = document.getElementById("authAge");
-
-const submitAuthBtn = document.getElementById("submitAuthBtn");
-
-const authButtons = document.getElementById("authButtons");
-const profileArea = document.getElementById("profileArea");
-
-const profileImage = document.getElementById("profileImage");
-
-const menuPfp = document.getElementById("menuPfp");
-const menuName = document.getElementById("menuName");
-const menuEmail = document.getElementById("menuEmail");
-
-const dropdownMenu = document.getElementById("dropdownMenu");
-
-const profileBtn = document.getElementById("profileBtn");
-const profilePageBtn = document.getElementById("profilePageBtn");
-const logoutBtn = document.getElementById("logoutBtn");
-
-const playBtn = document.getElementById("playBtn");
-
-const quickStats = document.getElementById("quickStats");
-const statWins = document.getElementById("statWins");
-const statGames = document.getElementById("statGames");
-const statRate = document.getElementById("statRate");
-=======
 const el = {
   googleLoginBtn: document.getElementById("googleLoginBtn"),
   authPopup: document.getElementById("authPopup"),
@@ -77,57 +38,57 @@ const el = {
   loadingScreen: document.getElementById("loadingScreen"),
   logoutBtn: document.getElementById("logoutBtn")
 };
->>>>>>> d86f5834d556dab96f4eb8492f3891e4b8a8158c
 
-/* =========================
-   STATE
-========================= */
-<<<<<<< HEAD
+const openAuthBtn = document.getElementById("openAuthBtn");
+const authTitle = document.getElementById("authTitle");
 
-let currentUserData = null;
+const authButtons = document.getElementById("authButtons");
+const profileArea = document.getElementById("profileArea");
+const profileImage = document.getElementById("profileImage");
 
-/* =========================
-   OPEN POPUP
-=======
-let currentUser = null;
-let isNewUserFlow = false;
+const menuPfp = document.getElementById("menuPfp");
+const menuName = document.getElementById("menuName");
+const menuEmail = document.getElementById("menuEmail");
+
+const dropdownMenu = document.getElementById("dropdownMenu");
+
+const profileBtn = document.getElementById("profileBtn");
+const profilePageBtn = document.getElementById("profilePageBtn");
+const playBtn = document.getElementById("playBtn");
+
+const quickStats = document.getElementById("quickStats");
+const statWins = document.getElementById("statWins");
+const statGames = document.getElementById("statGames");
+const statRate = document.getElementById("statRate");
 
 /* =========================
    LOADING
->>>>>>> d86f5834d556dab96f4eb8492f3891e4b8a8158c
 ========================= */
 const showLoading = () =>
   el.loadingScreen?.classList.remove("hidden");
 
-<<<<<<< HEAD
-openAuthBtn?.addEventListener("click", () => {
-  authPopup?.classList.remove("hidden");
-});
-
-/* =========================
-   GOOGLE LOGIN ONLY
-=======
 const hideLoading = () =>
   el.loadingScreen?.classList.add("hidden");
 
 /* =========================
+   OPEN AUTH
+========================= */
+openAuthBtn?.addEventListener("click", () => {
+  el.authPopup?.classList.remove("hidden");
+});
+
+/* =========================
    GOOGLE LOGIN
->>>>>>> d86f5834d556dab96f4eb8492f3891e4b8a8158c
 ========================= */
 el.googleLoginBtn?.addEventListener("click", async () => {
   try {
     showLoading();
 
     const result = await signInWithPopup(auth, provider);
-<<<<<<< HEAD
     const user = result.user;
 
-    await ensureUserExists(user);
-=======
-    currentUser = result.user;
->>>>>>> d86f5834d556dab96f4eb8492f3891e4b8a8158c
-
-    await handleUser(result.user);
+    currentUser = user;
+    await handleUser(user);
 
   } catch (err) {
     console.error(err);
@@ -138,44 +99,27 @@ el.googleLoginBtn?.addEventListener("click", async () => {
 });
 
 /* =========================
-<<<<<<< HEAD
-   CREATE / FETCH USER SHELL
-========================= */
-
-async function ensureUserExists(user) {
-=======
    USER HANDLING
 ========================= */
 async function handleUser(user) {
->>>>>>> d86f5834d556dab96f4eb8492f3891e4b8a8158c
   const ref = doc(db, "users", user.uid);
   const snap = await getDoc(ref);
 
   if (!snap.exists()) {
-<<<<<<< HEAD
     await setDoc(ref, {
       uid: user.uid,
       email: user.email || "",
       displayName: user.displayName || "",
       photoURL: user.photoURL || "./Images/defaultPFP.jpg",
-
       age: null,
       profileComplete: false,
-
       wins: 0,
       losses: 0,
       gamesPlayed: 0,
-
       createdAt: serverTimestamp(),
       lastActive: serverTimestamp()
     });
-  } else {
-    await updateDoc(ref, {
-      lastActive: serverTimestamp()
-    });
-  }
-=======
-    await createNewUser(user, ref);
+
     openProfileSetup();
     return;
   }
@@ -191,41 +135,22 @@ async function handleUser(user) {
 }
 
 /* =========================
-   CREATE USER
-========================= */
-async function createNewUser(user, ref) {
-  await setDoc(ref, {
-    uid: user.uid,
-    displayName: user.displayName || "",
-    email: user.email || "",
-    photoURL: user.photoURL || "./Images/defaultPFP.jpg",
-    age: null,
-    profileComplete: false,
-    wins: 0,
-    losses: 0,
-    gamesPlayed: 0,
-    createdAt: serverTimestamp(),
-    lastActive: serverTimestamp()
-  });
->>>>>>> d86f5834d556dab96f4eb8492f3891e4b8a8158c
-}
-
-/* =========================
-   PROFILE SETUP UI
+   PROFILE SETUP
 ========================= */
 function openProfileSetup() {
   isNewUserFlow = true;
 
-  el.authPopup.classList.remove("hidden");
-  el.authUsername.classList.remove("hidden");
-  el.authAge.classList.remove("hidden");
+  el.authPopup?.classList.remove("hidden");
+  el.authUsername?.classList.remove("hidden");
+  el.authAge?.classList.remove("hidden");
 
   el.submitAuthBtn.textContent = "Finish Setup";
-  el.switchAuthModeBtn.classList.add("hidden");
+  el.switchAuthModeBtn?.classList.add("hidden");
+  authTitle.textContent = "Finish your profile";
 }
 
 /* =========================
-   SAVE PROFILE
+   SAVE PROFILE (NEW USER FLOW)
 ========================= */
 el.submitAuthBtn?.addEventListener("click", async () => {
   if (!isNewUserFlow || !currentUser) return;
@@ -233,10 +158,7 @@ el.submitAuthBtn?.addEventListener("click", async () => {
   const username = el.authUsername.value.trim();
   const age = Number(el.authAge.value);
 
-  if (!username) {
-    alert("Pick a username");
-    return;
-  }
+  if (!username) return alert("Pick a username");
 
   try {
     showLoading();
@@ -246,7 +168,8 @@ el.submitAuthBtn?.addEventListener("click", async () => {
     await updateDoc(ref, {
       displayName: username,
       age: age || 0,
-      profileComplete: true
+      profileComplete: true,
+      lastActive: serverTimestamp()
     });
 
     await updateProfile(currentUser, {
@@ -267,25 +190,20 @@ el.submitAuthBtn?.addEventListener("click", async () => {
 });
 
 /* =========================
-   AUTO LOGIN CHECK
+   AUTH STATE LISTENER
 ========================= */
 onAuthStateChanged(auth, async (user) => {
-<<<<<<< HEAD
-  if (!user) {
-    showLoggedOut();
-    return;
-  }
+  if (!user) return showLoggedOut();
 
   const ref = doc(db, "users", user.uid);
   const snap = await getDoc(ref);
 
   if (!snap.exists()) {
-    await ensureUserExists(user);
+    await handleUser(user);
     return;
   }
 
   const data = snap.data();
-  currentUserData = data;
 
   if (!data.profileComplete) {
     showProfileSetup(user, data);
@@ -296,61 +214,25 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 /* =========================
-   PROFILE SETUP SCREEN
+   PROFILE UI
 ========================= */
-
 function showProfileSetup(user, data) {
   authButtons?.classList.add("hidden");
   profileArea?.classList.remove("hidden");
   quickStats?.classList.add("hidden");
 
-  profileImage.src = data?.photoURL || "./Images/defaultPFP.jpg";
-
+  profileImage.src = data.photoURL || "./Images/defaultPFP.jpg";
   menuName.textContent = "Finish Setup";
   menuEmail.textContent = user.email;
 
-  authPopup?.classList.remove("hidden");
-
+  el.authPopup?.classList.remove("hidden");
   authTitle.textContent = "Finish your profile";
-  authUsername.classList.remove("hidden");
-  authAge.classList.remove("hidden");
-
-  submitAuthBtn.textContent = "Complete Profile";
 }
-
-/* =========================
-   COMPLETE PROFILE
-========================= */
-
-submitAuthBtn?.addEventListener("click", async () => {
-  const user = auth.currentUser;
-  if (!user) return;
-
-  const username = authUsername.value.trim();
-  const age = Number(authAge.value);
-
-  if (!username) {
-    alert("Pick a username");
-    return;
-  }
-
-  const ref = doc(db, "users", user.uid);
-
-  await updateDoc(ref, {
-    displayName: username,
-    age: age || 0,
-    profileComplete: true,
-    lastActive: serverTimestamp()
-  });
-
-  authPopup?.classList.add("hidden");
-});
 
 /* =========================
    LOGGED IN UI
 ========================= */
-
-async function showLoggedIn(data) {
+function showLoggedIn(data) {
   authButtons?.classList.add("hidden");
   profileArea?.classList.remove("hidden");
   quickStats?.classList.remove("hidden");
@@ -365,8 +247,7 @@ async function showLoggedIn(data) {
 
   const wins = data.wins || 0;
   const games = data.gamesPlayed || 0;
-
-  const rate = games > 0 ? Math.round((wins / games) * 100) : 0;
+  const rate = games ? Math.round((wins / games) * 100) : 0;
 
   statWins.textContent = wins;
   statGames.textContent = games;
@@ -376,7 +257,6 @@ async function showLoggedIn(data) {
 /* =========================
    LOGGED OUT UI
 ========================= */
-
 function showLoggedOut() {
   authButtons?.classList.remove("hidden");
   profileArea?.classList.add("hidden");
@@ -391,7 +271,6 @@ function showLoggedOut() {
 /* =========================
    DROPDOWN
 ========================= */
-
 profileBtn?.addEventListener("click", (e) => {
   e.stopPropagation();
   dropdownMenu?.classList.toggle("hidden");
@@ -402,33 +281,15 @@ document.addEventListener("click", () => {
 });
 
 /* =========================
-   NAVIGATION
+   NAV
 ========================= */
-
 profilePageBtn?.addEventListener("click", () => {
   window.location.href = "profile.html";
 });
 
 playBtn?.addEventListener("click", () => {
-  if (!auth.currentUser) {
-    alert("Sign in first");
-    return;
-  }
-
+  if (!auth.currentUser) return alert("Sign in first");
   window.location.href = "games.html";
-=======
-  if (!user) return;
-
-  try {
-    showLoading();
-    currentUser = user;
-    await handleUser(user);
-  } catch (err) {
-    console.error(err);
-  } finally {
-    hideLoading();
-  }
->>>>>>> d86f5834d556dab96f4eb8492f3891e4b8a8158c
 });
 
 /* =========================
