@@ -15,6 +15,11 @@ initProfileNav();
 /* =========================
    STATE
 ========================= */
+
+// Tracks current user + live Firestore subscription
+// TODO:
+// - add cache layer for offline profile viewing
+
 const state = {
   user: null,
   profile: null,
@@ -22,9 +27,14 @@ const state = {
 };
 
 /* =========================
-   DOM
+   DOM HELPERS
 ========================= */
+
 const $ = (id) => document.getElementById(id);
+
+// Centralised DOM references
+// TODO:
+// - split into profile / stats / editor modules if app grows
 
 const el = {
   headerImg: $("headerProfileImage"),
@@ -53,8 +63,14 @@ const el = {
 };
 
 /* =========================
-   TOAST
+   TOAST SYSTEM
 ========================= */
+
+// Lightweight feedback system
+// TODO:
+// - queue multiple messages instead of overriding
+// - add success/error styling variants
+
 let toastTimer;
 
 function toast(msg) {
@@ -71,6 +87,11 @@ function toast(msg) {
 /* =========================
    AUTH
 ========================= */
+
+// Redirects unauthenticated users
+// TODO:
+// - add loading skeleton before redirect check completes
+
 onAuthStateChanged(auth, (user) => {
   if (!user) {
     window.location.replace("index.html");
@@ -84,6 +105,12 @@ onAuthStateChanged(auth, (user) => {
 /* =========================
    FIRESTORE SYNC
 ========================= */
+
+// Live profile listener
+// TODO:
+// - debounce updates if Firestore writes become frequent
+// - reduce re-renders by diffing changes
+
 function listenProfile(uid) {
   if (state.unsub) state.unsub();
 
@@ -91,17 +118,21 @@ function listenProfile(uid) {
 
   state.unsub = onSnapshot(ref, async (snap) => {
     if (!snap.exists()) {
+      // Auto-create user profile if missing
       await setDoc(ref, {
         displayName: state.user.displayName || "Player",
         email: state.user.email || "",
         photoURL: state.user.photoURL || "./Images/defaultPFP.jpg",
+
         age: null,
         wins: 0,
         losses: 0,
         gamesPlayed: 0,
+
         createdAt: serverTimestamp(),
         lastActive: serverTimestamp()
       });
+
       return;
     }
 
@@ -122,8 +153,15 @@ function listenProfile(uid) {
 }
 
 /* =========================
-   RENDER
+   RENDER UI
 ========================= */
+
+// Updates all profile UI elements
+// TODO:
+// - animate stat changes
+// - highlight updated fields
+// - skeleton loading before first render
+
 function render() {
   const p = state.profile;
   if (!p) return;
@@ -135,6 +173,7 @@ function render() {
   const rate = games ? Math.round((wins / games) * 100) : 0;
   const photo = p.photoURL || "./Images/defaultPFP.jpg";
 
+  // Sync all profile images
   [el.headerImg, el.preview, el.live].forEach(img => {
     if (img) img.src = photo;
   });
@@ -143,11 +182,13 @@ function render() {
   el.email.textContent = p.email;
   el.age.textContent = p.age ? `Age: ${p.age}` : "Age: Not set";
 
+  // Fill form inputs
   el.inputs.name.value = p.displayName || "";
   el.inputs.email.value = p.email || "";
   el.inputs.age.value = p.age || "";
   el.inputs.photo.value = p.photoURL || "";
 
+  // Stats
   el.wins.textContent = wins;
   el.losses.textContent = losses;
   el.games.textContent = games;
@@ -155,8 +196,14 @@ function render() {
 }
 
 /* =========================
-   IMAGE PREVIEW
+   LIVE IMAGE PREVIEW
 ========================= */
+
+// Updates preview image as user types URL
+// TODO:
+// - allow file upload instead of URL
+// - cache valid images to avoid flicker
+
 el.inputs.photo.addEventListener("input", () => {
   const url = el.inputs.photo.value.trim();
 
@@ -176,6 +223,13 @@ el.inputs.photo.addEventListener("input", () => {
 /* =========================
    SAVE PROFILE
 ========================= */
+
+// Validates + writes profile changes
+// TODO:
+// - username uniqueness check
+// - rate limit saves
+// - add "unsaved changes" warning
+
 el.saveBtn.addEventListener("click", async () => {
   try {
     el.saveBtn.disabled = true;
@@ -201,6 +255,7 @@ el.saveBtn.addEventListener("click", async () => {
     }
 
     let finalPhoto = "./Images/defaultPFP.jpg";
+
     if (photo) {
       try {
         new URL(photo);
@@ -210,11 +265,13 @@ el.saveBtn.addEventListener("click", async () => {
       }
     }
 
+    // Update Firebase Auth profile
     await updateProfile(state.user, {
       displayName: name,
       photoURL: finalPhoto
     });
 
+    // Update Firestore profile
     const ref = doc(db, "users", state.user.uid);
 
     await setDoc(ref, {
@@ -238,8 +295,9 @@ el.saveBtn.addEventListener("click", async () => {
 });
 
 /* =========================
-   BACK BUTTON
+   NAVIGATION
 ========================= */
+
 el.backBtn.addEventListener("click", () => {
   window.location.href = "index.html";
 });
@@ -247,6 +305,8 @@ el.backBtn.addEventListener("click", () => {
 /* =========================
    CLEANUP
 ========================= */
+
+// Ensures Firestore listener doesn't leak memory
 window.addEventListener("beforeunload", () => {
   if (state.unsub) state.unsub();
 });
