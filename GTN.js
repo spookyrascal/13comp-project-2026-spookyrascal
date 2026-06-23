@@ -1,33 +1,22 @@
-import { auth, db } from "./firebase.js";
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-import {
-  collection,
-  addDoc,
-  doc,
-  getDoc,
-  updateDoc,
-  onSnapshot,
-  query,
-  where,
-  serverTimestamp,
-  arrayUnion,
-  increment
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
 /* =========================
    STATE
 ========================= */
+
+// TODO: Maybe store game settings here later
+// (difficulty, timer mode, private/public lobby, etc.)
 
 let user = null;
 let gameId = null;
 let unsub = null;
 let ended = false;
-let processingWin = false;
+let processingWin = false; // Prevents duplicate win processing
 
 /* =========================
    DOM
 ========================= */
+
+// TODO: Move all DOM IDs into one object if project grows larger.
+// This makes changing IDs easier.
 
 const lobbySection = document.getElementById("lobbySection");
 const gameSection = document.getElementById("gameSection");
@@ -54,6 +43,8 @@ const DEFAULT_PFP = "./Images/defaultPFP.jpg";
    AUTH
 ========================= */
 
+// TODO: Could display a loading screen while checking authentication.
+
 onAuthStateChanged(auth, (u) => {
   if (!u) return (location.href = "index.html");
 
@@ -70,9 +61,15 @@ onAuthStateChanged(auth, (u) => {
    HELPERS
 ========================= */
 
+// Makes sure Firestore arrays never cause errors if they don't exist.
+// TODO: Could move helper functions into a utilities file.
+
 function safeArray(v) {
   return Array.isArray(v) ? v : [];
 }
+
+// Returns hint based on distance from the secret number.
+// TODO: Add more hint levels (Freezing, Boiling, etc.)
 
 function getHint(distance, last) {
   let msg =
@@ -95,6 +92,9 @@ function getHint(distance, last) {
    ENTER KEY
 ========================= */
 
+// Allows Enter to submit guesses.
+// TODO: Add sound effect or animation when guessing.
+
 guessInput?.addEventListener("keydown", (e) => {
   if (e.key === "Enter") guessBtn.click();
 });
@@ -102,6 +102,11 @@ guessInput?.addEventListener("keydown", (e) => {
 /* =========================
    CREATE GAME
 ========================= */
+
+// TODO:
+// • Allow custom max number (100, 500, 1000)
+// • Allow private lobby codes
+// • Allow selecting game difficulty
 
 createBtn?.addEventListener("click", async () => {
   const name = lobbyInput.value.trim() || "Lobby";
@@ -138,6 +143,13 @@ createBtn?.addEventListener("click", async () => {
 /* =========================
    LOBBY
 ========================= */
+
+// Shows all available waiting games.
+// TODO:
+// • Sort by newest
+// • Show player profile pictures
+// • Display how long each lobby has existed
+// • Auto-delete inactive lobbies after a period of time
 
 function loadLobby() {
   const q = query(collection(db, "games"), where("status", "==", "waiting"));
@@ -178,6 +190,11 @@ function loadLobby() {
    JOIN / EXIT
 ========================= */
 
+// TODO:
+// • Add Leave Game button
+// • Ask for confirmation before leaving
+// • Return players to lobby automatically after game ends
+
 function join(id) {
   gameId = id;
   ended = false;
@@ -194,6 +211,13 @@ function join(id) {
 /* =========================
    GUESS SYSTEM
 ========================= */
+
+// Main gameplay logic.
+// TODO:
+// • Prevent duplicate guesses
+// • Show number of guesses taken
+// • Add countdown timer mode
+// • Add achievements for perfect games
 
 guessBtn?.addEventListener("click", async () => {
   if (!gameId || ended) return;
@@ -236,7 +260,11 @@ guessBtn?.addEventListener("click", async () => {
   if (isP1) updates.player1LastDistance = distance;
   else updates.player2LastDistance = distance;
 
-  /* WIN CONDITION (SAFE GUARDED) */
+  /* WIN CONDITION */
+
+  // TODO:
+  // Add XP, levels, badges and streaks here later.
+
   if (distance === 0 && !processingWin) {
     processingWin = true;
     updates.status = "finished";
@@ -265,13 +293,23 @@ guessBtn?.addEventListener("click", async () => {
   }
 
   await updateDoc(ref, updates);
+
   guessInput.value = "";
+
+  // TODO: Replace scrollIntoView with a nicer animation.
   feedback.scrollIntoView({ behavior: "smooth", block: "center" });
 });
 
 /* =========================
    REALTIME LISTENER
 ========================= */
+
+// Continuously updates the UI whenever Firestore changes.
+// TODO:
+// • Display opponent avatar
+// • Show typing/online status
+// • Show total guesses beside player names
+// • Play sounds when turns change
 
 function listen(id) {
   const ref = doc(db, "games", id);
@@ -326,7 +364,11 @@ function listen(id) {
       </div>
     `;
 
-    /* WIN SCREEN (SAFE + SINGLE TRIGGER) */
+    // TODO:
+    // Show confetti animation when the player wins.
+    // Add a Play Again button.
+    // Allow returning to the lobby without refreshing.
+
     if (g.status === "finished" && !ended) {
       ended = true;
 
