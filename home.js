@@ -16,11 +16,13 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 import { initProfileNav } from "./authState.js";
+
 initProfileNav();
 
 /* =========================
-   STATE
+   AUTH PROVIDER
 ========================= */
+
 const provider = new GoogleAuthProvider();
 let currentUser = null;
 let isNewUserFlow = false;
@@ -28,6 +30,11 @@ let isNewUserFlow = false;
 /* =========================
    DOM
 ========================= */
+
+// Centralised UI references
+// TODO:
+// - split into auth/ui modules if project scales
+
 const el = {
   googleLoginBtn: document.getElementById("googleLoginBtn"),
   authPopup: document.getElementById("authPopup"),
@@ -39,31 +46,21 @@ const el = {
   logoutBtn: document.getElementById("logoutBtn")
 };
 
-const openAuthBtn = document.getElementById("openAuthBtn");
-const authTitle = document.getElementById("authTitle");
+/* =========================
+   STATE
+========================= */
 
-const authButtons = document.getElementById("authButtons");
-const profileArea = document.getElementById("profileArea");
-const profileImage = document.getElementById("profileImage");
+// Tracks signup flow state
+// TODO:
+// - add onboarding steps (avatar, interests, etc.)
 
-const menuPfp = document.getElementById("menuPfp");
-const menuName = document.getElementById("menuName");
-const menuEmail = document.getElementById("menuEmail");
-
-const dropdownMenu = document.getElementById("dropdownMenu");
-
-const profileBtn = document.getElementById("profileBtn");
-const profilePageBtn = document.getElementById("profilePageBtn");
-const playBtn = document.getElementById("playBtn");
-
-const quickStats = document.getElementById("quickStats");
-const statWins = document.getElementById("statWins");
-const statGames = document.getElementById("statGames");
-const statRate = document.getElementById("statRate");
+let currentUser = null;
+let isNewUserFlow = false;
 
 /* =========================
-   LOADING
+   LOADING UI
 ========================= */
+
 const showLoading = () =>
   el.loadingScreen?.classList.remove("hidden");
 
@@ -80,16 +77,20 @@ openAuthBtn?.addEventListener("click", () => {
 /* =========================
    GOOGLE LOGIN
 ========================= */
+
+// Handles Google authentication + user routing logic
+// TODO:
+// - add error UI instead of alert()
+// - add loading skeleton during redirect
+
 el.googleLoginBtn?.addEventListener("click", async () => {
   try {
     showLoading();
 
     const result = await signInWithPopup(auth, provider);
-    const user = result.user;
+    currentUser = result.user;
 
-    currentUser = user;
-    await handleUser(user);
-
+    await handleUser(currentUser);
   } catch (err) {
     console.error(err);
     alert(err.message);
@@ -101,25 +102,18 @@ el.googleLoginBtn?.addEventListener("click", async () => {
 /* =========================
    USER HANDLING
 ========================= */
+
+// Decides:
+// - new user → create profile
+// - incomplete profile → onboarding
+// - complete user → game page
+
 async function handleUser(user) {
   const ref = doc(db, "users", user.uid);
   const snap = await getDoc(ref);
 
   if (!snap.exists()) {
-    await setDoc(ref, {
-      uid: user.uid,
-      email: user.email || "",
-      displayName: user.displayName || "",
-      photoURL: user.photoURL || "./Images/defaultPFP.jpg",
-      age: null,
-      profileComplete: false,
-      wins: 0,
-      losses: 0,
-      gamesPlayed: 0,
-      createdAt: serverTimestamp(),
-      lastActive: serverTimestamp()
-    });
-
+    await createNewUser(user, ref);
     openProfileSetup();
     return;
   }
@@ -131,12 +125,47 @@ async function handleUser(user) {
     return;
   }
 
+  // Fully ready user
   window.location.href = "games.html";
 }
 
 /* =========================
-   PROFILE SETUP
+   CREATE USER
 ========================= */
+
+// Creates Firestore user profile shell
+// TODO:
+// - add default avatar generator
+// - add username auto-suggestions
+
+async function createNewUser(user, ref) {
+  await setDoc(ref, {
+    uid: user.uid,
+    displayName: user.displayName || "",
+    email: user.email || "",
+    photoURL: user.photoURL || "./Images/defaultPFP.jpg",
+
+    age: null,
+    profileComplete: false,
+
+    wins: 0,
+    losses: 0,
+    gamesPlayed: 0,
+
+    createdAt: serverTimestamp(),
+    lastActive: serverTimestamp()
+  });
+}
+
+/* =========================
+   PROFILE SETUP UI
+========================= */
+
+// Opens onboarding screen
+// TODO:
+// - add avatar picker
+// - add username validation rules
+
 function openProfileSetup() {
   isNewUserFlow = true;
 
@@ -150,8 +179,14 @@ function openProfileSetup() {
 }
 
 /* =========================
-   SAVE PROFILE (NEW USER FLOW)
+   COMPLETE PROFILE
 ========================= */
+
+// Saves user profile info after signup
+// TODO:
+// - validate age properly
+// - prevent duplicate usernames
+
 el.submitAuthBtn?.addEventListener("click", async () => {
   if (!isNewUserFlow || !currentUser) return;
 
@@ -192,109 +227,33 @@ el.submitAuthBtn?.addEventListener("click", async () => {
 /* =========================
    AUTH STATE LISTENER
 ========================= */
+
+// Runs on page load
+// Handles:
+// - logged out users
+// - incomplete profiles
+// - ready users
+
 onAuthStateChanged(auth, async (user) => {
-  if (!user) return showLoggedOut();
+  if (!user) return;
 
-  const ref = doc(db, "users", user.uid);
-  const snap = await getDoc(ref);
-
-  if (!snap.exists()) {
+  try {
+    showLoading();
+    currentUser = user;
     await handleUser(user);
-    return;
+  } catch (err) {
+    console.error(err);
+  } finally {
+    hideLoading();
   }
-
-  const data = snap.data();
-
-  if (!data.profileComplete) {
-    showProfileSetup(user, data);
-    return;
-  }
-
-  showLoggedIn(data);
-});
-
-/* =========================
-   PROFILE UI
-========================= */
-function showProfileSetup(user, data) {
-  authButtons?.classList.add("hidden");
-  profileArea?.classList.remove("hidden");
-  quickStats?.classList.add("hidden");
-
-  profileImage.src = data.photoURL || "./Images/defaultPFP.jpg";
-  menuName.textContent = "Finish Setup";
-  menuEmail.textContent = user.email;
-
-  el.authPopup?.classList.remove("hidden");
-  authTitle.textContent = "Finish your profile";
-}
-
-/* =========================
-   LOGGED IN UI
-========================= */
-function showLoggedIn(data) {
-  authButtons?.classList.add("hidden");
-  profileArea?.classList.remove("hidden");
-  quickStats?.classList.remove("hidden");
-
-  const pfp = data.photoURL || "./Images/defaultPFP.jpg";
-
-  profileImage.src = pfp;
-  menuPfp.src = pfp;
-
-  menuName.textContent = data.displayName || "Player";
-  menuEmail.textContent = data.email || "";
-
-  const wins = data.wins || 0;
-  const games = data.gamesPlayed || 0;
-  const rate = games ? Math.round((wins / games) * 100) : 0;
-
-  statWins.textContent = wins;
-  statGames.textContent = games;
-  statRate.textContent = `${rate}%`;
-}
-
-/* =========================
-   LOGGED OUT UI
-========================= */
-function showLoggedOut() {
-  authButtons?.classList.remove("hidden");
-  profileArea?.classList.add("hidden");
-  quickStats?.classList.add("hidden");
-
-  profileImage.src = "./Images/defaultPFP.jpg";
-  menuPfp.src = "./Images/defaultPFP.jpg";
-  menuName.textContent = "Guest";
-  menuEmail.textContent = "";
-}
-
-/* =========================
-   DROPDOWN
-========================= */
-profileBtn?.addEventListener("click", (e) => {
-  e.stopPropagation();
-  dropdownMenu?.classList.toggle("hidden");
-});
-
-document.addEventListener("click", () => {
-  dropdownMenu?.classList.add("hidden");
-});
-
-/* =========================
-   NAV
-========================= */
-profilePageBtn?.addEventListener("click", () => {
-  window.location.href = "profile.html";
-});
-
-playBtn?.addEventListener("click", () => {
-  if (!auth.currentUser) return alert("Sign in first");
-  window.location.href = "games.html";
 });
 
 /* =========================
    LOGOUT
 ========================= */
+
+// Signs user out of Firebase
+
 el.logoutBtn?.addEventListener("click", async () => {
   await signOut(auth);
 });

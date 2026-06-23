@@ -18,6 +18,7 @@ import {
 /* =========================
    INIT AUTH UI
 ========================= */
+
 initAuth((user) => {
   renderUserHeader(user);
 
@@ -28,12 +29,19 @@ initAuth((user) => {
    STATE
 ========================= */
 
+// TODO:
+// Could expand later with:
+// - difficulty mode
+// - rematch state
+// - game settings (range, timer, etc.)
+
 let currentUser = null;
 let currentGameId = null;
 
 /* =========================
    DOM
 ========================= */
+
 const el = {
   createGameBtn: document.getElementById("createGameBtn"),
   lobbyNameInput: document.getElementById("lobbyNameInput"),
@@ -53,6 +61,7 @@ const el = {
 /* =========================
    AUTH STATE
 ========================= */
+
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
     window.location.href = "index.html";
@@ -67,7 +76,6 @@ onAuthStateChanged(auth, async (user) => {
       name: profile.displayName || user.displayName || "Player",
       photo: profile.photoURL || user.photoURL || "./Images/defaultPFP.jpg"
     };
-
   } catch {
     currentUser = {
       uid: user.uid,
@@ -82,6 +90,13 @@ onAuthStateChanged(auth, async (user) => {
 /* =========================
    CREATE GAME
 ========================= */
+
+// TODO:
+// - private lobbies / invite codes
+// - difficulty presets (easy/medium/hard)
+// - custom number ranges
+// - timer mode
+
 el.createGameBtn?.addEventListener("click", async () => {
   if (!currentUser) return;
 
@@ -119,6 +134,14 @@ el.createGameBtn?.addEventListener("click", async () => {
 /* =========================
    LOBBY SYSTEM
 ========================= */
+
+// TODO:
+// - sort by newest
+// - show avatars
+// - show lobby age
+// - auto-remove inactive games
+// - prevent race-condition joins (use transaction)
+
 function loadLobby() {
   if (!el.lobbyList) return;
 
@@ -141,6 +164,9 @@ function loadLobby() {
         <p>${game.player1Name}</p>
         <button class="joinBtn">Join</button>
       `;
+
+      // TODO:
+      // Prevent double-join race conditions
 
       card.querySelector(".joinBtn")?.addEventListener("click", async () => {
         if (!currentUser) return;
@@ -165,6 +191,12 @@ function loadLobby() {
 /* =========================
    JOIN GAME
 ========================= */
+
+// TODO:
+// - add animation transition
+// - add leave game button
+// - confirm before leaving
+
 function joinGame(id) {
   currentGameId = id;
 
@@ -177,6 +209,7 @@ function joinGame(id) {
 /* =========================
    GAME RULES
 ========================= */
+
 function canPlay(game) {
   return (
     game.status === "playing" &&
@@ -189,6 +222,14 @@ function canPlay(game) {
 /* =========================
    GAME LISTENER
 ========================= */
+
+// TODO:
+// - show avatars
+// - show guess history UI improvements
+// - add sound effects
+// - animate turn changes
+// - show "typing" / activity indicator
+
 function listenToGame(id) {
   const ref = doc(db, "games", id);
 
@@ -201,11 +242,8 @@ function listenToGame(id) {
         ? game.player2Name
         : game.player1Name;
 
-    const opponentInfo = document.getElementById("opponentInfo");
-    const turnInfo = document.getElementById("turnInfo");
-
-    if (opponentInfo) {
-      opponentInfo.textContent =
+    if (el.opponentInfo) {
+      el.opponentInfo.textContent =
         "Opponent: " + (opponent || "Waiting for opponent...");
     }
 
@@ -222,14 +260,23 @@ function listenToGame(id) {
     }
 
     const playable = canPlay(game);
-    if (guessInput) guessInput.disabled = !playable;
-    if (guessBtn) guessBtn.disabled = !playable;
+
+    if (el.guessInput) el.guessInput.disabled = !playable;
+    if (el.guessBtn) el.guessBtn.disabled = !playable;
   });
 }
 
 /* =========================
    GUESS SYSTEM
 ========================= */
+
+// TODO:
+// - validate duplicates
+// - show hot/cold hints
+// - track best attempts
+// - add win animation
+// - store richer guess objects
+
 el.guessBtn?.addEventListener("click", async () => {
   if (!currentGameId || !currentUser) return;
 
@@ -241,7 +288,7 @@ el.guessBtn?.addEventListener("click", async () => {
   const game = snap.data();
   if (!canPlay(game)) return;
 
-  const guess = Number(guessInput.value);
+  const guess = Number(el.guessInput.value);
   if (isNaN(guess)) return;
 
   const isP1 = currentUser.uid === game.player1Id;
@@ -274,6 +321,10 @@ el.guessBtn?.addEventListener("click", async () => {
    CLEANUP
 ========================= */
 
+// TODO:
+// - remove listeners on exit
+// - detect disconnects
+// - cleanup abandoned games
+
 window.addEventListener("beforeunload", () => {
-  // optional cleanup later
 });
