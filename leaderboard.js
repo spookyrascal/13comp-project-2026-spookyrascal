@@ -3,8 +3,12 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/f
 import { collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* =========================
-   DOM
+   DOM CACHE
 ========================= */
+
+// TODO:
+// - move into a shared UI module if reused elsewhere
+
 const el = {
   tbody: document.querySelector("#LeaderboardTable tbody"),
   profileImage: document.getElementById("profileImage"),
@@ -14,6 +18,12 @@ const el = {
 /* =========================
    PROFILE HEADER
 ========================= */
+
+// Displays current logged-in user at top of leaderboard
+// TODO:
+// - handle loading state (before auth resolves)
+// - add fallback avatar UI if missing image
+
 onAuthStateChanged(auth, (user) => {
   if (!user) return;
 
@@ -24,7 +34,14 @@ onAuthStateChanged(auth, (user) => {
 /* =========================
    HELPERS
 ========================= */
+
+// Safe number conversion (prevents NaN bugs)
+// TODO: central utility file if reused across game
+
 const num = (v) => Number(v) || 0;
+
+// Calculates win percentage
+// TODO: round styling or progress bar UI later
 
 const winRate = (wins, games) =>
   games ? ((wins / games) * 100).toFixed(1) : "0.0";
@@ -32,6 +49,14 @@ const winRate = (wins, games) =>
 /* =========================
    LEADERBOARD STREAM
 ========================= */
+
+// Real-time leaderboard updates from Firestore
+// TODO:
+// - limit top 50 players (performance)
+// - add pagination or "load more"
+// - cache leaderboard locally to reduce reads
+// - highlight current user row
+
 onSnapshot(collection(db, "users"), (snap) => {
   const players = [];
 
@@ -46,19 +71,28 @@ onSnapshot(collection(db, "users"), (snap) => {
       photo: u.photoURL || "./Images/defaultPFP.jpg",
       wins,
       games,
-      best: num(u.bestScore),
+      best: num(u.bestScore), // TODO: define what "bestScore" means in game logic
       rate: winRate(wins, games)
     });
   });
 
+  // Sort leaderboard (highest wins first)
   players.sort((a, b) => b.wins - a.wins);
 
   render(players);
 });
 
 /* =========================
-   RENDER
+   RENDER FUNCTION
 ========================= */
+
+// Builds leaderboard table UI
+// TODO:
+// - animate row changes (smooth reordering)
+// - highlight top 3 players
+// - highlight current user row
+// - add rank icons (🥇🥈🥉)
+
 function render(players) {
   const tbody = el.tbody;
   if (!tbody) return;
