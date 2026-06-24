@@ -1,126 +1,100 @@
-import { auth, db } from "./firebase.js";
+/*
+========================================
+FILE: leaderboard.js
+
+PURPOSE:
+This file builds and updates the leaderboard page.
+
+BIG PICTURE:
+It:
+- Listens to Firestore "users" collection
+- Sorts players by wins
+- Displays leaderboard table in real time
+- Shows current logged-in user in header
+- Renders podium for top 3 players
+========================================
+*/
+
+/*
+========================================
+FILE: games.js
+
+PURPOSE:
+Simple game hub controller ONLY.
+
+ROLE:
+- Auth check
+- Load user profile + PFP
+- Render header UI
+- Navigate between games
+
+NO GAME LOGIC HERE.
+========================================
+*/
+
+import { auth } from "./firebase.js";
+import { renderUserHeader } from "./ui.js";
+import { getUserProfile } from "./auth.js";
+
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* =========================
-   DOM CACHE
+   USER STATE
 ========================= */
 
-// TODO:
-// - move into a shared UI module if reused elsewhere
-
-const el = {
-  tbody: document.querySelector("#LeaderboardTable tbody"),
-  profileImage: document.getElementById("profileImage"),
-  profileName: document.getElementById("profileName")
-};
+let currentUser = null;
 
 /* =========================
-   PROFILE HEADER
+   AUTH INIT
 ========================= */
 
-// Displays current logged-in user at top of leaderboard
-// TODO:
-// - handle loading state (before auth resolves)
-// - add fallback avatar UI if missing image
+onAuthStateChanged(auth, async (user) => {
 
-onAuthStateChanged(auth, (user) => {
-  if (!user) return;
-
-  el.profileImage.src = user.photoURL || "./Images/defaultPFP.jpg";
-  el.profileName.textContent = user.displayName || "Player";
-});
-
-/* =========================
-   HELPERS
-========================= */
-
-// Safe number conversion (prevents NaN bugs)
-// TODO: central utility file if reused across game
-
-const num = (v) => Number(v) || 0;
-
-// Calculates win percentage
-// TODO: round styling or progress bar UI later
-
-const winRate = (wins, games) =>
-  games ? ((wins / games) * 100).toFixed(1) : "0.0";
-
-/* =========================
-   LEADERBOARD STREAM
-========================= */
-
-// Real-time leaderboard updates from Firestore
-// TODO:
-// - limit top 50 players (performance)
-// - add pagination or "load more"
-// - cache leaderboard locally to reduce reads
-// - highlight current user row
-
-onSnapshot(collection(db, "users"), (snap) => {
-  const players = [];
-
-  snap.forEach((docSnap) => {
-    const u = docSnap.data();
-
-    const wins = num(u.wins);
-    const games = num(u.gamesPlayed);
-
-    players.push({
-      name: u.displayName || "Player",
-      photo: u.photoURL || "./Images/defaultPFP.jpg",
-      wins,
-      games,
-      best: num(u.bestScore), // TODO: define what "bestScore" means in game logic
-      rate: winRate(wins, games)
-    });
-  });
-
-  // Sort leaderboard (highest wins first)
-  players.sort((a, b) => b.wins - a.wins);
-
-  render(players);
-});
-
-/* =========================
-   RENDER FUNCTION
-========================= */
-
-// Builds leaderboard table UI
-// TODO:
-// - animate row changes (smooth reordering)
-// - highlight top 3 players
-// - highlight current user row
-// - add rank icons (🥇🥈🥉)
-
-function render(players) {
-  const tbody = el.tbody;
-  if (!tbody) return;
-
-  if (!players.length) {
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="6">No players yet 😭</td>
-      </tr>
-    `;
+  if (!user) {
+    window.location.href = "index.html";
     return;
   }
 
-  tbody.innerHTML = players
-    .map((p, i) => `
-      <tr>
-        <td><strong>#${i + 1}</strong></td>
+  let profile;
 
-        <td class="playerCell">
-          <img class="lb-pfp" src="${p.photo}" alt="profile" />
-          <span>${p.name}</span>
-        </td>
+  try {
+    profile = await getUserProfile(user);
+  } catch {
+    profile = null;
+  }
 
-        <td>${p.wins}</td>
-        <td>${p.games}</td>
-        <td>${p.rate}%</td>
-        <td>${p.best}</td>
-      </tr>
-    `)
-    .join("");
-}
+  currentUser = {
+    uid: user.uid,
+    name: profile?.name || user.displayName || "Player",
+    photo: profile?.photo || user.photoURL || "./Images/defaultPFP.jpg"
+  };
+
+  renderUserHeader(currentUser);
+
+  const img = document.getElementById("profileImage");
+  if (img) img.src = currentUser.photo;
+});
+
+/* =========================
+   NAVIGATION (OPTIONAL)
+========================= */
+
+document.getElementById("gtnBtn")?.addEventListener("click", () => {
+  window.location.href = "GTN.html";
+});
+
+document.getElementById("meteorBtn")?.addEventListener("click", () => {
+  window.location.href = "meteorRush.html";
+});
+
+document.getElementById("leaderboardBtn")?.addEventListener("click", () => {
+  window.location.href = "leaderBoard.html";
+});
+
+/* =========================
+   PROFILE BUTTON
+========================= */
+
+document.getElementById("profileBtn")?.addEventListener("click", () => {
+  window.location.href = "profile.html";
+});

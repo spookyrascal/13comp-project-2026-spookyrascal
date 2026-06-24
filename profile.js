@@ -1,312 +1,270 @@
+/*
+========================================
+FILE: profile.js
+
+PURPOSE:
+This file powers the user's profile page.
+
+BIG PICTURE:
+It:
+- Checks if user is logged in
+- Loads their profile data from Firestore in real time
+- Displays stats (wins, losses, etc.)
+- Lets users edit and save their profile
+- Shows live preview of profile image
+- Syncs updates back to Firebase
+
+AKA
+"the live dashboard + editor for a player's account"
+========================================
+*/
+
 import { auth, db } from "./firebase.js";
-import { onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 import {
-  doc,
   setDoc,
+  updateDoc,
+  onSnapshot,
   serverTimestamp,
-  onSnapshot
+  getDoc,
+  doc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-import { initProfileNav } from "./authState.js";
-
-initProfileNav();
+import {
+  onAuthStateChanged,
+  updateEmail
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 /* =========================
    STATE
 ========================= */
 
-// Tracks current user + live Firestore subscription
-// TODO:
-// - add cache layer for offline profile viewing
-
-const state = {
-  user: null,
-  profile: null,
-  unsub: null
-};
+let user = null;
+let profile = null;
 
 /* =========================
-   DOM HELPERS
+   ELEMENTS
 ========================= */
 
-const $ = (id) => document.getElementById(id);
+const headerImg = document.getElementById("headerProfileImage");
+const preview = document.getElementById("profilePreview");
+const live = document.getElementById("livePreview");
 
-// Centralised DOM references
-// TODO:
-// - split into profile / stats / editor modules if app grows
+const nameEl = document.getElementById("profileDisplayName");
+const emailEl = document.getElementById("profileEmail");
+const ageEl = document.getElementById("profileAge");
 
-const el = {
-  headerImg: $("headerProfileImage"),
-  preview: $("profilePreview"),
-  live: $("livePreview"),
+const winsEl = document.getElementById("winsStat");
+const lossesEl = document.getElementById("lossesStat");
+const gamesEl = document.getElementById("gamesStat");
+const rateEl = document.getElementById("rateStat");
 
-  name: $("profileDisplayName"),
-  email: $("profileEmail"),
-  age: $("profileAge"),
+const usernameInput = document.getElementById("usernameInput");
+const ageInput = document.getElementById("ageInput");
+const pfpInput = document.getElementById("pfpUrlInput");
 
-  wins: $("winsStat"),
-  losses: $("lossesStat"),
-  games: $("gamesStat"),
-  rate: $("rateStat"),
+const saveBtn = document.getElementById("saveProfileBtn");
+const backBtn = document.getElementById("backBtn");
 
-  inputs: {
-    name: $("usernameInput"),
-    email: $("emailInput"),
-    age: $("ageInput"),
-    photo: $("photoInput")
-  },
+const modal = document.getElementById("editModal");
+const openBtn = document.getElementById("openEditBtn");
+const closeBtn = document.getElementById("closeModalBtn");
 
-  saveBtn: $("saveProfileBtn"),
-  backBtn: $("backBtn"),
-  toast: $("toast")
-};
+const toastEl = document.getElementById("toast");
+
+const emailInput = document.getElementById("emailInput");
+const emailSaveBtn = document.getElementById("saveEmailBtn");
 
 /* =========================
-   TOAST SYSTEM
+   TOAST
 ========================= */
-
-// Lightweight feedback system
-// TODO:
-// - queue multiple messages instead of overriding
-// - add success/error styling variants
-
-let toastTimer;
 
 function toast(msg) {
-  clearTimeout(toastTimer);
+  toastEl.textContent = msg;
+  toastEl.classList.add("show");
 
-  el.toast.textContent = msg;
-  el.toast.classList.add("show");
-
-  toastTimer = setTimeout(() => {
-    el.toast.classList.remove("show");
-  }, 2500);
+  setTimeout(() => {
+    toastEl.classList.remove("show");
+  }, 2000);
 }
 
 /* =========================
-   AUTH
+   NAV
 ========================= */
 
-// Redirects unauthenticated users
-// TODO:
-// - add loading skeleton before redirect check completes
+backBtn.onclick = () => {
+  window.location.href = "games.html";
+};
 
-onAuthStateChanged(auth, (user) => {
-  if (!user) {
-    window.location.replace("index.html");
+openBtn.onclick = () => modal.classList.remove("hidden");
+closeBtn.onclick = () => modal.classList.add("hidden");
+
+/* =========================
+   AUTH + INIT
+========================= */
+
+onAuthStateChanged(auth, async (u) => {
+  if (!u) {
+    window.location.href = "index.html";
     return;
   }
 
-  state.user = user;
-  listenProfile(user.uid);
+  user = u;
+
+  const ref = doc(db, "users", u.uid);
+  const snap = await getDoc(ref);
+
+  if (!snap.exists()) {
+    await setDoc(ref, {
+      uid: u.uid,
+      displayName: u.displayName || "Player",
+      email: null, // 🔥 removed dependency (Auth owns email)
+      photoURL: "./Images/defaultPFP.jpg",
+      age: null,
+      wins: 0,
+      losses: 0,
+      gamesPlayed: 0,
+      createdAt: serverTimestamp(),
+      lastActive: serverTimestamp()
+    });
+  }
+
+  listenProfile(u.uid);
 });
 
 /* =========================
-   FIRESTORE SYNC
+   LIVE PROFILE SYNC
 ========================= */
 
-// Live profile listener
-// TODO:
-// - debounce updates if Firestore writes become frequent
-// - reduce re-renders by diffing changes
-
 function listenProfile(uid) {
-  if (state.unsub) state.unsub();
-
   const ref = doc(db, "users", uid);
 
-  state.unsub = onSnapshot(ref, async (snap) => {
-    if (!snap.exists()) {
-      // Auto-create user profile if missing
-      await setDoc(ref, {
-        displayName: state.user.displayName || "Player",
-        email: state.user.email || "",
-        photoURL: state.user.photoURL || "./Images/defaultPFP.jpg",
+  onSnapshot(ref, (snap) => {
+    if (!snap.exists()) return;
 
-        age: null,
-        wins: 0,
-        losses: 0,
-        gamesPlayed: 0,
-
-        createdAt: serverTimestamp(),
-        lastActive: serverTimestamp()
-      });
-
-      return;
-    }
-
-    const data = snap.data();
-
-    state.profile = {
-      displayName: data.displayName || "Player",
-      email: data.email || "",
-      photoURL: data.photoURL || "./Images/defaultPFP.jpg",
-      age: data.age ?? null,
-      wins: data.wins || 0,
-      losses: data.losses || 0,
-      gamesPlayed: data.gamesPlayed || 0
-    };
-
+    profile = snap.data();
     render();
   });
 }
 
 /* =========================
-   RENDER UI
+   EMAIL UPDATE (AUTH ONLY)
 ========================= */
 
-// Updates all profile UI elements
-// TODO:
-// - animate stat changes
-// - highlight updated fields
-// - skeleton loading before first render
+async function changeEmail(newEmail) {
+  try {
+    await updateEmail(auth.currentUser, newEmail);
 
-function render() {
-  const p = state.profile;
-  if (!p) return;
+    toast("Email updated! Refreshing...");
 
-  const wins = Number(p.wins);
-  const losses = Number(p.losses);
-  const games = Number(p.gamesPlayed);
+    await auth.currentUser.reload();
 
-  const rate = games ? Math.round((wins / games) * 100) : 0;
-  const photo = p.photoURL || "./Images/defaultPFP.jpg";
+    render();
+  } catch (err) {
+    console.log(err);
 
-  // Sync all profile images
-  [el.headerImg, el.preview, el.live].forEach(img => {
-    if (img) img.src = photo;
-  });
+    if (err.code === "auth/requires-recent-login") {
+      toast("Log in again to change email");
+    } else {
+      toast("Email update failed");
+    }
+  }
+}
 
-  el.name.textContent = p.displayName;
-  el.email.textContent = p.email;
-  el.age.textContent = p.age ? `Age: ${p.age}` : "Age: Not set";
+if (emailSaveBtn && emailInput) {
+  emailSaveBtn.onclick = async () => {
+    const newEmail = emailInput.value.trim();
 
-  // Fill form inputs
-  el.inputs.name.value = p.displayName || "";
-  el.inputs.email.value = p.email || "";
-  el.inputs.age.value = p.age || "";
-  el.inputs.photo.value = p.photoURL || "";
+    if (!newEmail.includes("@")) {
+      toast("Enter a valid email");
+      return;
+    }
 
-  // Stats
-  el.wins.textContent = wins;
-  el.losses.textContent = losses;
-  el.games.textContent = games;
-  el.rate.textContent = `${rate}%`;
+    await changeEmail(newEmail);
+  };
 }
 
 /* =========================
-   LIVE IMAGE PREVIEW
+   RENDER (MERGED DATA MODEL)
 ========================= */
 
-// Updates preview image as user types URL
-// TODO:
-// - allow file upload instead of URL
-// - cache valid images to avoid flicker
+function render() {
+  if (!user || !profile) return;
 
-el.inputs.photo.addEventListener("input", () => {
-  const url = el.inputs.photo.value.trim();
+  const games = profile.gamesPlayed || 0;
+  const wins = profile.wins || 0;
+  const rate = games > 0 ? Math.round((wins / games) * 100) : 0;
 
-  if (!url) {
-    el.live.src = "./Images/defaultPFP.jpg";
-    return;
-  }
+  const img = profile.photoURL || "./Images/defaultPFP.jpg";
 
-  try {
-    new URL(url);
-    el.live.src = url;
-  } catch {
-    el.live.src = "./Images/defaultPFP.jpg";
-  }
-});
+  headerImg.src = img;
+  preview.src = img;
+  live.src = img;
+
+  nameEl.textContent = profile.displayName || "Player";
+
+  // 🔥 AUTH is single source of truth for email
+  emailEl.textContent =
+    auth.currentUser?.email || "No email linked";
+
+  ageEl.textContent =
+    profile.age != null ? `Age: ${profile.age}` : "Age: Not set";
+
+  winsEl.textContent = wins;
+  lossesEl.textContent = profile.losses || 0;
+  gamesEl.textContent = games;
+  rateEl.textContent = rate;
+
+  usernameInput.value = profile.displayName || "";
+  ageInput.value = profile.age || "";
+  pfpInput.value = profile.photoURL || "";
+}
+
+/* =========================
+   IMAGE VALIDATION
+========================= */
+
+function validateImage(url) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(true);
+    img.onerror = () => reject(false);
+    img.src = url;
+  });
+}
 
 /* =========================
    SAVE PROFILE
 ========================= */
 
-// Validates + writes profile changes
-// TODO:
-// - username uniqueness check
-// - rate limit saves
-// - add "unsaved changes" warning
+saveBtn.onclick = async function () {
+  if (!user || !profile) return;
 
-el.saveBtn.addEventListener("click", async () => {
+  const ref = doc(db, "users", user.uid);
+
+  const rawUrl = pfpInput.value.trim();
+  let photoURL = profile.photoURL;
+
   try {
-    el.saveBtn.disabled = true;
-    el.saveBtn.textContent = "Saving...";
-
-    const name = el.inputs.name.value.trim();
-    const email = el.inputs.email.value.trim();
-    const ageRaw = el.inputs.age.value.trim();
-    const photo = el.inputs.photo.value.trim();
-
-    if (name.length < 3) throw new Error("Username too short");
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      throw new Error("Invalid email");
+    if (rawUrl) {
+      await validateImage(rawUrl);
+      photoURL = rawUrl;
     }
-
-    let age = null;
-    if (ageRaw !== "") {
-      age = Number(ageRaw);
-      if (isNaN(age) || age < 1 || age > 120) {
-        throw new Error("Invalid age");
-      }
-    }
-
-    let finalPhoto = "./Images/defaultPFP.jpg";
-
-    if (photo) {
-      try {
-        new URL(photo);
-        finalPhoto = photo;
-      } catch {
-        throw new Error("Invalid image URL");
-      }
-    }
-
-    // Update Firebase Auth profile
-    await updateProfile(state.user, {
-      displayName: name,
-      photoURL: finalPhoto
-    });
-
-    // Update Firestore profile
-    const ref = doc(db, "users", state.user.uid);
-
-    await setDoc(ref, {
-      displayName: name,
-      email,
-      age,
-      photoURL: finalPhoto,
-      lastActive: serverTimestamp()
-    }, { merge: true });
-
-    toast("🔥 Profile updated");
-
-  } catch (err) {
-    console.error(err);
-    toast(err.message || "Update failed");
-
-  } finally {
-    el.saveBtn.disabled = false;
-    el.saveBtn.textContent = "Save Changes";
+  } catch {
+    toast("Invalid image link");
+    return;
   }
-});
 
-/* =========================
-   NAVIGATION
-========================= */
+  const ageValue = Number(ageInput.value);
+  const safeAge =
+    Number.isFinite(ageValue) && ageValue > 0 ? ageValue : null;
 
-el.backBtn.addEventListener("click", () => {
-  window.location.href = "index.html";
-});
+  await updateDoc(ref, {
+    displayName: usernameInput.value.trim() || "Player",
+    age: safeAge,
+    photoURL,
+    lastActive: serverTimestamp()
+  });
 
-/* =========================
-   CLEANUP
-========================= */
-
-// Ensures Firestore listener doesn't leak memory
-window.addEventListener("beforeunload", () => {
-  if (state.unsub) state.unsub();
-});
+  toast("Saved!");
+};

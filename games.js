@@ -1,330 +1,59 @@
+/*
+========================================
+FILE: games.js
+
+PURPOSE:
+Simple game hub controller ONLY.
+
+ROLE:
+- Auth check
+- Load user profile + PFP
+- Render header UI
+- Navigate between games
+
+NO GAME LOGIC HERE.
+========================================
+*/
+
 import { auth, db } from "./firebase.js";
-import { getUserProfile } from "./user.js";
-import { initAuth } from "./authState.js";
-import { renderUserHeader } from "./ui.js";
-
-import {
-  collection,
-  addDoc,
-  updateDoc,
-  getDoc,
-  doc,
-  onSnapshot,
-  query,
-  where,
-  serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-/* =========================
-   INIT AUTH UI
-========================= */
-
-initAuth((user) => {
-  renderUserHeader(user);
-
-  if (!user) window.location.href = "index.html";
-});
-
-/* =========================
-   STATE
-========================= */
-
-// TODO:
-// Could expand later with:
-// - difficulty mode
-// - rematch state
-// - game settings (range, timer, etc.)
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 let currentUser = null;
-let currentGameId = null;
-
-/* =========================
-   DOM
-========================= */
-
-const el = {
-  createGameBtn: document.getElementById("createGameBtn"),
-  lobbyNameInput: document.getElementById("lobbyNameInput"),
-
-  guessInput: document.getElementById("guessInput"),
-  guessBtn: document.getElementById("guessBtn"),
-
-  lobbyList: document.getElementById("lobbyList"),
-
-  lobbySection: document.getElementById("lobbySection"),
-  gameSection: document.getElementById("gameSection"),
-
-  opponentInfo: document.getElementById("opponentInfo"),
-  turnInfo: document.getElementById("turnInfo")
-};
-
-/* =========================
-   AUTH STATE
-========================= */
 
 onAuthStateChanged(auth, async (user) => {
+
   if (!user) {
     window.location.href = "index.html";
     return;
   }
 
-  try {
-    const profile = await getUserProfile(user);
+  const snap = await getDoc(doc(db, "users", user.uid));
+  const data = snap.exists() ? snap.data() : {};
 
-    currentUser = {
-      uid: user.uid,
-      name: profile.displayName || user.displayName || "Player",
-      photo: profile.photoURL || user.photoURL || "./Images/defaultPFP.jpg"
-    };
-  } catch {
-    currentUser = {
-      uid: user.uid,
-      name: user.displayName || "Player",
-      photo: user.photoURL || "./Images/defaultPFP.jpg"
-    };
-  }
+  currentUser = {
+    uid: user.uid,
+    name: data.displayName || "Player",
+    photo: data.photoURL || "./Images/defaultPFP.jpg"
+  };
 
-  loadLobby();
+  const img = document.getElementById("profileImage");
+  if (img) img.src = currentUser.photo;
 });
 
-/* =========================
-   CREATE GAME
-========================= */
-
-// TODO:
-// - private lobbies / invite codes
-// - difficulty presets (easy/medium/hard)
-// - custom number ranges
-// - timer mode
-
-el.createGameBtn?.addEventListener("click", async () => {
-  if (!currentUser) return;
-
-  const lobbyName = el.lobbyNameInput?.value?.trim() || "Lobby";
-
-  const ref = await addDoc(collection(db, "games"), {
-    lobbyName,
-
-    player1Id: currentUser.uid,
-    player1Name: currentUser.name,
-
-    player2Id: null,
-    player2Name: null,
-
-    status: "waiting",
-    currentTurn: null,
-    turnNumber: 0,
-
-    secretNumber: Math.floor(Math.random() * 100) + 1,
-
-    player1Guesses: [],
-    player2Guesses: [],
-
-    player1Attempts: 0,
-    player2Attempts: 0,
-
-    winnerId: "",
-
-    createdAt: serverTimestamp()
-  });
-
-  joinGame(ref.id);
+/* NAV */
+document.getElementById("gtnBtn")?.addEventListener("click", () => {
+  window.location.href = "GTN.html";
 });
 
-/* =========================
-   LOBBY SYSTEM
-========================= */
-
-// TODO:
-// - sort by newest
-// - show avatars
-// - show lobby age
-// - auto-remove inactive games
-// - prevent race-condition joins (use transaction)
-
-function loadLobby() {
-  if (!el.lobbyList) return;
-
-  const q = query(
-    collection(db, "games"),
-    where("status", "==", "waiting")
-  );
-
-  onSnapshot(q, (snapshot) => {
-    el.lobbyList.innerHTML = "";
-
-    snapshot.forEach((docSnap) => {
-      const game = docSnap.data();
-
-      const card = document.createElement("div");
-      card.className = "lobbyCard";
-
-      card.innerHTML = `
-        <h3>${game.lobbyName}</h3>
-        <p>${game.player1Name}</p>
-        <button class="joinBtn">Join</button>
-      `;
-
-      // TODO:
-      // Prevent double-join race conditions
-
-      card.querySelector(".joinBtn")?.addEventListener("click", async () => {
-        if (!currentUser) return;
-
-        await updateDoc(doc(db, "games", docSnap.id), {
-          player2Id: currentUser.uid,
-          player2Name: currentUser.name,
-
-          status: "playing",
-          currentTurn: game.player1Id,
-          turnNumber: 1
-        });
-
-        joinGame(docSnap.id);
-      });
-
-      el.lobbyList.appendChild(card);
-    });
-  });
-}
-
-/* =========================
-   JOIN GAME
-========================= */
-
-// TODO:
-// - add animation transition
-// - add leave game button
-// - confirm before leaving
-
-function joinGame(id) {
-  currentGameId = id;
-
-  el.lobbySection?.classList.add("hidden");
-  el.gameSection?.classList.remove("hidden");
-
-  listenToGame(id);
-}
-
-/* =========================
-   GAME RULES
-========================= */
-
-function canPlay(game) {
-  return (
-    game.status === "playing" &&
-    game.currentTurn === currentUser.uid &&
-    game.player1Id &&
-    game.player2Id
-  );
-}
-
-/* =========================
-   GAME LISTENER
-========================= */
-
-// TODO:
-// - show avatars
-// - show guess history UI improvements
-// - add sound effects
-// - animate turn changes
-// - show "typing" / activity indicator
-
-function listenToGame(id) {
-  const ref = doc(db, "games", id);
-
-  onSnapshot(ref, (snap) => {
-    const game = snap.data();
-    if (!game) return;
-
-    const opponent =
-      currentUser.uid === game.player1Id
-        ? game.player2Name
-        : game.player1Name;
-
-    if (el.opponentInfo) {
-      el.opponentInfo.textContent =
-        "Opponent: " + (opponent || "Waiting for opponent...");
-    }
-
-    if (el.turnInfo) {
-      if (game.status === "waiting") {
-        el.turnInfo.textContent = "Waiting for opponent...";
-      } else if (game.status === "finished") {
-        el.turnInfo.textContent = "Game Finished";
-      } else {
-        el.turnInfo.textContent = canPlay(game)
-          ? "🔥 Your Turn"
-          : "⏳ Opponent Turn";
-      }
-    }
-
-    const playable = canPlay(game);
-
-    if (el.guessInput) el.guessInput.disabled = !playable;
-    if (el.guessBtn) el.guessBtn.disabled = !playable;
-  });
-}
-
-/* =========================
-   GUESS SYSTEM
-========================= */
-
-// TODO:
-// - validate duplicates
-// - show hot/cold hints
-// - track best attempts
-// - add win animation
-// - store richer guess objects
-
-el.guessBtn?.addEventListener("click", async () => {
-  if (!currentGameId || !currentUser) return;
-
-  const ref = doc(db, "games", currentGameId);
-  const snap = await getDoc(ref);
-
-  if (!snap.exists()) return;
-
-  const game = snap.data();
-  if (!canPlay(game)) return;
-
-  const guess = Number(el.guessInput.value);
-  if (isNaN(guess)) return;
-
-  const isP1 = currentUser.uid === game.player1Id;
-
-  const guessField = isP1 ? "player1Guesses" : "player2Guesses";
-  const attemptField = isP1 ? "player1Attempts" : "player2Attempts";
-
-  const updatedGuesses = [
-    ...(game[guessField] || []),
-    guess
-  ];
-
-  const nextTurn =
-    currentUser.uid === game.player1Id
-      ? game.player2Id
-      : game.player1Id;
-
-  await updateDoc(ref, {
-    [guessField]: updatedGuesses,
-    [attemptField]: (game[attemptField] || 0) + 1,
-    currentTurn: nextTurn,
-    turnNumber: (game.turnNumber || 0) + 1,
-    lastActive: serverTimestamp()
-  });
-
-  el.guessInput.value = "";
+document.getElementById("meteorBtn")?.addEventListener("click", () => {
+  window.location.href = "meteorRush.html";
 });
 
-/* =========================
-   CLEANUP
-========================= */
+document.getElementById("leaderboardBtn")?.addEventListener("click", () => {
+  window.location.href = "leaderBoard.html";
+});
 
-// TODO:
-// - remove listeners on exit
-// - detect disconnects
-// - cleanup abandoned games
-
-window.addEventListener("beforeunload", () => {
+document.getElementById("profileBtn")?.addEventListener("click", () => {
+  window.location.href = "profile.html";
 });

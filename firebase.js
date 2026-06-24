@@ -1,3 +1,18 @@
+/*
+========================================
+FILE: firebase.js
+
+PURPOSE:
+Initialises Firebase for the whole app.
+
+WHAT IT DOES:
+- Connects to Firebase project
+- Enables Authentication
+- Enables Firestore database
+- Sets login persistence (stay logged in)
+========================================
+*/
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
@@ -25,9 +40,11 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
-try {
-  await setPersistence(auth, browserLocalPersistence);
-  console.log("Firebase persistence enabled");
-} catch (err) {
-  console.error("Auth persistence error:", err);
-}
+// Keep user logged in across refresh
+setPersistence(auth, browserLocalPersistence)
+  .then(() => {
+    console.log("Auth persistence enabled");
+  })
+  .catch((err) => {
+    console.error("Auth persistence error:", err);
+  });

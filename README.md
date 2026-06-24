@@ -1,7 +1,5 @@
 # 📌 Project Development Timeline
 
-A breakdown of the development progress across versions, from initial setup to multiplayer gameplay systems.
-
 ---
 
 ##  V01 — 28 Feb – 3 Mar | Project Setup
@@ -157,7 +155,7 @@ A breakdown of the development progress across versions, from initial setup to m
 
 ---
 
-## V20 — June 10th | Update
+## V20 — June 10th - 24th | Update
 
 * Fixed Google authentication system.
 * Improved CSS and overall UI styling.

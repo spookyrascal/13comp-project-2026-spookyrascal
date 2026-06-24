@@ -5,71 +5,101 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Leaderboard</title>
-
   <link rel="stylesheet" href="style.css"/>
 </head>
 
 <body>
 
-  <!-- HEADER -->
-  <header class="leaderboardHeader">
+<!-- =========================
+     HEADER
+========================= -->
+<header class="leaderboardHeader">
 
-    <h1>Leaderboard</h1>
+  <h1>Leaderboard</h1>
 
-    <div class="profileContainer">
+  <div class="profileContainer">
 
-      <div class="profileMini">
+    <div class="profileMini">
 
-        <img
-          id="profileImage"
-          class="profile-img"
-          src="./Images/defaultPFP.jpg"
-          alt="Profile"
-        />
+      <!-- User profile image -->
+      <img
+        id="profileImage"
+        class="profile-img"
+        src="./Images/defaultPFP.jpg"
+        alt="Profile"
+      />
 
-        <button id="profileBtn" class="profileBtn" type="button">
-          <img id="profileImage" class="profile-img" src="./Images/defaultPFP.jpg" />
-        </button>
-        
-        <p id="profileName">Guest</p>
+      <!-- Back-up profile button (optional UI trigger) -->
+      <button id="profileBtn" class="profileBtn" type="button">
+        Open Profile
+      </button>
 
-      </div>
-
-    </div>
-
-  </header>
-
-  <!-- MAIN -->
-  <main>
-
-    <div class="tableWrap">
-
-      <table id="leaderboardTable">
-
-        <thead>
-          <tr>
-            <th>Rank</th>
-            <th>Player</th>
-            <th>Wins</th>
-            <th>Games</th>
-            <th>Win Rate</th>
-            <th>Best Score</th>
-          </tr>
-        </thead>
-
-        <tbody></tbody>
-
-      </table>
+      <p id="profileName">Guest</p>
 
     </div>
 
-    <button class="backBtn" onclick="location.href='games.html'">
-      ← Back
-    </button>
+  </div>
 
-  </main>
+</header>
 
-  <script type="module" src="./leaderboard.js"></script>
+<section id="podium" class="podium">
+
+  <div class="podiumSpot second">
+    <h3>2</h3>
+    <img id="p2Img" src="./Images/defaultPFP.jpg">
+    <p id="p2Name">---</p>
+    <span id="p2Wins">0 wins</span>
+  </div>
+
+  <div class="podiumSpot first">
+    <h3>1</h3>
+    <img id="p1Img" src="./Images/defaultPFP.jpg">
+    <p id="p1Name">---</p>
+    <span id="p1Wins">0 wins</span>
+  </div>
+
+  <div class="podiumSpot third">
+    <h3>3</h3>
+    <img id="p3Img" src="./Images/defaultPFP.jpg">
+    <p id="p3Name">---</p>
+    <span id="p3Wins">0 wins</span>
+  </div>
+
+</section>
+
+<!-- =========================
+     MAIN TABLE
+========================= -->
+<main>
+
+  <div class="tableWrap">
+
+    <table id="leaderboardTable">
+
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Player</th>
+          <th>Wins</th>
+          <th>Games</th>
+          <th>Win Rate</th>
+          <th>Best Score</th>
+        </tr>
+      </thead>
+
+      <tbody></tbody>
+
+    </table>
+
+  </div>
+
+  <button class="backBtn" onclick="location.href='games.html'">
+    ← Back
+  </button>
+
+</main>
+
+<script type="module" src="./leaderboard.js"></script>
 
 </body>
 </html>

@@ -1,22 +1,58 @@
+/*
+========================================
+FILE: GTN.js
+
+PURPOSE:
+This file runs the "Guess The Number" multiplayer game.
+
+BIG PICTURE:
+It handles:
+- Authentication
+- Lobby creation + joining
+- Real-time multiplayer gameplay
+- Guess checking logic
+- Win/loss tracking
+- Game state syncing via Firestore
+========================================
+*/
+
+import { auth, db } from "./firebase.js";
+
+import {
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+  onAuthStateChanged,
+  updateProfile
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+import {
+  collection,
+  addDoc,
+  updateDoc,
+  getDoc,
+  doc,
+  onSnapshot,
+  query,
+  where,
+  serverTimestamp,
+  arrayUnion,
+  increment
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
 /* =========================
    STATE
 ========================= */
-
-// TODO: Maybe store game settings here later
-// (difficulty, timer mode, private/public lobby, etc.)
 
 let user = null;
 let gameId = null;
 let unsub = null;
 let ended = false;
-let processingWin = false; // Prevents duplicate win processing
+let processingWin = false;
 
 /* =========================
    DOM
 ========================= */
-
-// TODO: Move all DOM IDs into one object if project grows larger.
-// This makes changing IDs easier.
 
 const lobbySection = document.getElementById("lobbySection");
 const gameSection = document.getElementById("gameSection");
@@ -43,10 +79,11 @@ const DEFAULT_PFP = "./Images/defaultPFP.jpg";
    AUTH
 ========================= */
 
-// TODO: Could display a loading screen while checking authentication.
-
-onAuthStateChanged(auth, (u) => {
-  if (!u) return (location.href = "index.html");
+onAuthStateChanged(auth, function (u) {
+  if (!u) {
+    location.href = "index.html";
+    return;
+  }
 
   user = {
     uid: u.uid,
@@ -61,28 +98,32 @@ onAuthStateChanged(auth, (u) => {
    HELPERS
 ========================= */
 
-// Makes sure Firestore arrays never cause errors if they don't exist.
-// TODO: Could move helper functions into a utilities file.
-
 function safeArray(v) {
-  return Array.isArray(v) ? v : [];
+  if (Array.isArray(v)) {
+    return v;
+  }
+  return [];
 }
 
-// Returns hint based on distance from the secret number.
-// TODO: Add more hint levels (Freezing, Boiling, etc.)
-
 function getHint(distance, last) {
-  let msg =
-    distance === 0
-      ? "Correct!"
-      : distance <= 3
-      ? "Very hot"
-      : distance <= 10
-      ? "Warm"
-      : "Cold";
+  let msg = "";
+
+  if (distance === 0) {
+    msg = "Correct!";
+  } else if (distance <= 3) {
+    msg = "Very hot";
+  } else if (distance <= 10) {
+    msg = "Warm";
+  } else {
+    msg = "Cold";
+  }
 
   if (last != null && distance !== 0) {
-    msg += distance < last ? " (closer)" : " (colder)";
+    if (distance < last) {
+      msg = msg + " (closer)";
+    } else {
+      msg = msg + " (colder)";
+    }
   }
 
   return msg;
@@ -92,24 +133,22 @@ function getHint(distance, last) {
    ENTER KEY
 ========================= */
 
-// Allows Enter to submit guesses.
-// TODO: Add sound effect or animation when guessing.
-
-guessInput?.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") guessBtn.click();
+guessInput.addEventListener("keydown", function (e) {
+  if (e.key === "Enter") {
+    guessBtn.click();
+  }
 });
 
 /* =========================
    CREATE GAME
 ========================= */
 
-// TODO:
-// • Allow custom max number (100, 500, 1000)
-// • Allow private lobby codes
-// • Allow selecting game difficulty
+createBtn.addEventListener("click", async function () {
+  let name = lobbyInput.value;
 
-createBtn?.addEventListener("click", async () => {
-  const name = lobbyInput.value.trim() || "Lobby";
+  if (!name) {
+    name = "Lobby";
+  }
 
   const ref = await addDoc(collection(db, "games"), {
     lobbyName: name,
@@ -144,33 +183,36 @@ createBtn?.addEventListener("click", async () => {
    LOBBY
 ========================= */
 
-// Shows all available waiting games.
-// TODO:
-// • Sort by newest
-// • Show player profile pictures
-// • Display how long each lobby has existed
-// • Auto-delete inactive lobbies after a period of time
-
 function loadLobby() {
   const q = query(collection(db, "games"), where("status", "==", "waiting"));
 
-  onSnapshot(q, (snap) => {
+  onSnapshot(q, function (snap) {
     lobbyList.innerHTML = "";
 
-    snap.forEach((docSnap) => {
-      const g = docSnap.data();
-      if (!g.player1Id || g.player1Id === user.uid) return;
+    snap.forEach(function (docSnap) {
+      const game = docSnap.data();
+
+      if (!game.player1Id) {
+        return;
+      }
+
+      if (game.player1Id === user.uid) {
+        return;
+      }
 
       const card = document.createElement("div");
       card.className = "lobbyCard";
 
-      card.innerHTML = `
-        <h3>${g.lobbyName || "Lobby"}</h3>
-        <p>Host: ${g.player1Name || "Unknown"}</p>
-        <button>Join</button>
-      `;
+      card.innerHTML =
+        "<h3>" +
+        game.lobbyName +
+        "</h3>" +
+        "<p>Host: " +
+        game.player1Name +
+        "</p>" +
+        "<button>Join</button>";
 
-      card.querySelector("button").onclick = async () => {
+      card.querySelector("button").onclick = async function () {
         await updateDoc(doc(db, "games", docSnap.id), {
           player2Id: user.uid,
           player2Name: user.name,
@@ -187,13 +229,8 @@ function loadLobby() {
 }
 
 /* =========================
-   JOIN / EXIT
+   JOIN
 ========================= */
-
-// TODO:
-// • Add Leave Game button
-// • Ask for confirmation before leaving
-// • Return players to lobby automatically after game ends
 
 function join(id) {
   gameId = id;
@@ -204,179 +241,215 @@ function join(id) {
   gameSection.classList.remove("hidden");
   winScreen.classList.add("hidden");
 
-  if (unsub) unsub();
+  if (unsub) {
+    unsub();
+  }
+
   listen(id);
 }
 
 /* =========================
-   GUESS SYSTEM
+   GUESS
 ========================= */
 
-// Main gameplay logic.
-// TODO:
-// • Prevent duplicate guesses
-// • Show number of guesses taken
-// • Add countdown timer mode
-// • Add achievements for perfect games
+guessBtn.addEventListener("click", async function () {
+  if (!gameId) {
+    return;
+  }
 
-guessBtn?.addEventListener("click", async () => {
-  if (!gameId || ended) return;
+  if (ended) {
+    return;
+  }
 
   const guess = Number(guessInput.value);
-  if (!Number.isInteger(guess) || guess < 1 || guess > 100) return;
+
+  if (!Number.isInteger(guess)) {
+    return;
+  }
 
   const ref = doc(db, "games", gameId);
   const snap = await getDoc(ref);
 
-  if (!snap.exists()) return;
-
-  const g = snap.data();
-  if (g.status !== "playing") return;
-  if (!g.player2Id) return;
-
-  if (g.currentTurn !== user.uid) {
-    feedback.textContent = "Not your turn!";
+  if (!snap.exists()) {
     return;
   }
 
-  const isP1 = g.player1Id === user.uid;
-  const secret = g.secretNumber;
+  const game = snap.data();
 
-  const last = isP1 ? g.player1LastDistance : g.player2LastDistance;
+  if (game.status !== "playing") {
+    return;
+  }
 
-  const distance = Math.abs(guess - secret);
+  if (!game.player2Id) {
+    return;
+  }
+
+  if (game.currentTurn !== user.uid) {
+    return;
+  }
+
+  const isP1 = game.player1Id === user.uid;
+
+  const last =
+    isP1 === true
+      ? game.player1LastDistance
+      : game.player2LastDistance;
+
+  const distance = Math.abs(guess - game.secretNumber);
   const hint = getHint(distance, last);
 
   feedback.textContent = hint;
 
-  const field = isP1 ? "player1Guesses" : "player2Guesses";
+  const field =
+    isP1 === true ? "player1Guesses" : "player2Guesses";
 
-  const updates = {
-    [field]: arrayUnion({ value: guess, hint, distance }),
-    currentTurn: isP1 ? g.player2Id : g.player1Id,
-    lastActive: serverTimestamp()
-  };
+  const updates = {};
+  updates[field] = arrayUnion({
+    value: guess,
+    hint: hint,
+    distance: distance
+  });
 
-  if (isP1) updates.player1LastDistance = distance;
-  else updates.player2LastDistance = distance;
+  if (isP1 === true) {
+    updates.currentTurn = game.player2Id;
+    updates.player1LastDistance = distance;
+  } else {
+    updates.currentTurn = game.player1Id;
+    updates.player2LastDistance = distance;
+  }
 
-  /* WIN CONDITION */
+  updates.lastActive = serverTimestamp();
 
-  // TODO:
-  // Add XP, levels, badges and streaks here later.
-
-  if (distance === 0 && !processingWin) {
+  /* WIN */
+  if (distance === 0 && processingWin === false) {
     processingWin = true;
+
     updates.status = "finished";
     updates.winnerId = user.uid;
     updates.currentTurn = "";
 
-    const loserId = isP1 ? g.player2Id : g.player1Id;
+    const loserId =
+      isP1 === true ? game.player2Id : game.player1Id;
 
-    try {
-      await updateDoc(doc(db, "users", user.uid), {
-        wins: increment(1),
+    await updateDoc(doc(db, "users", user.uid), {
+      wins: increment(1),
+      gamesPlayed: increment(1),
+      lastActive: serverTimestamp()
+    });
+
+    if (loserId) {
+      await updateDoc(doc(db, "users", loserId), {
+        losses: increment(1),
         gamesPlayed: increment(1),
         lastActive: serverTimestamp()
       });
-
-      if (loserId) {
-        await updateDoc(doc(db, "users", loserId), {
-          losses: increment(1),
-          gamesPlayed: increment(1),
-          lastActive: serverTimestamp()
-        });
-      }
-    } catch (err) {
-      console.error(err);
     }
   }
 
   await updateDoc(ref, updates);
 
   guessInput.value = "";
-
-  // TODO: Replace scrollIntoView with a nicer animation.
-  feedback.scrollIntoView({ behavior: "smooth", block: "center" });
 });
 
 /* =========================
-   REALTIME LISTENER
+   LISTENER
 ========================= */
-
-// Continuously updates the UI whenever Firestore changes.
-// TODO:
-// • Display opponent avatar
-// • Show typing/online status
-// • Show total guesses beside player names
-// • Play sounds when turns change
 
 function listen(id) {
   const ref = doc(db, "games", id);
 
-  unsub = onSnapshot(ref, (snap) => {
-    const g = snap.data();
-    if (!g) return;
+  unsub = onSnapshot(ref, function (snap) {
+    const game = snap.data();
 
-    const isP1 = g.player1Id === user.uid;
+    if (!game) {
+      return;
+    }
 
-    opponent.textContent =
-      isP1 ? g.player2Name || "Waiting..." : g.player1Name || "Waiting...";
+    const isP1 = game.player1Id === user.uid;
 
-    const myTurn = g.currentTurn === user.uid;
+    let oppName = "";
 
-    turn.textContent =
-      g.status === "waiting"
-        ? "Waiting for opponent..."
-        : g.status === "finished"
-        ? "Game finished"
-        : myTurn
-        ? "🔥 Your turn"
-        : "⏳ Opponent turn";
+    if (isP1 === true) {
+      oppName = game.player2Name;
+    } else {
+      oppName = game.player1Name;
+    }
 
-    guessInput.disabled = !myTurn || g.status !== "playing";
-    guessBtn.disabled = !myTurn || g.status !== "playing";
+    if (!oppName) {
+      oppName = "Waiting...";
+    }
 
-    const own = safeArray(isP1 ? g.player1Guesses : g.player2Guesses);
-    const opp = safeArray(isP1 ? g.player2Guesses : g.player1Guesses);
+    opponent.textContent = oppName;
 
-    history.innerHTML = `
-      <div class="guessSection">
-        <strong>You</strong>
-        ${own
-          .map(
-            (x, i) => `
-          <div>#${i + 1} ${x.value} — <b>${x.hint}</b></div>
-        `
-          )
-          .join("")}
-      </div>
+    let myTurn = false;
 
-      <div class="guessSection">
-        <strong>Opponent</strong>
-        ${opp
-          .map(
-            (x, i) => `
-          <div>#${i + 1} ${x.value || ""}</div>
-        `
-          )
-          .join("")}
-      </div>
-    `;
+    if (game.currentTurn === user.uid) {
+      myTurn = true;
+    }
 
-    // TODO:
-    // Show confetti animation when the player wins.
-    // Add a Play Again button.
-    // Allow returning to the lobby without refreshing.
+    if (game.status === "waiting") {
+      turn.textContent = "Waiting for opponent...";
+    } else if (game.status === "finished") {
+      turn.textContent = "Game finished";
+    } else if (myTurn === true) {
+      turn.textContent = "Your turn";
+    } else {
+      turn.textContent = "Opponent turn";
+    }
 
-    if (g.status === "finished" && !ended) {
+    guessInput.disabled = !myTurn;
+    guessBtn.disabled = !myTurn;
+
+    const own =
+      isP1 === true
+        ? game.player1Guesses
+        : game.player2Guesses;
+
+    const opp =
+      isP1 === true
+        ? game.player2Guesses
+        : game.player1Guesses;
+
+    const yourList = safeArray(own);
+    const oppList = safeArray(opp);
+
+    history.innerHTML = "";
+
+    let yourHTML = "<strong>You</strong>";
+    for (let i = 0; i < yourList.length; i++) {
+      yourHTML +=
+        "<div>#" +
+        (i + 1) +
+        " " +
+        yourList[i].value +
+        " — " +
+        yourList[i].hint +
+        "</div>";
+    }
+
+    let oppHTML = "<strong>Opponent</strong>";
+    for (let i = 0; i < oppList.length; i++) {
+      oppHTML +=
+        "<div>#" +
+        (i + 1) +
+        " " +
+        (oppList[i].value || "") +
+        "</div>";
+    }
+
+    history.innerHTML = yourHTML + oppHTML;
+
+    if (game.status === "finished" && ended === false) {
       ended = true;
 
       gameSection.classList.add("hidden");
       winScreen.classList.remove("hidden");
 
-      winText.textContent =
-        g.winnerId === user.uid ? "You win 🎉" : "You lose 💀";
+      if (game.winnerId === user.uid) {
+        winText.textContent = "You win 🎉";
+      } else {
+        winText.textContent = "You lose 💀";
+      }
     }
   });
 }

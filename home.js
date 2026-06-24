@@ -1,11 +1,22 @@
+/*
+========================================
+FILE: home.js
+
+PURPOSE:
+Clean unified auth + onboarding flow.
+
+FLOW:
+1. User enters username + age
+2. Clicks Google login
+3. Google popup authenticates user
+4. Firestore profile is created/updated using stored inputs
+5. Redirect to games
+========================================
+*/
+
 import { auth, db } from "./firebase.js";
-import {
-  GoogleAuthProvider,
-  signInWithPopup,
-  signOut,
-  onAuthStateChanged,
-  updateProfile
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+import { GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 import {
   doc,
@@ -15,84 +26,61 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-import { initProfileNav } from "./authState.js";
-
-initProfileNav();
-
-/* =========================
-   AUTH PROVIDER
-========================= */
-
 const provider = new GoogleAuthProvider();
-let currentUser = null;
-let isNewUserFlow = false;
 
-/* =========================
-   DOM
-========================= */
-
-// Centralised UI references
-// TODO:
-// - split into auth/ui modules if project scales
+let pendingProfile = {
+  username: "",
+  age: null
+};
 
 const el = {
   googleLoginBtn: document.getElementById("googleLoginBtn"),
+  openAuthBtn: document.getElementById("openAuthBtn"),
+  openAuthBtn2: document.getElementById("openAuthBtn2"),
   authPopup: document.getElementById("authPopup"),
   authUsername: document.getElementById("authUsername"),
   authAge: document.getElementById("authAge"),
-  submitAuthBtn: document.getElementById("submitAuthBtn"),
-  switchAuthModeBtn: document.getElementById("switchAuthModeBtn"),
-  loadingScreen: document.getElementById("loadingScreen"),
-  logoutBtn: document.getElementById("logoutBtn")
+  closeAuthBtn: document.getElementById("closeAuthBtn"),
+  loadingScreen: document.getElementById("loadingScreen")
 };
 
 /* =========================
-   STATE
+   LOADING
 ========================= */
-
-// Tracks signup flow state
-// TODO:
-// - add onboarding steps (avatar, interests, etc.)
-
-let currentUser = null;
-let isNewUserFlow = false;
+const showLoading = () => el.loadingScreen?.classList.remove("hidden");
+const hideLoading = () => el.loadingScreen?.classList.add("hidden");
 
 /* =========================
-   LOADING UI
+   POPUP CONTROL
 ========================= */
+el.openAuthBtn?.addEventListener("click", () =>
+  el.authPopup.classList.remove("hidden")
+);
 
-const showLoading = () =>
-  el.loadingScreen?.classList.remove("hidden");
+el.openAuthBtn2?.addEventListener("click", () =>
+  el.authPopup.classList.remove("hidden")
+);
 
-const hideLoading = () =>
-  el.loadingScreen?.classList.add("hidden");
-
-/* =========================
-   OPEN AUTH
-========================= */
-openAuthBtn?.addEventListener("click", () => {
-  el.authPopup?.classList.remove("hidden");
-});
+el.closeAuthBtn?.addEventListener("click", () =>
+  el.authPopup.classList.add("hidden")
+);
 
 /* =========================
    GOOGLE LOGIN
 ========================= */
-
-// Handles Google authentication + user routing logic
-// TODO:
-// - add error UI instead of alert()
-// - add loading skeleton during redirect
-
 el.googleLoginBtn?.addEventListener("click", async () => {
   try {
     showLoading();
 
-    const result = await signInWithPopup(auth, provider);
-    currentUser = result.user;
+    pendingProfile.username = el.authUsername.value.trim();
+    pendingProfile.age = Number(el.authAge.value) || null;
 
-    await handleUser(currentUser);
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+
+    await handleUser(user);
+
   } catch (err) {
-    console.error(err);
     alert(err.message);
   } finally {
     hideLoading();
@@ -100,160 +88,69 @@ el.googleLoginBtn?.addEventListener("click", async () => {
 });
 
 /* =========================
-   USER HANDLING
+   CORE USER HANDLER
 ========================= */
-
-// Decides:
-// - new user → create profile
-// - incomplete profile → onboarding
-// - complete user → game page
-
 async function handleUser(user) {
   const ref = doc(db, "users", user.uid);
   const snap = await getDoc(ref);
 
-  if (!snap.exists()) {
-    await createNewUser(user, ref);
-    openProfileSetup();
-    return;
-  }
+  const data = snap.exists() ? snap.data() : null;
 
-  const data = snap.data();
+  const exists =
+    data &&
+    data.displayName &&
+    data.age !== null &&
+    data.age !== undefined;
 
-  if (!data.profileComplete) {
-    openProfileSetup();
-    return;
-  }
-
-  // Fully ready user
-  window.location.href = "games.html";
-}
-
-/* =========================
-   CREATE USER
-========================= */
-
-// Creates Firestore user profile shell
-// TODO:
-// - add default avatar generator
-// - add username auto-suggestions
-
-async function createNewUser(user, ref) {
-  await setDoc(ref, {
-    uid: user.uid,
-    displayName: user.displayName || "",
-    email: user.email || "",
-    photoURL: user.photoURL || "./Images/defaultPFP.jpg",
-
-    age: null,
-    profileComplete: false,
-
-    wins: 0,
-    losses: 0,
-    gamesPlayed: 0,
-
-    createdAt: serverTimestamp(),
+  // ALWAYS update last active
+  const baseUpdate = {
+    email: user.email,
     lastActive: serverTimestamp()
-  });
-}
+  };
 
-/* =========================
-   PROFILE SETUP UI
-========================= */
-
-// Opens onboarding screen
-// TODO:
-// - add avatar picker
-// - add username validation rules
-
-function openProfileSetup() {
-  isNewUserFlow = true;
-
-  el.authPopup?.classList.remove("hidden");
-  el.authUsername?.classList.remove("hidden");
-  el.authAge?.classList.remove("hidden");
-
-  el.submitAuthBtn.textContent = "Finish Setup";
-  el.switchAuthModeBtn?.classList.add("hidden");
-  authTitle.textContent = "Finish your profile";
-}
-
-/* =========================
-   COMPLETE PROFILE
-========================= */
-
-// Saves user profile info after signup
-// TODO:
-// - validate age properly
-// - prevent duplicate usernames
-
-el.submitAuthBtn?.addEventListener("click", async () => {
-  if (!isNewUserFlow || !currentUser) return;
-
-  const username = el.authUsername.value.trim();
-  const age = Number(el.authAge.value);
-
-  if (!username) return alert("Pick a username");
-
-  try {
-    showLoading();
-
-    const ref = doc(db, "users", currentUser.uid);
-
-    await updateDoc(ref, {
-      displayName: username,
-      age: age || 0,
-      profileComplete: true,
-      lastActive: serverTimestamp()
-    });
-
-    await updateProfile(currentUser, {
-      displayName: username
-    });
-
-    isNewUserFlow = false;
-    el.authPopup.classList.add("hidden");
-
+  // RETURNING COMPLETE USER → STRAIGHT TO GAME
+  if (exists) {
+    await updateDoc(ref, baseUpdate);
     window.location.href = "games.html";
-
-  } catch (err) {
-    console.error(err);
-    alert(err.message);
-  } finally {
-    hideLoading();
+    return;
   }
-});
+
+  // NEW OR INCOMPLETE USER → CREATE/UPDATE PROFILE
+  const newData = {
+    uid: user.uid,
+    displayName: data?.displayName || "",
+    email: user.email,
+    photoURL: data?.photoURL || "./Images/defaultPFP.jpg",
+    age: data?.age ?? null,
+    wins: data?.wins || 0,
+    losses: data?.losses || 0,
+    gamesPlayed: data?.gamesPlayed || 0,
+    createdAt: data?.createdAt || serverTimestamp(),
+    lastActive: serverTimestamp()
+  };
+
+  if (!snap.exists()) {
+    await setDoc(ref, newData);
+  } else {
+    await updateDoc(ref, newData);
+  }
+
+  window.location.href = "profile.html";
+}
 
 /* =========================
-   AUTH STATE LISTENER
+   AUTO LOGIN GUARD
+   (prevents login screen showing again)
 ========================= */
-
-// Runs on page load
-// Handles:
-// - logged out users
-// - incomplete profiles
-// - ready users
-
 onAuthStateChanged(auth, async (user) => {
   if (!user) return;
 
-  try {
-    showLoading();
-    currentUser = user;
-    await handleUser(user);
-  } catch (err) {
-    console.error(err);
-  } finally {
-    hideLoading();
+  const ref = doc(db, "users", user.uid);
+  const snap = await getDoc(ref);
+
+  if (snap.exists()) {
+    window.location.href = "games.html";
+  } else {
+    window.location.href = "profile.html";
   }
-});
-
-/* =========================
-   LOGOUT
-========================= */
-
-// Signs user out of Firebase
-
-el.logoutBtn?.addEventListener("click", async () => {
-  await signOut(auth);
 });
