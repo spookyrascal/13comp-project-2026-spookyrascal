@@ -19,6 +19,15 @@ AKA
 ========================================
 */
 
+/*
+========================================
+FILE: profile.js
+
+PURPOSE:
+Live profile system (Firestore + Auth sync)
+========================================
+*/
+
 import { auth, db } from "./firebase.js";
 
 import {
@@ -32,7 +41,9 @@ import {
 
 import {
   onAuthStateChanged,
-  updateEmail
+  updateEmail,
+  EmailAuthProvider,
+  reauthenticateWithCredential
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 /* =========================
@@ -41,6 +52,7 @@ import {
 
 let user = null;
 let profile = null;
+let isLoading = true;
 
 /* =========================
    ELEMENTS
@@ -62,8 +74,10 @@ const rateEl = document.getElementById("rateStat");
 const usernameInput = document.getElementById("usernameInput");
 const ageInput = document.getElementById("ageInput");
 const pfpInput = document.getElementById("pfpUrlInput");
+const emailInput = document.getElementById("emailInput");
 
 const saveBtn = document.getElementById("saveProfileBtn");
+
 const backBtn = document.getElementById("backBtn");
 
 const modal = document.getElementById("editModal");
@@ -72,11 +86,8 @@ const closeBtn = document.getElementById("closeModalBtn");
 
 const toastEl = document.getElementById("toast");
 
-const emailInput = document.getElementById("emailInput");
-const emailSaveBtn = document.getElementById("saveEmailBtn");
-
 /* =========================
-   TOAST
+   TOAST SYSTEM
 ========================= */
 
 function toast(msg) {
@@ -87,6 +98,19 @@ function toast(msg) {
     toastEl.classList.remove("show");
   }, 2000);
 }
+
+/* =========================
+   BOOT SCREEN
+========================= */
+
+window.addEventListener("load", () => {
+  const boot = document.getElementById("bootScreen");
+  if (!boot) return;
+
+  setTimeout(() => {
+    boot.style.display = "none";
+  }, 2500);
+});
 
 /* =========================
    NAV
@@ -100,7 +124,7 @@ openBtn.onclick = () => modal.classList.remove("hidden");
 closeBtn.onclick = () => modal.classList.add("hidden");
 
 /* =========================
-   AUTH + INIT
+   AUTH INIT
 ========================= */
 
 onAuthStateChanged(auth, async (u) => {
@@ -110,114 +134,70 @@ onAuthStateChanged(auth, async (u) => {
   }
 
   user = u;
+  isLoading = true;
 
   const ref = doc(db, "users", u.uid);
-  const snap = await getDoc(ref);
 
-  if (!snap.exists()) {
-    await setDoc(ref, {
-      uid: u.uid,
-      displayName: u.displayName || "Player",
-      email: null, // 🔥 removed dependency (Auth owns email)
-      photoURL: "./Images/defaultPFP.jpg",
-      age: null,
-      wins: 0,
-      losses: 0,
-      gamesPlayed: 0,
-      createdAt: serverTimestamp(),
-      lastActive: serverTimestamp()
-    });
+  try {
+    const snap = await getDoc(ref);
+
+    if (!snap.exists()) {
+      await setDoc(ref, {
+        uid: u.uid,
+        displayName: u.displayName || "Player",
+        photoURL: u.photoURL || "./Images/defaultPFP.jpg",
+        age: null,
+        wins: 0,
+        losses: 0,
+        gamesPlayed: 0,
+        createdAt: serverTimestamp(),
+        lastActive: serverTimestamp()
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    toast("Failed to load profile");
   }
 
   listenProfile(u.uid);
 });
 
 /* =========================
-   LIVE PROFILE SYNC
+   LIVE FIRESTORE SYNC
 ========================= */
 
 function listenProfile(uid) {
   const ref = doc(db, "users", uid);
 
   onSnapshot(ref, (snap) => {
-    if (!snap.exists()) return;
+    if (!snap.exists()) {
+      toast("Profile missing");
+      return;
+    }
 
     profile = snap.data();
+    isLoading = false;
     render();
   });
 }
 
 /* =========================
-   EMAIL UPDATE (AUTH ONLY)
+   EMAIL UPDATE
 ========================= */
 
 async function changeEmail(newEmail) {
   try {
     await updateEmail(auth.currentUser, newEmail);
-
-    toast("Email updated! Refreshing...");
-
-    await auth.currentUser.reload();
-
-    render();
+    toast("Email updated!");
   } catch (err) {
     console.log(err);
 
     if (err.code === "auth/requires-recent-login") {
-      toast("Log in again to change email");
+      toast("Please log in again to change email");
     } else {
       toast("Email update failed");
     }
   }
-}
-
-if (emailSaveBtn && emailInput) {
-  emailSaveBtn.onclick = async () => {
-    const newEmail = emailInput.value.trim();
-
-    if (!newEmail.includes("@")) {
-      toast("Enter a valid email");
-      return;
-    }
-
-    await changeEmail(newEmail);
-  };
-}
-
-/* =========================
-   RENDER (MERGED DATA MODEL)
-========================= */
-
-function render() {
-  if (!user || !profile) return;
-
-  const games = profile.gamesPlayed || 0;
-  const wins = profile.wins || 0;
-  const rate = games > 0 ? Math.round((wins / games) * 100) : 0;
-
-  const img = profile.photoURL || "./Images/defaultPFP.jpg";
-
-  headerImg.src = img;
-  preview.src = img;
-  live.src = img;
-
-  nameEl.textContent = profile.displayName || "Player";
-
-  // 🔥 AUTH is single source of truth for email
-  emailEl.textContent =
-    auth.currentUser?.email || "No email linked";
-
-  ageEl.textContent =
-    profile.age != null ? `Age: ${profile.age}` : "Age: Not set";
-
-  winsEl.textContent = wins;
-  lossesEl.textContent = profile.losses || 0;
-  gamesEl.textContent = games;
-  rateEl.textContent = rate;
-
-  usernameInput.value = profile.displayName || "";
-  ageInput.value = profile.age || "";
-  pfpInput.value = profile.photoURL || "";
 }
 
 /* =========================
@@ -234,6 +214,42 @@ function validateImage(url) {
 }
 
 /* =========================
+   RENDER
+========================= */
+
+function render() {
+  if (!user || !profile || isLoading) return;
+
+  const games = profile.gamesPlayed || 0;
+  const wins = profile.wins || 0;
+
+  const rate = games > 0 ? Math.round((wins / games) * 100) : 0;
+
+  const img = profile.photoURL || "./Images/defaultPFP.jpg";
+
+  headerImg.src = img;
+  preview.src = img;
+  live.src = img;
+
+  nameEl.textContent = profile.displayName || "Player";
+
+  emailEl.textContent = auth.currentUser?.email || "No email linked";
+  emailInput.value = auth.currentUser?.email || "";
+
+  ageEl.textContent =
+    profile.age != null ? `Age: ${profile.age}` : "Age: Not set";
+
+  winsEl.textContent = wins;
+  lossesEl.textContent = profile.losses || 0;
+  gamesEl.textContent = games;
+  rateEl.textContent = rate;
+
+  usernameInput.value = profile.displayName || "";
+  ageInput.value = profile.age || "";
+  pfpInput.value = profile.photoURL || "";
+}
+
+/* =========================
    SAVE PROFILE
 ========================= */
 
@@ -241,6 +257,9 @@ saveBtn.onclick = async function () {
   if (!user || !profile) return;
 
   const ref = doc(db, "users", user.uid);
+
+  const newName = usernameInput.value.trim() || "Player";
+  const newEmail = emailInput.value.trim();
 
   const rawUrl = pfpInput.value.trim();
   let photoURL = profile.photoURL;
@@ -251,7 +270,7 @@ saveBtn.onclick = async function () {
       photoURL = rawUrl;
     }
   } catch {
-    toast("Invalid image link");
+    toast("Invalid image URL");
     return;
   }
 
@@ -259,12 +278,27 @@ saveBtn.onclick = async function () {
   const safeAge =
     Number.isFinite(ageValue) && ageValue > 0 ? ageValue : null;
 
-  await updateDoc(ref, {
-    displayName: usernameInput.value.trim() || "Player",
-    age: safeAge,
-    photoURL,
-    lastActive: serverTimestamp()
-  });
+  try {
+    // Firestore update
+    await updateDoc(ref, {
+      displayName: newName,
+      age: safeAge,
+      photoURL,
+      lastActive: serverTimestamp()
+    });
 
-  toast("Saved!");
+    // Auth email update
+    if (
+      newEmail &&
+      auth.currentUser.email &&
+      newEmail !== auth.currentUser.email
+    ) {
+      await changeEmail(newEmail);
+    }
+
+    toast("Profile saved!");
+  } catch (err) {
+    console.log(err);
+    toast("Save failed");
+  }
 };

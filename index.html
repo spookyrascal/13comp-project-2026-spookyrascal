@@ -5,58 +5,78 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Game Manager</title>
+
+  <!-- Font (clean modern UI feel) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
 
-<!-- LOADING -->
-<div id="loadingScreen" class="hidden">
-  <div class="spinner"></div>
-  <p>Loading...</p>
+<!-- BOOT SCREEN -->
+<div id="bootScreen">
+  <div class="bootContent">
+    <div class="logoPulse">GAME HUB</div>
+    <div class="bootBar"></div>
+    <p class="muted">Loading systems...</p>
+  </div>
 </div>
 
 <!-- HEADER -->
 <header class="topbar">
   <h1 class="logoText">Game Manager</h1>
 
-  <div id="authButtons" class="authButtons">
-    <button id="openAuthBtn" class="btn-primary"> Sign up / Sign In</button>
-  </div>
+  <button id="openAuthBtn" class="btn-primary">
+    Sign up / Sign in
+  </button>
 </header>
 
 <!-- MAIN -->
-<main class="homeMain">
-  <section class="homeHero">
-    <h2>Welcome</h2>
-    <p class="muted">Sign in to play and save your progress.</p>
+<main>
 
-    <button id="openAuthBtn2" class="play-btn">Start Playing</button>
+  <section class="homeHero">
+    <h2>Welcome to Game Hub</h2>
+    <p class="muted">Your games. Your stats. Your leaderboard.</p>
+
+    <div class="heroActions">
+      <button id="openAuthBtnHero" class="btn-primary">
+        Start Playing
+      </button>
+    </div>
   </section>
+
 </main>
 
-<!-- AUTH POPUP -->
-<div id="authPopup" class="popup hidden">
-  <div class="popup-content">
+<!-- AUTH MODAL -->
+<div id="authPopup" class="hidden">
+  <div class="modalCard">
 
     <h2>Join Game Manager</h2>
 
-    <input id="authUsername" type="text" placeholder="Username" />
-    <input id="authAge" type="number" placeholder="Age" />
+    <form id="authForm">
 
-    <div class="divider"></div>
+      <input id="authUsername" type="text" placeholder="Username" maxlength="30" />
+      <input id="authAge" type="number" placeholder="Age" min="1" max="120" />
 
-    <button id="googleLoginBtn" class="btn-primary">
-      Continue with Google
-    </button>
+      <p id="authError" class="errorText"></p>
 
-    <button id="closeAuthBtn" class="btn-secondary">
-      Cancel
-    </button>
+      <button id="googleLoginBtn" class="btn-primary" type="button">
+        Continue with Google
+      </button>
+
+      <button id="closeAuthBtn" type="button" class="btn-secondary">
+        Cancel
+      </button>
+
+    </form>
 
   </div>
 </div>
 
 <script type="module" src="home.js"></script>
+
 </body>
 </html>

@@ -10,6 +10,20 @@
 
 <body>
 
+<!-- =========================
+     BOOT SCREEN
+========================= -->
+<div id="bootScreen">
+  <div class="bootContent">
+    <div class="logoPulse">GAME HUB</div>
+    <div class="bootBar"></div>
+    <p class="bootText">Loading systems...</p>
+  </div>
+</div>
+
+<!-- =========================
+     HEADER
+========================= -->
 <header>
 
   <div class="header-left">
@@ -27,6 +41,9 @@
 
 </header>
 
+<!-- =========================
+     MAIN
+========================= -->
 <main>
 
   <!-- =========================
@@ -57,7 +74,6 @@
       <p id="turnInfo">Waiting for game...</p>
     </div>
 
-    <!-- optional future feature hook -->
     <div id="statusBanner" class="status-banner"></div>
 
     <div class="guessBox">
@@ -75,6 +91,10 @@
 
     <div id="guessHistory" class="history"></div>
 
+    <button id="leaveBtn" class="secondaryBtn">
+      Leave Game
+    </button>
+
   </section>
 
   <!-- =========================
@@ -83,11 +103,15 @@
   <section id="winScreen" class="hidden">
 
     <div class="winCard">
-      <h1 id="winText"></h1>
 
+      <h1 id="winText"></h1>
       <p id="winStats"></p>
 
-      <button id="leaveBtn">Return to Lobby</button>
+      <div class="winButtons">
+        <button id="playAgainBtn">Play Again</button>
+        <button id="returnLobbyBtn">Return to Lobby</button>
+      </div>
+
     </div>
 
   </section>

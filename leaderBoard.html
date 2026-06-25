@@ -11,6 +11,17 @@
 <body>
 
 <!-- =========================
+     BOOT SCREEN
+========================= -->
+<div id="bootScreen">
+  <div class="bootContent">
+    <div class="logoPulse">GAME HUB</div>
+    <div class="bootBar"></div>
+    <p class="bootText">Loading systems...</p>
+  </div>
+</div>
+
+<!-- =========================
      HEADER
 ========================= -->
 <header class="leaderboardHeader">
@@ -21,15 +32,13 @@
 
     <div class="profileMini">
 
-      <!-- User profile image -->
       <img
         id="profileImage"
         class="profile-img"
         src="./Images/defaultPFP.jpg"
-        alt="Profile"
+        alt="User profile image"
       />
 
-      <!-- Back-up profile button (optional UI trigger) -->
       <button id="profileBtn" class="profileBtn" type="button">
         Open Profile
       </button>
@@ -42,25 +51,28 @@
 
 </header>
 
+<!-- =========================
+     PODIUM
+========================= -->
 <section id="podium" class="podium">
 
   <div class="podiumSpot second">
     <h3>2</h3>
-    <img id="p2Img" src="./Images/defaultPFP.jpg">
+    <img id="p2Img" src="./Images/defaultPFP.jpg" alt="Second place">
     <p id="p2Name">---</p>
     <span id="p2Wins">0 wins</span>
   </div>
 
   <div class="podiumSpot first">
     <h3>1</h3>
-    <img id="p1Img" src="./Images/defaultPFP.jpg">
+    <img id="p1Img" src="./Images/defaultPFP.jpg" alt="First place">
     <p id="p1Name">---</p>
     <span id="p1Wins">0 wins</span>
   </div>
 
   <div class="podiumSpot third">
     <h3>3</h3>
-    <img id="p3Img" src="./Images/defaultPFP.jpg">
+    <img id="p3Img" src="./Images/defaultPFP.jpg" alt="Third place">
     <p id="p3Name">---</p>
     <span id="p3Wins">0 wins</span>
   </div>
@@ -93,7 +105,7 @@
 
   </div>
 
-  <button class="backBtn" onclick="location.href='games.html'">
+  <button id="backBtn" class="backBtn" type="button">
     ← Back
   </button>
 

@@ -1,43 +1,29 @@
 /* =========================================================
-   GAME UI SYSTEM — ULTIMATE POLISH PASS
+   GAME HUB — FULL UI SYSTEM UPGRADE
 ========================================================= */
 
 /* =========================
-   ROOT
+   ROOT DESIGN SYSTEM
 ========================= */
 
 :root {
   color-scheme: dark;
 
-  --bg-0: #040b07;
-  --bg-1: #07150e;
+  --bg: #0b0f14;
+  --bg-soft: #111826;
+  --surface: rgba(255, 255, 255, 0.04);
 
-  --surface: rgba(10, 35, 22, 0.65);
-  --surface-2: rgba(6, 20, 12, 0.92);
+  --text: #e8eef7;
+  --muted: rgba(232, 238, 247, 0.65);
 
-  --text: #eafff2;
-  --muted: rgba(134, 201, 163, 0.75);
+  --accent: #6ea8ff;
+  --accent-2: #8b5cf6;
 
-  --primary: #00ff88;
-  --primary-strong: #00c96a;
+  --border: rgba(255,255,255,0.08);
+  --shadow: 0 20px 60px rgba(0,0,0,0.55);
 
-  --gold: #ffd700;
-  --silver: #c0c0c0;
-  --bronze: #cd7f32;
-
-  --danger: #ff4d6d;
-
-  --border: rgba(0, 255, 140, 0.12);
-  --border-strong: rgba(0, 255, 140, 0.25);
-
-  --glow: rgba(0, 255, 136, 0.28);
-
-  --shadow: 0 18px 45px rgba(0,0,0,0.65);
-
-  --r: 18px;
-  --max: 1200px;
-
-  --header-h: 72px;
+  --r: 16px;
+  --max: 1100px;
 }
 
 /* =========================
@@ -50,141 +36,102 @@
 
 body {
   margin: 0;
-  font-family: system-ui, sans-serif;
-  color: var(--text);
+  font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial;
 
   background:
-    radial-gradient(circle at 15% 10%, rgba(0,255,140,0.12), transparent 45%),
-    radial-gradient(circle at 85% 30%, rgba(0,200,120,0.08), transparent 50%),
-    linear-gradient(to bottom, var(--bg-1), var(--bg-0));
+    radial-gradient(circle at 20% 10%, rgba(110,168,255,0.12), transparent 40%),
+    radial-gradient(circle at 80% 20%, rgba(139,92,246,0.10), transparent 45%),
+    var(--bg);
 
+  color: var(--text);
   min-height: 100vh;
 }
 
-img {
-  display: block;
-  object-fit: cover;
-}
-
 /* =========================
-   GLOBAL UTIL
+   TYPOGRAPHY SYSTEM
 ========================= */
 
-.hidden {
-  display: none !important;
+h1 {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+h2 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.errorText {
+  color: #ff6b6b;
+  font-size: 0.9rem;
 }
 
 /* =========================
-   MAIN LAYOUT
+   LAYOUT
 ========================= */
 
 main {
   max-width: var(--max);
   margin: auto;
-  padding: 24px 16px 80px;
+  padding: 40px 18px;
+}
+
+section {
+  margin-bottom: 40px;
 }
 
 /* =========================
-   HEADERS 
+   HEADER
 ========================= */
 
-header,
-.mainHeader,
-.topbar,
-.leaderboardHeader {
+.topbar {
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 50;
 
-  height: var(--header-h);
+  height: 70px;
   display: flex;
   align-items: center;
   justify-content: space-between;
 
   padding: 0 18px;
 
-  background: rgba(8, 18, 12, 0.72);
+  background: rgba(17, 24, 38, 0.65);
   backdrop-filter: blur(14px);
 
   border-bottom: 1px solid var(--border);
 }
 
-/* subtle energy line */
-header::after,
-.mainHeader::after,
-.topbar::after,
-.leaderboardHeader::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  height: 1px;
-  width: 100%;
-  background: linear-gradient(90deg, transparent, var(--primary), transparent);
-  opacity: 0.3;
-}
-
 /* =========================
-   TEXT HIERARCHY
+   HERO
 ========================= */
 
-h1 { font-size: 1.7rem; font-weight: 900; }
-h2 { font-size: 1.4rem; font-weight: 800; }
-h3 { font-size: 1.1rem; font-weight: 800; }
+.homeHero {
+  text-align: center;
+  padding: 80px 20px;
 
-p {
-  color: var(--muted);
-  margin: 0;
-}
+  border-radius: var(--r);
+  background: linear-gradient(
+    135deg,
+    rgba(110,168,255,0.08),
+    rgba(139,92,246,0.06)
+  );
 
-/* =========================
-   USER BOX 
-========================= */
-
-.userBox,
-.profileMini {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-
-  padding: 6px 10px;
-
-  border-radius: 999px;
   border: 1px solid var(--border);
-
-  background: rgba(255,255,255,0.03);
+  box-shadow: var(--shadow);
 }
 
-/* HARD FIX: no more massive pfps */
-img {
-  max-width: 100%;
-}
-
-#headerProfileImage,
-#profileImage,
-.profile-img {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-}
-
-/* profile page big avatar */
-#profilePreview {
-  width: 96px;
-  height: 96px;
-  border-radius: 50%;
-  border: 2px solid rgba(0,255,140,0.2);
-}
-
-/* modal preview */
-#livePreview {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
+.homeHero h2 {
+  font-size: 3rem;
 }
 
 /* =========================
-   BUTTONS 
+   BUTTONS
 ========================= */
 
 button {
@@ -192,23 +139,32 @@ button {
   border-radius: 12px;
 
   border: 1px solid var(--border);
-  background: rgba(255,255,255,0.04);
+  background: var(--surface);
 
   color: var(--text);
-  font-weight: 700;
-
   cursor: pointer;
+
   transition: 0.2s ease;
 }
 
 button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 0 20px var(--glow);
+}
+
+button:active {
+  transform: scale(0.97);
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary), var(--primary-strong));
-  color: #001b0e;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  border: none;
+  color: white;
+}
+
+.btn-secondary {
+  margin-top: 10px;
+  width: 100%;
+  background: transparent;
 }
 
 /* =========================
@@ -217,9 +173,10 @@ button:hover {
 
 input {
   width: 100%;
-  padding: 12px 14px;
+  padding: 10px 12px;
+  margin: 8px 0;
 
-  border-radius: 12px;
+  border-radius: 10px;
   border: 1px solid var(--border);
 
   background: rgba(255,255,255,0.03);
@@ -229,165 +186,258 @@ input {
 }
 
 input:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(0,255,140,0.15);
+  border-color: rgba(110,168,255,0.6);
 }
 
 /* =========================
-   GAME CARDS 
+   MODAL (AUTH POPUP)
 ========================= */
 
-.gameContainer {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 18px;
+#authPopup {
+  position: fixed;
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(8px);
+
+  z-index: 10000;
 }
 
-.gameCard {
-  position: relative;
-  overflow: hidden;
+#authPopup.hidden {
+  display: none;
+}
 
-  border-radius: 20px;
+.modalCard {
+  width: 360px;
+  padding: 24px;
+
+  border-radius: var(--r);
+
+  background: rgba(17, 24, 38, 0.95);
   border: 1px solid var(--border);
+  box-shadow: var(--shadow);
 
-  background: rgba(255,255,255,0.03);
+  animation: popIn 0.2s ease;
+}
 
-  text-align: center;
+/* =========================
+   BOOT SCREEN
+========================= */
+
+#bootScreen {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  z-index: 9999;
+
+  animation: bootOut 1s ease forwards;
+  animation-delay: 2s;
+}
+
+.logoPulse {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  animation: pulse 1.2s infinite alternate;
+}
+
+.bootBar {
+  width: 200px;
+  height: 3px;
+  margin: 14px auto;
+
+  background: rgba(255,255,255,0.1);
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.bootBar::after {
+  content: "";
+  position: absolute;
+  width: 50%;
+  height: 100%;
+  background: var(--accent);
+  animation: load 1.2s infinite;
+}
+
+/* =========================
+   ANIMATIONS
+========================= */
+
+@keyframes pulse {
+  from { opacity: 0.6; }
+  to { opacity: 1; }
+}
+
+@keyframes load {
+  0% { left: -50%; }
+  100% { left: 100%; }
+}
+
+@keyframes bootOut {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@keyframes popIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* =========================
+   GLOBAL HELPERS
+========================= */
+
+.hidden {
+  display: none !important;
+}
+
+/* =========================================================
+   PROFILE PAGE — PREMIUM GAME UI UPGRADE
+========================================================= */
+
+.profilePage {
+  max-width: 950px;
+  margin: 0 auto;
+  padding: 40px 18px 80px;
+
+  display: grid;
+  gap: 20px;
+}
+
+/* =========================
+   PROFILE CARDS (MAJOR UPGRADE)
+========================= */
+
+.card {
+  position: relative;
+
+  padding: 22px;
+  border-radius: 18px;
+
+  background: linear-gradient(
+    135deg,
+    rgba(255,255,255,0.05),
+    rgba(255,255,255,0.02)
+  );
+
+  border: 1px solid rgba(255,255,255,0.08);
+
+  box-shadow:
+    0 10px 30px rgba(0,0,0,0.4),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+
+  backdrop-filter: blur(12px);
 
   transition: 0.25s ease;
 }
 
-.gameCard img {
-  width: 100%;
-  height: 150px;
-}
-
-.gameCard h3 {
-  margin-top: 10px;
-}
-
-.gameCard p {
-  padding-bottom: 12px;
-  font-size: 0.85rem;
-}
-
-/* hover = “select glow” */
-.gameCard:hover {
-  transform: translateY(-8px) scale(1.02);
-  border-color: var(--border-strong);
-  box-shadow: 0 0 30px var(--glow);
+.card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(110,168,255,0.25);
 }
 
 /* =========================
-   LEADERBOARD PODIUM — TIERS
+   PROFILE HEADER (IMAGE AREA)
 ========================= */
 
-.podium {
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  gap: 16px;
-  margin: 26px 0;
-}
+.profileLarge {
+  width: 120px;
+  height: 120px;
 
-.podiumSpot {
-  width: 150px;
-  padding: 14px;
-
-  border-radius: 18px;
-  border: 1px solid var(--border);
-
-  background: rgba(255,255,255,0.03);
-  text-align: center;
-
-  box-shadow: var(--shadow);
-}
-
-/* tier glow system */
-.first {
-  transform: scale(1.15);
-  border-color: var(--gold);
-  box-shadow: 0 0 40px rgba(255,215,0,0.25);
-}
-
-.second {
-  border-color: var(--silver);
-}
-
-.third {
-  border-color: var(--bronze);
-}
-
-.podiumSpot img {
-  width: 64px;
-  height: 64px;
   border-radius: 50%;
+
+  object-fit: cover;
+
+  border: 2px solid rgba(110,168,255,0.35);
+
+  box-shadow:
+    0 0 0 4px rgba(110,168,255,0.08),
+    0 20px 40px rgba(0,0,0,0.5);
+
+  margin-bottom: 12px;
+}
+
+/* text under profile */
+#profileEmail,
+#profileAge {
+  font-size: 0.95rem;
+  opacity: 0.75;
+  margin: 4px 0;
 }
 
 /* =========================
-   TABLE 
+   STATS — MAKE THEM FEEL LIKE GAME METRICS
 ========================= */
 
-.tableWrap {
-  overflow-x: auto;
-  border-radius: 16px;
-  border: 1px solid var(--border);
+.card h3 {
+  margin-bottom: 14px;
+  font-size: 1.2rem;
+  letter-spacing: 0.5px;
 }
 
-#leaderboardTable {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-#leaderboardTable th,
-#leaderboardTable td {
-  padding: 12px;
-}
-
-#leaderboardTable thead {
-  background: rgba(0,255,140,0.06);
-}
-
-#leaderboardTable tbody tr:hover {
-  background: rgba(0,255,140,0.05);
-}
-
-/* =========================
-   PROFILE PAGE
-========================= */
-
-.profilePage {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-/* sections become “cards” */
-.profilePage section {
-  padding: 18px;
-  border-radius: var(--r);
-  border: 1px solid var(--border);
-  background: rgba(255,255,255,0.03);
-}
-
-/* hero layout */
-.profilePage section:first-child {
-  display: flex;
-  gap: 14px;
-  align-items: center;
-}
-
-/* stats rows */
-.profilePage section:nth-child(2) p {
+/* each stat line becomes cleaner */
+.card p {
   display: flex;
   justify-content: space-between;
+
   padding: 8px 10px;
+  margin: 6px 0;
+
   border-radius: 10px;
-  background: rgba(0,0,0,0.15);
+
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+.card p span {
+  font-weight: 600;
+  color: #e8eef7;
+}
+
+/* highlight win rate */
+#rateStat {
+  color: #6ea8ff;
 }
 
 /* =========================
-   MODAL
+   HEADER PROFILE AREA
+========================= */
+
+.userBox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.userBox img {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+/* =========================
+   MODAL 
 ========================= */
 
 .modal {
@@ -395,62 +445,1144 @@ input:focus {
   inset: 0;
 
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
 
-  background: rgba(0,0,0,0.6);
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(10px);
+
+  z-index: 10000;
 }
 
 .modalCard {
-  width: min(420px, 92vw);
+  width: 380px;
 
-  padding: 18px;
+  padding: 24px;
   border-radius: 18px;
 
-  border: 1px solid var(--border);
-  background: rgba(10,35,22,0.95);
+  background: rgba(17, 24, 38, 0.95);
+
+  border: 1px solid rgba(255,255,255,0.08);
+
+  box-shadow:
+    0 30px 80px rgba(0,0,0,0.6),
+    0 0 40px rgba(110,168,255,0.08);
+
+  animation: popIn 0.18s ease;
+}
+
+/* modal title */
+.modalCard h2 {
+  margin-bottom: 14px;
+  font-size: 1.4rem;
+}
+
+/* inputs feel less “formy” */
+.modalCard input {
+  width: 100%;
+  padding: 10px 12px;
+  margin: 8px 0;
+
+  border-radius: 10px;
+
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+
+  color: white;
+  outline: none;
+}
+
+.modalCard input:focus {
+  border-color: rgba(110,168,255,0.5);
+}
+
+/* =========================
+   PROFILE PREVIEW IMAGE 
+========================= */
+
+.profilePreviewSmall {
+  width: 80px;
+  height: 80px;
+
+  border-radius: 50%;
+
+  margin: 12px 0;
+
+  border: 2px solid rgba(110,168,255,0.25);
+
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+/* =========================
+   BUTTON POLISH (PROFILE CONTEXT)
+========================= */
+
+.btn-primary {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.btn-secondary {
+  width: 100%;
+  margin-top: 8px;
+  opacity: 0.8;
+}
+
+/* =========================
+   ANIMATION 
+========================= */
+
+@keyframes popIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+body {
+  background:
+    radial-gradient(circle at 20% 10%, rgba(110,168,255,0.18), transparent 45%),
+    radial-gradient(circle at 80% 20%, rgba(139,92,246,0.14), transparent 50%),
+    radial-gradient(circle at 50% 90%, rgba(0,255,200,0.05), transparent 60%),
+    #0b0f14;
+}
+
+.card, .modalCard, .topbar {
+  animation: floatIn 0.35s ease both;
+}
+
+@keyframes floatIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+.card p {
+  transition: 0.2s ease;
+}
+
+.card p:hover {
+  transform: translateX(6px);
+  background: rgba(110,168,255,0.08);
+}
+
+.profileLarge {
+  transform: scale(1);
+  transition: 0.3s ease;
+
+  box-shadow:
+    0 0 0 4px rgba(110,168,255,0.12),
+    0 0 60px rgba(110,168,255,0.15),
+    0 20px 50px rgba(0,0,0,0.6);
+}
+
+.profileLarge:hover {
+  transform: scale(1.05);
+}
+
+.btn-primary:hover {
+  box-shadow:
+    0 0 20px rgba(110,168,255,0.25),
+    0 10px 30px rgba(0,0,0,0.4);
+}
+
+
+/* =========================================================
+   GAME HUB — FULL SYSTEM ALIGNMENT + WOW LAYER
+========================================================= */
+
+/* =========================
+   ROOT
+========================= */
+
+:root {
+  color-scheme: dark;
+
+  --bg: #0b0f14;
+  --surface: rgba(255,255,255,0.04);
+  --text: #e8eef7;
+  --muted: rgba(232,238,247,0.65);
+
+  --accent: #6ea8ff;
+  --accent2: #8b5cf6;
+
+  --border: rgba(255,255,255,0.08);
+  --shadow: 0 20px 60px rgba(0,0,0,0.55);
+
+  --r: 16px;
+}
+
+/* =========================
+   RESET + BASE
+========================= */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Inter", system-ui, sans-serif;
+
+  color: var(--text);
+
+  background:
+    radial-gradient(circle at 20% 10%, rgba(110,168,255,0.18), transparent 45%),
+    radial-gradient(circle at 80% 20%, rgba(139,92,246,0.14), transparent 50%),
+    var(--bg);
+
+  min-height: 100vh;
+}
+
+/* =========================
+   TYPOGRAPHY
+========================= */
+
+h1 {
+  font-size: 1.4rem;
+  margin: 0;
+}
+
+h2 {
+  font-size: 2rem;
+  margin: 20px 0 10px 0;
+}
+
+/* =========================
+   TOP BAR (GAME LAUNCHER STYLE)
+========================= */
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+
+  height: 70px;
 
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 18px;
+
+  background: rgba(17, 24, 38, 0.7);
+  backdrop-filter: blur(14px);
+
+  border-bottom: 1px solid var(--border);
 }
 
 /* =========================
-   TOAST
+   PROFILE BUTTON
 ========================= */
 
-#toast {
-  position: fixed;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%);
+.profile-wrapper {
+  display: flex;
+  align-items: center;
+}
 
-  padding: 10px 14px;
-  border-radius: 12px;
+.profileBtn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+
+  padding: 0;
+}
+
+.profile-img {
+  width: 38px;
+  height: 38px;
+
+  border-radius: 50%;
+
+  border: 1px solid rgba(255,255,255,0.15);
+
+  box-shadow: 0 0 0 3px rgba(110,168,255,0.08);
+
+  transition: 0.2s ease;
+}
+
+.profile-img:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 20px rgba(110,168,255,0.25);
+}
+
+/* =========================
+   MAIN LAYOUT
+========================= */
+
+main {
+  max-width: 1100px;
+  margin: auto;
+  padding: 30px 18px 80px;
+}
+
+/* =========================
+   GAME GRID (IMPORTANT UPGRADE)
+========================= */
+
+.gameContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 18px;
+
+  margin-top: 20px;
+}
+
+/* =========================
+   GAME CARDS (WOW VERSION)
+========================= */
+
+.gameCard {
+  position: relative;
+
+  display: block;
+  text-decoration: none;
+  color: inherit;
+
+  border-radius: var(--r);
+  overflow: hidden;
+
+  background: linear-gradient(
+    135deg,
+    rgba(255,255,255,0.05),
+    rgba(255,255,255,0.02)
+  );
 
   border: 1px solid var(--border);
-  background: rgba(10,18,14,0.9);
 
-  opacity: 0;
+  box-shadow: var(--shadow);
+
   transition: 0.25s ease;
+
+  animation: floatIn 0.4s ease both;
 }
 
-#toast.show {
-  opacity: 1;
+.gameCard img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+
+  filter: brightness(0.85);
+  transition: 0.3s ease;
+}
+
+/* text area */
+.gameCard h3 {
+  margin: 12px 12px 4px;
+}
+
+.gameCard p {
+  margin: 0 12px 14px;
+  font-size: 0.9rem;
+  opacity: 0.75;
+}
+
+/* hover = “game focus mode” */
+.gameCard:hover {
+  transform: translateY(-6px) scale(1.02);
+  border-color: rgba(110,168,255,0.35);
+
+  box-shadow:
+    0 0 40px rgba(110,168,255,0.12),
+    0 30px 80px rgba(0,0,0,0.6);
+}
+
+.gameCard:hover img {
+  filter: brightness(1);
 }
 
 /* =========================
-   MOBILE POLISH
+   BOOT SCREEN
 ========================= */
 
-@media (max-width: 700px) {
-  .podium {
-    flex-direction: column;
-    align-items: center;
-  }
+#bootScreen {
+  position: fixed;
+  inset: 0;
 
-  .profilePage section:first-child {
-    flex-direction: column;
-    text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #0b0f14;
+  z-index: 9999;
+
+  animation: fadeOut 1s ease forwards;
+  animation-delay: 2s;
+}
+
+.logoPulse {
+  font-size: 2rem;
+  font-weight: 700;
+
+  letter-spacing: 3px;
+
+  animation: pulse 1.2s infinite alternate;
+}
+
+.bootBar {
+  width: 200px;
+  height: 3px;
+
+  margin: 14px auto;
+
+  background: rgba(255,255,255,0.1);
+
+  border-radius: 999px;
+
+  overflow: hidden;
+  position: relative;
+}
+
+.bootBar::after {
+  content: "";
+  position: absolute;
+
+  width: 50%;
+  height: 100%;
+
+  background: var(--accent);
+
+  animation: load 1.2s infinite;
+}
+
+/* =========================
+   ANIMATIONS (WOW LAYER)
+========================= */
+
+@keyframes floatIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+    filter: blur(6px);
   }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes pulse {
+  from { opacity: 0.6; }
+  to { opacity: 1; }
+}
+
+@keyframes load {
+  0% { left: -50%; }
+  100% { left: 100%; }
+}
+
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+
+/* =========================================================
+   GUESS THE NUMBER — FULL UI OVERHAUL
+========================================================= */
+
+/* =========================
+   GLOBAL BASE FIX
+========================= */
+
+body {
+  margin: 0;
+  font-family: "Inter", system-ui, sans-serif;
+
+  background:
+    radial-gradient(circle at 20% 10%, rgba(110,168,255,0.18), transparent 45%),
+    radial-gradient(circle at 80% 20%, rgba(139,92,246,0.14), transparent 50%),
+    #0b0f14;
+
+  color: #e8eef7;
+}
+
+/* =========================
+   HEADER (GAME BAR STYLE)
+========================= */
+
+header {
+  position: sticky;
+  top: 0;
+
+  height: 70px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 0 18px;
+
+  background: rgba(17, 24, 38, 0.75);
+  backdrop-filter: blur(14px);
+
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+
+  z-index: 100;
+}
+
+.header-left h1 {
+  font-size: 1.3rem;
+  margin: 0;
+}
+
+.profile-img {
+  width: 38px;
+  height: 38px;
+
+  border-radius: 50%;
+
+  border: 1px solid rgba(255,255,255,0.15);
+
+  box-shadow: 0 0 20px rgba(110,168,255,0.15);
+
+  transition: 0.2s ease;
+}
+
+.profile-img:hover {
+  transform: scale(1.08);
+}
+
+/* =========================
+   LAYOUT
+========================= */
+
+main {
+  max-width: 1100px;
+  margin: auto;
+  padding: 30px 18px 80px;
+}
+
+section {
+  margin-bottom: 40px;
+}
+
+/* =========================
+   SECTION HEADERS (IMPORTANT FIX)
+========================= */
+
+h2 {
+  font-size: 1.8rem;
+  margin-bottom: 16px;
+}
+
+/* =========================
+   LOBBY BOX (NOW FEELS LIKE A PANEL)
+========================= */
+
+#lobbySection {
+  padding: 20px;
+
+  border-radius: 18px;
+
+  background: rgba(255,255,255,0.03);
+
+  border: 1px solid rgba(255,255,255,0.08);
+
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+}
+
+/* input + create button row */
+.createBox {
+  display: flex;
+  gap: 10px;
+
+  margin-bottom: 20px;
+}
+
+.createBox input {
+  flex: 1;
+
+  padding: 10px 12px;
+
+  border-radius: 12px;
+
+  border: 1px solid rgba(255,255,255,0.08);
+
+  background: rgba(255,255,255,0.03);
+
+  color: white;
+
+  outline: none;
+}
+
+.createBox button {
+  padding: 10px 14px;
+
+  border-radius: 12px;
+
+  border: none;
+
+  background: linear-gradient(135deg, #6ea8ff, #8b5cf6);
+
+  color: white;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.createBox button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(110,168,255,0.25);
+}
+
+/* =========================
+   LOBBY LIST (GAME CARDS)
+========================= */
+
+#lobbyList {
+  display: grid;
+  gap: 12px;
+}
+
+/* if JS inserts divs, this still works */
+#lobbyList > * {
+  padding: 14px;
+
+  border-radius: 14px;
+
+  background: rgba(255,255,255,0.03);
+
+  border: 1px solid rgba(255,255,255,0.08);
+
+  transition: 0.2s ease;
+
+  cursor: pointer;
+}
+
+#lobbyList > *:hover {
+  transform: translateY(-2px);
+  border-color: rgba(110,168,255,0.3);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+}
+
+/* =========================
+   GAME SECTION (MAIN FOCUS MODE)
+========================= */
+
+#gameSection {
+  padding: 20px;
+
+  border-radius: 18px;
+
+  background: rgba(255,255,255,0.03);
+
+  border: 1px solid rgba(255,255,255,0.08);
+
+  box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+}
+
+/* status panel */
+.gameInfo {
+  display: flex;
+  justify-content: space-between;
+
+  padding: 10px 12px;
+
+  border-radius: 12px;
+
+  background: rgba(255,255,255,0.03);
+
+  margin-bottom: 10px;
+}
+
+/* status banner */
+.status-banner {
+  padding: 10px 12px;
+
+  border-radius: 12px;
+
+  margin: 10px 0;
+
+  background: rgba(110,168,255,0.1);
+
+  border: 1px solid rgba(110,168,255,0.2);
+}
+
+/* =========================
+   GUESS INPUT AREA (CORE GAME MOMENT)
+========================= */
+
+.guessBox {
+  display: flex;
+  gap: 10px;
+
+  margin-top: 12px;
+}
+
+.guessBox input {
+  flex: 1;
+
+  padding: 12px;
+
+  border-radius: 12px;
+
+  border: 1px solid rgba(255,255,255,0.08);
+
+  background: rgba(255,255,255,0.03);
+
+  color: white;
+}
+
+.guessBox button {
+  padding: 12px 16px;
+
+  border-radius: 12px;
+
+  border: none;
+
+  background: linear-gradient(135deg, #6ea8ff, #8b5cf6);
+
+  color: white;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.guessBox button:hover {
+  transform: translateY(-2px);
+}
+
+/* =========================
+   FEEDBACK TEXT (IMPORTANT MOMENT FEELING)
+========================= */
+
+.feedback {
+  margin-top: 10px;
+
+  font-weight: 500;
+
+  opacity: 0.9;
+}
+
+/* =========================
+   HISTORY (MAKE IT FEEL LIKE LOGS)
+========================= */
+
+.history {
+  margin-top: 15px;
+
+  display: grid;
+  gap: 6px;
+}
+
+.history > * {
+  padding: 8px 10px;
+
+  border-radius: 10px;
+
+  background: rgba(255,255,255,0.02);
+
+  border: 1px solid rgba(255,255,255,0.06);
+
+  font-size: 0.9rem;
+}
+
+/* =========================
+   WIN SCREEN (CINEMATIC POPUP)
+========================= */
+
+#winScreen {
+  position: fixed;
+  inset: 0;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(10px);
+
+  z-index: 9999;
+}
+
+.winCard {
+  width: 360px;
+
+  padding: 24px;
+
+  border-radius: 18px;
+
+  background: rgba(17,24,38,0.95);
+
+  border: 1px solid rgba(255,255,255,0.08);
+
+  text-align: center;
+
+  box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+
+  animation: popIn 0.2s ease;
+}
+
+.winButtons {
+  display: flex;
+  gap: 10px;
+
+  margin-top: 15px;
+}
+
+.winButtons button {
+  flex: 1;
+
+  padding: 10px;
+
+  border-radius: 12px;
+
+  border: none;
+
+  cursor: pointer;
+
+  background: linear-gradient(135deg, #6ea8ff, #8b5cf6);
+
+  color: white;
+}
+
+/* =========================
+   ANIMATIONS
+========================= */
+
+@keyframes popIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* =========================================================
+   GAME HUB — ULTIMATE WOW FACTOR UI
+========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Inter:wght@300;400;600&display=swap');
+
+:root {
+  --bg: #05070d;
+  --panel: rgba(255, 255, 255, 0.06);
+  --panel-2: rgba(255, 255, 255, 0.09);
+  --text: #e9f1ff;
+  --muted: rgba(233, 241, 255, 0.6);
+
+  --neon: #6cf0ff;
+  --neon2: #b56cff;
+  --good: #3dffb5;
+  --bad: #ff4d6d;
+}
+
+/* =========================
+   GLOBAL
+========================= */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Inter, sans-serif;
+}
+
+body {
+  background: radial-gradient(circle at top, #0a1230, var(--bg));
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* =========================
+   BOOT SCREEN
+========================= */
+
+#bootScreen {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle, #05070d, #000);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.bootContent {
+  text-align: center;
+}
+
+.logoPulse {
+  font-family: Orbitron;
+  font-size: 2.5rem;
+  letter-spacing: 6px;
+  color: var(--neon);
+  text-shadow: 0 0 20px var(--neon);
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.7; }
+}
+
+.bootBar {
+  width: 220px;
+  height: 6px;
+  margin: 20px auto;
+  background: rgba(255,255,255,0.1);
+  overflow: hidden;
+  border-radius: 10px;
+  position: relative;
+}
+
+.bootBar::after {
+  content: "";
+  position: absolute;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--neon), var(--neon2));
+  animation: loading 1.2s infinite;
+}
+
+@keyframes loading {
+  0% { left: -40%; }
+  100% { left: 100%; }
+}
+
+.bootText {
+  color: var(--muted);
+  margin-top: 10px;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 30px;
+  background: var(--panel);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+header h1 {
+  font-family: Orbitron;
+  font-size: 1.4rem;
+  letter-spacing: 2px;
+  color: var(--neon);
+}
+
+.profile-img {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 2px solid var(--neon);
+  box-shadow: 0 0 15px var(--neon);
+}
+
+/* =========================
+   MAIN LAYOUT
+========================= */
+
+main {
+  padding: 30px;
+  max-width: 1100px;
+  margin: auto;
+}
+
+/* =========================
+   PANELS
+========================= */
+
+section {
+  background: var(--panel);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  backdrop-filter: blur(12px);
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+h2 {
+  font-family: Orbitron;
+  margin-bottom: 15px;
+  color: var(--text);
+}
+
+/* =========================
+   LOBBY
+========================= */
+
+.createBox {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+input {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(0,0,0,0.3);
+  color: white;
+  outline: none;
+}
+
+button {
+  padding: 12px 16px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  color: black;
+  background: linear-gradient(90deg, var(--neon), var(--neon2));
+  transition: 0.2s;
+}
+
+button:hover {
+  transform: scale(1.05);
+  filter: brightness(1.1);
+}
+
+.lobbyCard {
+  padding: 14px;
+  margin-bottom: 10px;
+  background: var(--panel-2);
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: 0.2s;
+}
+
+.lobbyCard:hover {
+  transform: translateX(5px);
+  box-shadow: 0 0 20px rgba(108,240,255,0.2);
+}
+
+/* =========================
+   GAME UI
+========================= */
+
+.gameInfo {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  color: var(--muted);
+}
+
+.status-banner {
+  text-align: center;
+  margin: 10px 0;
+  font-weight: 600;
+}
+
+.guessBox {
+  display: flex;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.feedback {
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--neon);
+  min-height: 24px;
+}
+
+.history {
+  margin-top: 15px;
+  padding: 10px;
+  background: rgba(0,0,0,0.2);
+  border-radius: 10px;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+/* =========================
+   TURN STATES (JS can toggle)
+========================= */
+
+body[data-turn="your"] {
+  box-shadow: inset 0 0 120px rgba(60,255,181,0.08);
+}
+
+body[data-turn="enemy"] {
+  box-shadow: inset 0 0 120px rgba(255,77,109,0.08);
+}
+
+/* =========================
+   WIN SCREEN
+========================= */
+
+#winScreen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+}
+
+.winCard {
+  text-align: center;
+  padding: 40px;
+  border-radius: 18px;
+  background: var(--panel);
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 0 40px rgba(108,240,255,0.2);
+  animation: pop 0.5s ease;
+}
+
+@keyframes pop {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+#winText {
+  font-family: Orbitron;
+  font-size: 2.2rem;
+  margin-bottom: 10px;
+  color: var(--neon);
+}
+
+.winButtons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.secondaryBtn {
+  background: rgba(255,255,255,0.1);
+  color: white;
+}
+
+/* =========================
+   UTILS
+========================= */
+
+.hidden {
+  display: none !important;
 }

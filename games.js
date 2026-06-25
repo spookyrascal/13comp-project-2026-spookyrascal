@@ -19,41 +19,117 @@ import { auth, db } from "./firebase.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+/* =========================
+   CONSTANTS
+========================= */
+
+const DEFAULT_PFP = "./Images/defaultPFP.jpg";
+
+/* =========================
+   STATE
+========================= */
+
 let currentUser = null;
 
-onAuthStateChanged(auth, async (user) => {
+/* =========================
+   NAV HELPER
+========================= */
 
+function go(page) {
+  window.location.href = page;
+}
+
+window.addEventListener("load", () => {
+  const boot = document.getElementById("bootScreen");
+  if (!boot) return;
+
+  setTimeout(() => {
+    boot.style.display = "none";
+  }, 2800);
+});
+
+/* =========================
+   AUTH + LOAD USER
+========================= */
+
+onAuthStateChanged(auth, async (user) => {
   if (!user) {
-    window.location.href = "index.html";
+    go("index.html");
     return;
   }
 
-  const snap = await getDoc(doc(db, "users", user.uid));
-  const data = snap.exists() ? snap.data() : {};
+  try {
+    const ref = doc(db, "users", user.uid);
+    const snap = await getDoc(ref);
 
-  currentUser = {
-    uid: user.uid,
-    name: data.displayName || "Player",
-    photo: data.photoURL || "./Images/defaultPFP.jpg"
-  };
+    let data = {};
 
+    if (snap.exists()) {
+      data = snap.data();
+    }
+
+    currentUser = {
+      uid: user.uid,
+      name: data.displayName || user.displayName || "Player",
+      photo: data.photoURL || user.photoURL || DEFAULT_PFP
+    };
+
+    renderHeader();
+
+  } catch (err) {
+    console.log("Failed to load user data:", err);
+
+    currentUser = {
+      uid: user.uid,
+      name: user.displayName || "Player",
+      photo: DEFAULT_PFP
+    };
+
+    renderHeader();
+  }
+});
+
+/* =========================
+   HEADER RENDER
+========================= */
+
+function renderHeader() {
   const img = document.getElementById("profileImage");
-  if (img) img.src = currentUser.photo;
-});
 
-/* NAV */
-document.getElementById("gtnBtn")?.addEventListener("click", () => {
-  window.location.href = "GTN.html";
-});
+  if (img && currentUser) {
+    img.src = currentUser.photo;
+  }
+}
 
-document.getElementById("meteorBtn")?.addEventListener("click", () => {
-  window.location.href = "meteorRush.html";
-});
+/* =========================
+   NAVIGATION (SAFE BINDING)
+========================= */
 
-document.getElementById("leaderboardBtn")?.addEventListener("click", () => {
-  window.location.href = "leaderBoard.html";
-});
+const gtnBtn = document.getElementById("gtnBtn");
+const meteorBtn = document.getElementById("meteorBtn");
+const leaderboardBtn = document.getElementById("leaderboardBtn");
+const profileBtn = document.getElementById("profileBtn");
 
-document.getElementById("profileBtn")?.addEventListener("click", () => {
-  window.location.href = "profile.html";
-});
+if (gtnBtn) {
+  gtnBtn.addEventListener("click", function () {
+    go("GTN.html");
+  });
+}
+
+if (meteorBtn) {
+  meteorBtn.addEventListener("click", function () {
+    go("meteorRush.html");
+  });
+}
+
+if (leaderboardBtn) {
+  leaderboardBtn.addEventListener("click", function () {
+    go("leaderboard.html");
+  });
+}
+
+if (profileBtn) {
+  profileBtn.addEventListener("click", function () {
+    go("profile.html");
+  });
+}

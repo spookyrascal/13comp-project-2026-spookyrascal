@@ -40,11 +40,7 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
-// Keep user logged in across refresh
-setPersistence(auth, browserLocalPersistence)
-  .then(() => {
-    console.log("Auth persistence enabled");
-  })
-  .catch((err) => {
-    console.error("Auth persistence error:", err);
-  });
+// Maintain user session across refresh
+setPersistence(auth, browserLocalPersistence).catch((err) => {
+  console.error("Auth persistence failed:", err);
+});

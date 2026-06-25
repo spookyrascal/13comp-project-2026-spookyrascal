@@ -5,73 +5,135 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>My Profile</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="./style.css" />
 </head>
 
 <body>
 
+<!-- =========================
+     BOOT SCREEN
+========================= -->
+<div id="bootScreen">
+  <div class="bootContent">
+    <div class="logoPulse">GAME HUB</div>
+    <div class="bootBar"></div>
+    <p class="muted">Loading systems...</p>
+  </div>
+</div>
+
+<!-- =========================
+     TOAST
+========================= -->
 <div id="toast"></div>
 
-<header class="mainHeader">
+<!-- =========================
+     HEADER (FIXED COMPONENT SYSTEM)
+========================= -->
+<header class="topbar">
 
   <h1>My Profile</h1>
 
   <div class="userBox">
-    <img id="headerProfileImage" src="./Images/defaultPFP.jpg" />
+
+    <img
+      id="headerProfileImage"
+      src="./Images/defaultPFP.jpg"
+      alt="Profile image"
+    />
+
     <span id="profileDisplayName">Loading...</span>
-    <button id="backBtn">Back</button>
+
+    <button id="backBtn" class="btn-secondary" type="button">
+      Back
+    </button>
+
   </div>
 
 </header>
 
+<!-- =========================
+     MAIN PROFILE GRID
+========================= -->
 <main class="profilePage">
 
-  <section>
-    <img id="profilePreview" src="./Images/defaultPFP.jpg" />
-    <p id="profileEmail"></p>
-    <p id="profileAge"></p>
+  <!-- PROFILE CARD -->
+  <section class="card">
+
+    <img
+      id="profilePreview"
+      class="profileLarge"
+      src="./Images/defaultPFP.jpg"
+      alt="Profile preview"
+    />
+
+    <p id="profileEmail" class="muted"></p>
+    <p id="profileAge" class="muted"></p>
+
   </section>
 
-  <section>
+  <!-- STATS CARD -->
+  <section class="card">
+
     <h3>Stats</h3>
 
-    <p>Wins: <span id="winsStat">0</span></p>
-    <p>Losses: <span id="lossesStat">0</span></p>
-    <p>Games: <span id="gamesStat">0</span></p>
-    <p>Win Rate: <span id="rateStat">0</span></p>
+    <p>Wins <span id="winsStat">0</span></p>
+    <p>Losses <span id="lossesStat">0</span></p>
+    <p>Games <span id="gamesStat">0</span></p>
+    <p>Win Rate <span id="rateStat">0</span></p>
+
   </section>
 
-  <!-- EDIT MODAL -->
-  <section>
+  <!-- ACTIONS CARD -->
+  <section class="card">
 
-    <div id="editModal" class="modal hidden">
-      <div class="modalCard">
-
-        <h2>Edit Profile</h2>
-
-        <input id="usernameInput" placeholder="Username" />
-
-        <!-- email stays locked -->
-        <input id="emailInput" disabled />
-
-        <input id="ageInput" type="number" placeholder="Age" />
-
-        <!-- URL input -->
-        <input id="pfpUrlInput" placeholder="Profile picture URL" />
-
-        <img id="livePreview" src="./Images/defaultPFP.jpg" />
-
-        <button id="saveProfileBtn" class="btn-primary">Save</button>
-        <button id="closeModalBtn" class="btn-secondary">Close</button>
-
-      </div>
-    </div>
-
-    <button id="openEditBtn" class="btn-primary">Edit Profile</button>
+    <button id="openEditBtn" class="btn-primary" type="button">
+      Edit Profile
+    </button>
 
   </section>
 
 </main>
+
+<!-- =========================
+     EDIT MODAL (FIXED SYSTEM)
+========================= -->
+<div id="editModal" class="modal hidden">
+
+  <div class="modalCard">
+
+    <h2>Edit Profile</h2>
+
+    <input id="usernameInput" placeholder="Username" />
+
+    <input id="emailInput" disabled />
+
+    <input id="ageInput" type="number" placeholder="Age" />
+
+    <input id="pfpUrlInput" placeholder="Profile picture URL" />
+
+    <img
+      id="livePreview"
+      class="profilePreviewSmall"
+      src="./Images/defaultPFP.jpg"
+      alt="Live preview"
+    />
+
+    <button id="saveProfileBtn" class="btn-primary" type="button">
+      Save
+    </button>
+
+    <button id="closeModalBtn" class="btn-secondary" type="button">
+      Close
+    </button>
+
+  </div>
+
+</div>
 
 <script type="module" src="./profile.js"></script>
 
