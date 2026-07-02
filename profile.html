@@ -4,10 +4,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Profile</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="./style.css" />
@@ -32,7 +32,7 @@
 <div id="toast"></div>
 
 <!-- =========================
-     HEADER (FIXED COMPONENT SYSTEM)
+     HEADER 
 ========================= -->
 <header class="topbar">
 
@@ -42,6 +42,7 @@
 
     <img
       id="headerProfileImage"
+      class="profile-img"
       src="./Images/defaultPFP.jpg"
       alt="Profile image"
     />
@@ -84,7 +85,7 @@
     <p>Wins <span id="winsStat">0</span></p>
     <p>Losses <span id="lossesStat">0</span></p>
     <p>Games <span id="gamesStat">0</span></p>
-    <p>Win Rate <span id="rateStat">0</span></p>
+    <p>Win Rate <span id="rateStat">0%</span></p>
 
   </section>
 
@@ -100,7 +101,7 @@
 </main>
 
 <!-- =========================
-     EDIT MODAL (FIXED SYSTEM)
+     EDIT MODAL 
 ========================= -->
 <div id="editModal" class="modal hidden">
 
@@ -108,13 +109,10 @@
 
     <h2>Edit Profile</h2>
 
-    <input id="usernameInput" placeholder="Username" />
-
-    <input id="emailInput" disabled />
-
-    <input id="ageInput" type="number" placeholder="Age" />
-
-    <input id="pfpUrlInput" placeholder="Profile picture URL" />
+    <input id="usernameInput" class="input" placeholder="Username" />
+    <input id="emailInput" class="input" type="email" placeholder="Email address" />
+    <input id="ageInput" class="input" type="number" min="5" max="120" placeholder="Age (5–120)" />
+    <input id="pfpUrlInput" class="input" type="url" placeholder="Profile image URL" />
 
     <img
       id="livePreview"
@@ -136,6 +134,8 @@
 </div>
 
 <script type="module" src="./profile.js"></script>
-
+<script type="module" src="firebase.js"></script>
+<script type="module" src="auth.js"></script>
+<script type="module" src="ui.js"></script>
 </body>
 </html>

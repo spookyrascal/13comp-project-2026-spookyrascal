@@ -13,15 +13,18 @@ It handles:
 - Guess checking logic
 - Win/loss tracking
 - Game state syncing via Firestore
+
+
+
+
+(To do: FIX the turn system?? also hot and cold (again) guesses are not showing)
 ========================================
 */
 
 
 import { auth, db } from "./firebase.js";
 
-import {
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 import {
   collection,
@@ -37,7 +40,6 @@ import {
   increment,
   runTransaction
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
 /* =========================
    STATE
 ========================= */
@@ -94,8 +96,6 @@ onAuthStateChanged(auth, (u) => {
   loadLobby();
 });
 
-document.body.dataset.turn = myTurn ? "your" : "enemy";
-
 /* =========================
    BOOT SCREEN
 ========================= */
@@ -120,18 +120,27 @@ function safeArray(v) {
 function getHint(distance, last) {
   let msg;
 
-  if (distance === 0) msg = "Correct!";
-  else if (distance <= 3) msg = "Very hot";
+  if (distance === 0) return "Correct!";
+  if (distance <= 2) msg = "Burning hot";
+  else if (distance <= 5) msg = "Hot";
   else if (distance <= 10) msg = "Warm";
-  else msg = "Cold";
+  else if (distance <= 20) msg = "Cold";
+  else msg = "🧊 Freezing";
 
   if (last != null && distance !== 0) {
-    msg += distance < last ? " (closer)" : " (colder)";
+    msg += distance < last ? " (getting closer)" : " (slipping away)";
   }
 
   return msg;
 }
 
+function renderHeader() {
+  const img = document.getElementById("profileImage");
+
+ if (img && user) {
+    img.src = user.photo;
+}
+}
 /* =========================
    CREATE GAME
 ========================= */
@@ -266,33 +275,54 @@ guessBtn.addEventListener("click", async () => {
   if (!gameId || ended || guessCooldown) return;
 
   const guess = Number(guessInput.value);
-  if (!Number.isInteger(guess) || guess < 1 || guess > 100) return;
+
+  if (
+    !Number.isFinite(guess) ||
+    !Number.isInteger(guess) ||
+    guess < 1 ||
+    guess > 100
+  ) {
+    feedback.textContent = "Enter a number 1-100";
+    return; 
+  }
+
 
   guessCooldown = true;
-  setTimeout(() => (guessCooldown = false), 500);
+  setTimeout(() => (guessCooldown = false), 600);
 
   const ref = doc(db, "games", gameId);
-  const snap = await getDoc(ref);
 
-  if (!snap.exists()) return;
+  const gameSnap = await getDoc(ref);
+if (!gameSnap.exists()) return;
 
-  const game = snap.data();
+const game = gameSnap.data();
 
   if (game.status !== "playing") return;
   if (game.currentTurn !== user.uid) return;
+  if (game.winnerId) return;
 
   const isP1 = game.player1Id === user.uid;
 
-  const last = isP1
-    ? game.player1LastDistance
-    : game.player2LastDistance;
+ let last;
 
-  const distance = Math.abs(guess - game.secretNumber);
-  const hint = getHint(distance, last);
+ if (isP1) {
+  last = game.player1LastDistance;
+ } else {
+  last = game.player2LastDistance;
+ }
 
+
+const distance = Math.abs(guess - game.secretNumber);
+
+feedback.textContent = "Calculating...";
+
+const hint = getHint(distance, last);
+
+setTimeout(() => {
   feedback.textContent = hint;
+}, 200);
 
-  const field = isP1 ? "player1Guesses" : "player2Guesses";
+const field = isP1 ? "player1Guesses" : "player2Guesses";
 
   const updates = {
     [field]: arrayUnion({
@@ -300,12 +330,14 @@ guessBtn.addEventListener("click", async () => {
       hint,
       distance
     }),
-    currentTurn: isP1 ? game.player2Id : game.player1Id,
+
+    currentTurn: isP1 ? (game.player2Id || game.player1Id) : game.player1Id,
     lastActive: serverTimestamp()
   };
 
   if (isP1) updates.player1LastDistance = distance;
-  else updates.player2LastDistance = distance;
+    else updates.player2LastDistance = distance;
+    await updateDoc(ref, updates);  
 
   /* =========================
      WIN CHECK (SAFE)
@@ -322,7 +354,7 @@ guessBtn.addEventListener("click", async () => {
         const g = fresh.data();
         if (g.status === "finished") return;
 
-        const loserId = isP1 ? g.player2Id : g.player1Id;
+        const loserId = isP1 ? game.player2Id : game.player1Id;
 
         tx.update(ref, {
           status: "finished",
@@ -356,12 +388,6 @@ guessBtn.addEventListener("click", async () => {
     }
   }
 
-  try {
-    await updateDoc(ref, updates);
-  } catch (err) {
-    console.error("Guess update failed:", err);
-  }
-
   guessInput.value = "";
 });
 
@@ -392,9 +418,13 @@ function listen(id) {
       if (game.status === "waiting") turn.textContent = "Waiting for opponent...";
       else if (game.status === "finished") turn.textContent = "Game finished";
       else turn.textContent = myTurn ? "Your turn" : "Opponent turn";
-
-      guessInput.disabled = !myTurn;
-      guessBtn.disabled = !myTurn;
+      if (game.status === "finished") {
+       guessInput.disabled = true;
+       guessBtn.disabled = true;
+} else {
+       guessInput.disabled = !myTurn;
+       guessBtn.disabled = !myTurn;
+}
 
       const yourList = safeArray(isP1 ? game.player1Guesses : game.player2Guesses);
       const oppList = safeArray(isP1 ? game.player2Guesses : game.player1Guesses);
@@ -410,6 +440,7 @@ function listen(id) {
       }
 
       history.innerHTML = yourHTML + oppHTML;
+      history.scrollTop = history.scrollHeight;
 
       if (game.status === "finished" && !ended) {
         ended = true;

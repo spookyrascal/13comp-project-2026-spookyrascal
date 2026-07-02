@@ -19,15 +19,6 @@ AKA
 ========================================
 */
 
-/*
-========================================
-FILE: profile.js
-
-PURPOSE:
-Live profile system (Firestore + Auth sync)
-========================================
-*/
-
 import { auth, db } from "./firebase.js";
 
 import {
@@ -42,8 +33,6 @@ import {
 import {
   onAuthStateChanged,
   updateEmail,
-  EmailAuthProvider,
-  reauthenticateWithCredential
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 /* =========================
@@ -53,11 +42,13 @@ import {
 let user = null;
 let profile = null;
 let isLoading = true;
+let unsubscribeProfile = null;
 
 /* =========================
    ELEMENTS
 ========================= */
 
+const DEFAULT_PFP = "./Images/defaultPFP.jpg";
 const headerImg = document.getElementById("headerProfileImage");
 const preview = document.getElementById("profilePreview");
 const live = document.getElementById("livePreview");
@@ -85,19 +76,25 @@ const openBtn = document.getElementById("openEditBtn");
 const closeBtn = document.getElementById("closeModalBtn");
 
 const toastEl = document.getElementById("toast");
-
 /* =========================
    TOAST SYSTEM
 ========================= */
 
 function toast(msg) {
   toastEl.textContent = msg;
-  toastEl.classList.add("show");
+  
+// reset animation 
+toastEl.classList.remove("show");
+void toastEl.offsetWidth;
+toastEl.classList.add("show");
 
-  setTimeout(() => {
-    toastEl.classList.remove("show");
+clearTimeout(toastEl._timeout);
+
+toastEl._timeout = setTimeout(()=> {
+  toastEl.classList.remove("show");;
   }, 2000);
 }
+
 
 /* =========================
    BOOT SCREEN
@@ -145,7 +142,8 @@ onAuthStateChanged(auth, async (u) => {
       await setDoc(ref, {
         uid: u.uid,
         displayName: u.displayName || "Player",
-        photoURL: u.photoURL || "./Images/defaultPFP.jpg",
+        photoURL: u.photoURL || DEFAULT_PFP,
+        email: u.email,
         age: null,
         wins: 0,
         losses: 0,
@@ -167,9 +165,14 @@ onAuthStateChanged(auth, async (u) => {
 ========================= */
 
 function listenProfile(uid) {
-  const ref = doc(db, "users", uid);
 
-  onSnapshot(ref, (snap) => {
+    if (unsubscribeProfile) {
+        unsubscribeProfile();
+    }
+    const ref = doc(db, "users", uid);
+    
+    unsubscribeProfile = onSnapshot(ref, (snap) => {
+
     if (!snap.exists()) {
       toast("Profile missing");
       return;
@@ -178,8 +181,25 @@ function listenProfile(uid) {
     profile = snap.data();
     isLoading = false;
     render();
-  });
-}
+    });
+
+  }
+
+pfpInput.addEventListener("input", () => {
+
+    const url = pfpInput.value.trim();
+
+    if (url) {
+        live.src = url;
+    } else {
+        live.src = DEFAULT_PFP;
+    }
+
+});
+
+live.onerror = () => {
+    live.src = DEFAULT_PFP;
+};
 
 /* =========================
    EMAIL UPDATE
@@ -225,16 +245,15 @@ function render() {
 
   const rate = games > 0 ? Math.round((wins / games) * 100) : 0;
 
-  const img = profile.photoURL || "./Images/defaultPFP.jpg";
+  const img = profile.photoURL || DEFAULT_PFP;
 
   headerImg.src = img;
   preview.src = img;
   live.src = img;
 
   nameEl.textContent = profile.displayName || "Player";
-
-  emailEl.textContent = auth.currentUser?.email || "No email linked";
-  emailInput.value = auth.currentUser?.email || "";
+  emailEl.textContent = profile.email || "";
+  emailInput.value = profile.email || "";
 
   ageEl.textContent =
     profile.age != null ? `Age: ${profile.age}` : "Age: Not set";
@@ -242,7 +261,7 @@ function render() {
   winsEl.textContent = wins;
   lossesEl.textContent = profile.losses || 0;
   gamesEl.textContent = games;
-  rateEl.textContent = rate;
+  rateEl.textContent = `${rate}%`;
 
   usernameInput.value = profile.displayName || "";
   ageInput.value = profile.age || "";
@@ -259,6 +278,12 @@ saveBtn.onclick = async function () {
   const ref = doc(db, "users", user.uid);
 
   const newName = usernameInput.value.trim() || "Player";
+
+  if (newName.length < 3 || newName.length > 20) {
+    toast("username must be 3-20 characters");
+    return;
+  }
+
   const newEmail = emailInput.value.trim();
 
   const rawUrl = pfpInput.value.trim();
@@ -275,19 +300,51 @@ saveBtn.onclick = async function () {
   }
 
   const ageValue = Number(ageInput.value);
-  const safeAge =
-    Number.isFinite(ageValue) && ageValue > 0 ? ageValue : null;
+  let safeAge;
+
+  if (
+    Number.isInteger(ageValue) &&
+    ageValue >= 5 &&
+    ageValue <= 120
+  ) {
+    safeAge = ageValue;
+  } else {
+    safeAge = null;
+  }
 
   try {
-    // Firestore update
-    await updateDoc(ref, {
-      displayName: newName,
-      age: safeAge,
-      photoURL,
-      lastActive: serverTimestamp()
-    });
+    const updates = {};
+    let hasChanges = false;
 
-    // Auth email update
+    if (newName !== profile.displayName) {
+      updates.displayName = newName;
+      hasChanges = true;
+    }
+
+    if (safeAge !== profile.age) {
+      updates.age = safeAge;
+      hasChanges = true;
+    }
+
+    if (photoURL !== profile.photoURL) {
+      updates.photoURL = photoURL;
+      hasChanges = true;
+    }
+
+    if (newEmail !== profile.email) {
+      updates.email = newEmail;
+      hasChanges = true;
+    }
+
+    if (!hasChanges) {
+      toast("No changes to save");
+      return;
+    }
+
+    updates.lastActive = serverTimestamp();
+
+    await updateDoc(ref, updates);
+
     if (
       newEmail &&
       auth.currentUser.email &&

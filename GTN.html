@@ -24,10 +24,9 @@
 <!-- =========================
      HEADER
 ========================= -->
-<header>
+<header class="topbar headerBase">
 
   <div class="header-left">
-    <h1>Guess The Number</h1>
   </div>
 
   <div class="header-right">
@@ -40,7 +39,6 @@
   </div>
 
 </header>
-
 <!-- =========================
      MAIN
 ========================= -->
@@ -49,13 +47,15 @@
   <!-- =========================
        LOBBY
   ========================== -->
-  <section id="lobbySection">
+  <section id="lobbySection" class="card">
 
     <h2>Lobby</h2>
 
     <div class="createBox">
-      <input id="lobbyNameInput" placeholder="Lobby name" />
-      <button id="createGameBtn">Create Game</button>
+      <input id="lobbyNameInput" class="input" placeholder="Lobby name" />
+      <button id="createGameBtn" class="btn-primary" type="button">
+        Create Game 
+      </button> 
     </div>
 
     <div id="lobbyList"></div>
@@ -65,60 +65,53 @@
   <!-- =========================
        GAME
   ========================== -->
-  <section id="gameSection" class="hidden">
+ <section id="gameSection" class="card hidden">
 
-    <h2>Game</h2>
+  <h2>Game</h2>
 
-    <div class="gameInfo">
-      <p id="opponentInfo">Opponent: ...</p>
-      <p id="turnInfo">Waiting for game...</p>
-    </div>
+  <div class="gameInfo">
+    <p id="opponentInfo">Opponent: ...</p>
+    <p id="turnInfo">Waiting for game...</p>
+  </div>
 
-    <div id="statusBanner" class="status-banner"></div>
+  <div id="statusBanner" class="status-banner"></div>
 
-    <div class="guessBox">
-      <input
-        id="guessInput"
-        type="number"
-        min="1"
-        max="100"
-        placeholder="1–100"
-      />
-      <button id="guessBtn">Guess</button>
-    </div>
+  <div class="guessBox">
+    <input id="guessInput" class="input" type="number" min="1" max="100" placeholder="1–100"/>
+    <button id="guessBtn" class="btn-primary">Guess</button>
+  </div>
 
-    <p id="feedback" class="feedback"></p>
+  <p id="feedback" class="feedback"></p>
 
-    <div id="guessHistory" class="history"></div>
+  <div id="guessHistory" class="history"></div>
 
-    <button id="leaveBtn" class="secondaryBtn">
-      Leave Game
-    </button>
+  <button id="leaveBtn" class="btn-secondary">Leave Game</button>
 
-  </section>
-
+</section>
   <!-- =========================
        WIN SCREEN
   ========================== -->
-  <section id="winScreen" class="hidden">
+<section id="winScreen" class="card hidden">
 
-    <div class="winCard">
+  <div class="winCard">
 
-      <h1 id="winText"></h1>
-      <p id="winStats"></p>
+    <h1 id="winText"></h1>
+    <p id="winStats"></p>
 
-      <div class="winButtons">
-        <button id="playAgainBtn">Play Again</button>
-        <button id="returnLobbyBtn">Return to Lobby</button>
-      </div>
-
+    <div class="winButtons">
+      <button id="playAgainBtn" class="btn-primary">Play Again</button>
+      <button id="returnLobbyBtn" class="btn-secondary">Return to Lobby</button>
     </div>
 
-  </section>
+  </div>
+
+</section>
 
 </main>
 
 <script type="module" src="./GTN.js"></script>
-
+<script type="module" src="firebase.js"></script>
+<script type="module" src="auth.js"></script>
+<script type="module" src="ui.js"></script>
 </body>
 </html>

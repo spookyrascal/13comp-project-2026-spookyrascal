@@ -71,7 +71,7 @@ onAuthStateChanged(auth, async (user) => {
     currentUser = {
       uid: user.uid,
       name: data.displayName || user.displayName || "Player",
-      photo: data.photoURL || user.photoURL || DEFAULT_PFP
+      photo: data.photoURL || user.photoURL || "DEFAULT_PFP"
     };
 
     renderHeader();
@@ -82,7 +82,7 @@ onAuthStateChanged(auth, async (user) => {
     currentUser = {
       uid: user.uid,
       name: user.displayName || "Player",
-      photo: DEFAULT_PFP
+      photo: "DEFAULT_PFP"
     };
 
     renderHeader();

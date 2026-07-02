@@ -4,7 +4,6 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Game Hub</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 
@@ -17,17 +16,16 @@
   <div class="bootContent">
     <div class="logoPulse">GAME HUB</div>
     <div class="bootBar"></div>
-    <p class="bootText">Loading systems...</p>
+     <p class="muted">Loading systems...</p>
   </div>
 </div>
 
 <!-- =========================
      HEADER
 ========================= -->
-<header class="topbar">
+<header class="topbar headerBase">
 
-  <h1>Game Hub</h1>
-
+    <h1>Game Hub</h1>
   <div class="profile-wrapper">
     <button id="profileBtn" class="profileBtn" type="button">
       <img
@@ -50,19 +48,19 @@
 
   <section class="gameContainer">
 
-    <a href="meteorRush.html" class="gameCard">
+    <a href="meteorRush.html" class="gameCard card">
       <img src="./Images/meteorRush.jpg" alt="Meteor Rush" />
       <h3>Meteor Rush</h3>
       <p>Dodge meteors and survive</p>
     </a>
 
-    <a href="GTN.html" class="gameCard">
+    <a href="GTN.html" class="gameCard card">
       <img src="./Images/gtn.jpg" alt="Guess The Number" />
       <h3>Guess The Number</h3>
       <p>Multiplayer guessing battle</p>
     </a>
 
-    <a href="leaderBoard.html" class="gameCard">
+    <a href="leaderBoard.html" class="gameCard card">
       <img src="./Images/trophy.png" alt="Leaderboard" />
       <h3>Leaderboard</h3>
       <p>Top players ranked</p>
@@ -73,6 +71,9 @@
 </main>
 
 <script type="module" src="games.js"></script>
+<script type="module" src="firebase.js"></script>
+<script type="module" src="auth.js"></script>
+<script type="module" src="ui.js"></script>
 
 </body>
 </html>

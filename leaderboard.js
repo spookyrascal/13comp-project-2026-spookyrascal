@@ -17,9 +17,12 @@ It:
 
 import { auth, db } from "./firebase.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
 import {
   collection,
-  onSnapshot
+  onSnapshot,
+  query,
+  orderBy
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* =========================
@@ -54,6 +57,7 @@ const el = {
 let currentUserId = null;
 let unsubLeaderboard = null;
 
+const DEFAULT_PFP = "./Images/defaultPFP.jpg";
 /* =========================
    HEADER USER DISPLAY
 ========================= */
@@ -64,7 +68,7 @@ onAuthStateChanged(auth, (user) => {
   currentUserId = user.uid;
 
   if (el.profileImage) {
-    el.profileImage.src = user.photoURL || "./Images/defaultPFP.jpg";
+    el.profileImage.src = user.photoURL || "DEFAULT_PFP";
   }
 
   if (el.profileName) {
@@ -80,7 +84,6 @@ window.addEventListener("load", () => {
     boot.style.display = "none";
   }, 2800);
 });
-
 /* =========================
    HELPERS
 ========================= */
@@ -105,10 +108,11 @@ function winRate(wins, games) {
 
 function startLeaderboard() {
   try {
-    const ref = collection(db, "users");
+  
+  const q = query(collection(db, "users"), orderBy("wins", "desc"));
 
     unsubLeaderboard = onSnapshot(
-      ref,
+      q,
       (snap) => {
         if (el.loadingText) {
           el.loadingText.style.display = "none";
@@ -119,41 +123,33 @@ function startLeaderboard() {
         snap.forEach((docSnap) => {
           const u = docSnap.data();
 
-          players.push({
-            id: docSnap.id,
-            name: u.displayName || "Player",
-            photo: u.photoURL || "./Images/defaultPFP.jpg",
-            wins: num(u.wins),
-            games: num(u.gamesPlayed),
-            best: num(u.bestScore)
-          });
-        });
+      players.push({
+      id: docSnap.id,
+      name: u.displayName || "Player",
+      photo: u.photoURL || "DEFAULT_PFP",
+      wins: num(u.wins),
+      games: num(u.gamesPlayed),
+      best: num(u.bestScore)
+     });
+  });
 
-        players.sort((a, b) => {
-          if (b.wins !== a.wins) {
-            return b.wins - a.wins;
-          } else {
-            return a.games - b.games;
-          }
-        });
 
-        renderPodium(players.slice(0, 3));
+   renderPodium(players.slice(0, 3));
         renderTable(players);
       },
       (error) => {
         console.log("Leaderboard error:", error);
 
         if (el.loadingText) {
-          el.loadingText.textContent =
-            "Failed to load leaderboard 😭";
+          el.loadingText.textContent = "Failed to load leaderboard 😭";
         }
       }
     );
+
   } catch (err) {
     console.log(err);
   }
 }
-
 /* =========================
    PODIUM
 ========================= */
@@ -238,3 +234,18 @@ function renderTable(players) {
 ========================= */
 
 startLeaderboard();
+
+window.addEventListener("beforeunload", () => { 
+  if (unsubLeaderboard) {
+    unsubLeaderboard();
+  }
+}); 
+
+document.getElementById("backBtn").onclick = () => {
+  window.location.href = "games.html";
+};
+
+document.getElementById("profileBtn").onclick = () => {
+  window.location.href = "profile.html";
+};
+
